@@ -246,11 +246,17 @@
 
   .group-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:.85rem .9rem; margin-bottom:.65rem; display:flex; align-items:center; gap:.75rem; cursor:pointer;}
   .group-card:hover{background:var(--surface-2);}
-  .group-card .gicon{width:40px;height:40px; border-radius:var(--radius-s); background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .gicon{width:40px;height:40px; border-radius:var(--radius-s); background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:20px;}
   .group-card .gmeta{flex:1; min-width:0;}
   .group-card .gname{font-family:var(--font-display); font-weight:600; font-size:1rem;}
   .group-card .gsub{font-size:.76rem; color:var(--ink-soft); font-family:var(--font-mono);}
   .group-card .chev{color:var(--ink-faint); flex-shrink:0;}
+  .group-card .icon-btn{width:30px; height:30px; flex-shrink:0;}
+  .color-swatches{display:flex; flex-wrap:wrap; gap:.5rem;}
+  .color-swatch{width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0;}
+  .color-swatch.active{border-color:var(--ink);}
+  .binder-preview{background:var(--surface-2); border:1px dashed var(--line); cursor:default;}
+  .binder-preview:hover{background:var(--surface-2);}
 
   .scan-frame{position:relative; border-radius:var(--radius-l); overflow:hidden; background:#0d0b12; aspect-ratio:3/4; max-width:340px; margin:0 auto; box-shadow:var(--shadow);}
   #scanVideo{width:100%; height:100%; object-fit:cover; display:block;}
@@ -429,7 +435,8 @@ const ICONS = {
   cameraOff:'<line x1="2" y1="2" x2="22" y2="22"/><path d="M4 8h2l1.6-2h6.8L17 8h3v11H7"/><path d="M4 8v11h2"/>',
   grid:'<rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>',
   list:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
-  sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>'
+  sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -1153,6 +1160,32 @@ function newDeckModal(){
 }
 
 /* ---------- Binders ---------- */
+const BINDER_COLORS = ['#5a3fae','#0f68ab','#2f7d5b','#146c43','#a86a2e','#ae4331','#b968d1','#5f5871'];
+async function scryAllSets(){
+  const CACHE_KEY = 'mtgSetsListCache';
+  const CACHE_TTL = 1000*60*60*24*14; // 2 weeks
+  try{
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if(cached && cached.ts && (Date.now()-cached.ts) < CACHE_TTL && Array.isArray(cached.sets)) return cached.sets;
+  }catch(e){}
+  const r = await fetch(SCRYFALL+'/sets');
+  if(!r.ok) throw new Error('No se pudo obtener la lista de ediciones');
+  const j = await r.json();
+  const sets = (j.data||[]).map(function(s){ return {code:s.code, name:s.name, released_at:s.released_at||''}; })
+    .sort(function(a,b){ return (b.released_at||'').localeCompare(a.released_at||''); });
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(), sets:sets})); }catch(e){}
+  return sets;
+}
+function binderIconHTML(binder, size){
+  const ic = (binder && binder.icon) || {};
+  const color = ic.color || BINDER_COLORS[0];
+  const bg = color + '26';
+  const dim = size ? ('width:'+size+'px; height:'+size+'px; border-radius:'+Math.round(size*0.35)+'px; font-size:'+Math.round(size*0.5)+'px;') : '';
+  if(ic.type === 'set' && ic.setCode){
+    return '<div class="gicon" style="'+dim+' background:'+bg+';"><i class="ss ss-'+esc(ic.setCode.toLowerCase())+'" style="color:'+esc(color)+';" aria-hidden="true"></i></div>';
+  }
+  return '<div class="gicon" style="'+dim+' background:'+bg+'; color:'+esc(color)+';">'+icon('folder', size?Math.round(size*0.5):20)+'</div>';
+}
 function renderBinders(){
   const el = document.getElementById('bindersList');
   const assignedIds = {};
@@ -1169,12 +1202,22 @@ function renderBinders(){
     const items = state.cards.filter(function(c){ return c.binderId===b.id; });
     const count = items.reduce(function(a,c){return a+c.quantity;},0);
     return '<div class="group-card" data-id="'+b.id+'" data-action="open-binder">'+
-      '<div class="gicon">'+icon('folder',20)+'</div>'+
+      binderIconHTML(b)+
       '<div class="gmeta"><div class="gname">'+esc(b.name)+'</div><div class="gsub">'+count+' cartas</div></div>'+
+      '<button class="icon-btn" data-action="edit-binder" data-id="'+b.id+'" title="Editar carpeta" aria-label="Editar carpeta">'+icon('edit',14)+'</button>'+
       '<div class="chev">'+icon('chevron',18)+'</div></div>';
   }).join('');
   if(!html){ el.innerHTML = emptyStateHTML('folder','Todavía no tienes carpetas.<br>Crea una para organizar tu colección.'); return; }
   el.innerHTML = html;
+}
+async function deleteBinder(binder){
+  if(!confirm('¿Eliminar la carpeta "'+binder.name+'"? Las cartas no se borrarán.')) return false;
+  await dbDelete('binders', binder.id);
+  state.binders = state.binders.filter(function(b){ return b.id!==binder.id; });
+  const affected = state.cards.filter(function(c){ return c.binderId===binder.id; });
+  for(const c of affected){ c.binderId = null; await dbPut('cards', c); }
+  toast('Carpeta eliminada');
+  return true;
 }
 function openBinderDetail(id){
   const isNone = id === '__none__';
@@ -1184,26 +1227,40 @@ function openBinderDetail(id){
   const items = sortCollection(state.cards.filter(function(c){ return isNone ? !c.binderId : c.binderId===id; }));
   const panel = document.getElementById('detailPanel');
   panel.innerHTML =
-    '<div class="detail-header"><button class="icon-btn" id="binderBackBtn">'+icon('back',18)+'</button><h2>'+esc(binder.name)+'</h2>'+
-      '<button class="icon-btn" id="binderSortBtn" title="Ordenar">'+icon('sort',16)+'</button>'+
+    '<div class="detail-header"><button class="icon-btn" id="binderBackBtn">'+icon('back',18)+'</button>'+
+      (isNone ? '' : binderIconHTML(binder, 28))+
+      '<h2>'+esc(binder.name)+'</h2>'+
+      (isNone ? '' : '<button class="icon-btn" id="binderEditBtn" title="Editar carpeta">'+icon('edit',16)+'</button>')+
       (isNone ? '' : '<button class="icon-btn" id="binderDeleteBtn" title="Eliminar carpeta">'+icon('trash',16)+'</button>')+
     '</div>'+
     '<div class="detail-body">'+
+      '<div class="collection-toolbar">'+
+        '<button class="btn btn-secondary" id="binderSortBtn" style="padding:.5rem .8rem;">'+icon('sort',15)+' Ordenar</button>'+
+        '<div class="segmented" id="binderViewModeSegmented" role="group" aria-label="Vista">'+
+          '<button data-view="list" title="Vista de lista">'+icon('list',16)+'</button>'+
+          '<button data-view="grid" title="Vista de cuadrícula">'+icon('grid',16)+'</button>'+
+        '</div>'+
+      '</div>'+
       '<div class="section-note">'+items.length+' cartas distintas</div>'+
       '<div id="binderCardsList"></div>'+
     '</div>';
   panel.hidden = false;
   renderCardsInto(document.getElementById('binderCardsList'), items, emptyStateHTML('folder','No hay cartas asignadas a esta carpeta todavía. Edita una carta de tu colección para moverla aquí.'));
   document.getElementById('binderSortBtn').addEventListener('click', openSortModal);
+  document.querySelectorAll('#binderViewModeSegmented button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.view === state.settings.viewMode);
+    b.addEventListener('click', function(){
+      state.settings.viewMode = b.dataset.view; saveSettings();
+      refreshOpenBinder();
+    });
+  });
   document.getElementById('binderBackBtn').addEventListener('click', function(){ panel.hidden=true; currentOpenBinderId=null; renderBinders(); });
   if(!isNone){
+    document.getElementById('binderEditBtn').addEventListener('click', function(){ openBinderModal(binder); });
     document.getElementById('binderDeleteBtn').addEventListener('click', async function(){
-      if(!confirm('¿Eliminar la carpeta "'+binder.name+'"? Las cartas no se borrarán.')) return;
-      await dbDelete('binders', binder.id);
-      state.binders = state.binders.filter(function(b){ return b.id!==binder.id; });
-      const affected = state.cards.filter(function(c){ return c.binderId===binder.id; });
-      for(const c of affected){ c.binderId = null; await dbPut('cards', c); }
-      panel.hidden = true; currentOpenBinderId=null; renderBinders(); toast('Carpeta eliminada');
+      const deleted = await deleteBinder(binder);
+      if(!deleted) return;
+      panel.hidden = true; currentOpenBinderId = null; renderBinders();
     });
   }
   document.getElementById('binderCardsList').addEventListener('click', function(e){
@@ -1215,19 +1272,117 @@ function openBinderDetail(id){
     if(row){ openEditCardModal(row.dataset.id); }
   });
 }
-function newBinderModal(){
+function openBinderModal(existingBinder){
+  const isEdit = !!existingBinder;
+  const name = existingBinder ? existingBinder.name : '';
+  const ic = (existingBinder && existingBinder.icon) || {};
+  const iconType = ic.type === 'set' ? 'set' : 'folder';
+  const color = ic.color || BINDER_COLORS[0];
+  let pickedSet = (iconType === 'set' && ic.setCode) ? {code: ic.setCode, name: ic.setName || ic.setCode.toUpperCase()} : null;
+
   openModal(
-    '<h3 class="modal-title">'+icon('folder',20)+' Nueva carpeta</h3>'+
-    '<div class="field"><label for="newBinderName">Nombre</label><input id="newBinderName" class="text-input" placeholder="Ej. Binder de Standard"></div>'+
-    '<button class="btn btn-primary btn-block" id="createBinderBtn">'+icon('check',15)+' Crear carpeta</button>'
+    '<h3 class="modal-title">'+icon('folder',20)+' '+(isEdit?'Editar carpeta':'Nueva carpeta')+'</h3>'+
+    '<div class="field"><label for="binderNameInput">Nombre</label><input id="binderNameInput" class="text-input" placeholder="Ej. Binder de Standard" value="'+esc(name)+'"></div>'+
+    '<div class="field"><label>Vista previa</label><div class="group-card binder-preview" id="binderPreviewRow">'+
+      '<span id="binderIconPreviewWrap">'+binderIconHTML({icon:{type:iconType,color:color,setCode:pickedSet?pickedSet.code:null}})+'</span>'+
+      '<div class="gmeta"><div class="gname" id="binderPreviewName">'+(name?esc(name):'Nombre de la carpeta')+'</div></div>'+
+    '</div></div>'+
+    '<div class="field"><label>Tipo de icono</label>'+
+      '<div class="segmented" id="binderIconTypeSeg" role="group" aria-label="Tipo de icono">'+
+        '<button type="button" data-type="folder" class="'+(iconType==='folder'?'active':'')+'">Carpeta</button>'+
+        '<button type="button" data-type="set" class="'+(iconType==='set'?'active':'')+'">Icono de edición</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="field" id="binderSetPickWrap" '+(iconType==='set'?'':'hidden')+'>'+
+      '<label for="binderSetInput">Edición</label>'+
+      '<div style="position:relative;">'+
+        '<input id="binderSetInput" class="text-input" placeholder="Busca una edición…" autocomplete="off" value="'+(pickedSet?esc(pickedSet.name):'')+'">'+
+        '<div id="binderSetSuggestions" class="suggestions" hidden></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="field"><label>Color</label><div class="color-swatches" id="binderColorSwatches">'+
+      BINDER_COLORS.map(function(c){ return '<button type="button" class="color-swatch'+(color===c?' active':'')+'" data-color="'+c+'" style="background:'+c+';" aria-label="Color '+c+'"></button>'; }).join('')+
+    '</div></div>'+
+    '<div class="btn-row">'+
+      (isEdit ? '<button class="btn btn-danger" id="deleteBinderBtn2">'+icon('trash',15)+' Eliminar</button>' : '')+
+      '<button class="btn btn-primary btn-block" id="saveBinderBtn">'+icon('check',15)+' '+(isEdit?'Guardar cambios':'Crear carpeta')+'</button>'+
+    '</div>'
   );
-  document.getElementById('createBinderBtn').addEventListener('click', async function(){
-    const name = document.getElementById('newBinderName').value.trim();
-    if(!name){ toast('Ponle un nombre a la carpeta'); return; }
-    const binder = {id:uuid(), name:name, createdAt:Date.now()};
-    await dbPut('binders', binder);
-    state.binders.push(binder);
-    closeModal(); renderBinders();
+
+  function currentType(){ return document.querySelector('#binderIconTypeSeg button.active').dataset.type; }
+  function currentColor(){ const el = document.querySelector('#binderColorSwatches .color-swatch.active'); return el ? el.dataset.color : BINDER_COLORS[0]; }
+  function updatePreview(){
+    document.getElementById('binderIconPreviewWrap').innerHTML = binderIconHTML({icon:{type:currentType(), color:currentColor(), setCode: pickedSet?pickedSet.code:null}});
+  }
+  document.getElementById('binderNameInput').addEventListener('input', function(e){
+    document.getElementById('binderPreviewName').textContent = e.target.value.trim() || 'Nombre de la carpeta';
+  });
+  document.querySelectorAll('#binderIconTypeSeg button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#binderIconTypeSeg button').forEach(function(x){ x.classList.toggle('active', x===b); });
+      document.getElementById('binderSetPickWrap').hidden = (b.dataset.type !== 'set');
+      updatePreview();
+    });
+  });
+  document.querySelectorAll('#binderColorSwatches .color-swatch').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#binderColorSwatches .color-swatch').forEach(function(x){ x.classList.toggle('active', x===b); });
+      updatePreview();
+    });
+  });
+  const setInput = document.getElementById('binderSetInput');
+  const setSugg = document.getElementById('binderSetSuggestions');
+  setInput.addEventListener('input', debounce(async function(){
+    const q = setInput.value.trim().toLowerCase();
+    pickedSet = null; // typing invalidates the previous pick until they choose one again
+    updatePreview();
+    if(!q){ setSugg.hidden = true; setSugg.innerHTML=''; return; }
+    setSugg.innerHTML = '<div class="suggestion-item">Buscando…</div>'; setSugg.hidden = false;
+    try{
+      const sets = await scryAllSets();
+      const matches = sets.filter(function(s){ return s.name.toLowerCase().indexOf(q)>-1 || s.code.toLowerCase().indexOf(q)>-1; }).slice(0,8);
+      if(!matches.length){ setSugg.innerHTML = '<div class="suggestion-item">Sin resultados</div>'; return; }
+      setSugg.innerHTML = matches.map(function(s){ return '<div class="suggestion-item" data-code="'+esc(s.code)+'" data-name="'+esc(s.name)+'">'+esc(s.name)+' <span style="color:var(--ink-faint);">('+esc(s.code.toUpperCase())+')</span></div>'; }).join('');
+    }catch(e){ setSugg.innerHTML = '<div class="suggestion-item">No se pudo cargar la lista de ediciones</div>'; }
+  }, 200));
+  setSugg.addEventListener('click', function(e){
+    const item = e.target.closest('.suggestion-item[data-code]');
+    if(!item) return;
+    pickedSet = {code:item.dataset.code, name:item.dataset.name};
+    setInput.value = item.dataset.name;
+    setSugg.hidden = true; setSugg.innerHTML = '';
+    updatePreview();
+  });
+  setInput.addEventListener('focus', function(){ if(setSugg.innerHTML) setSugg.hidden = false; });
+  setInput.addEventListener('blur', function(){ setTimeout(function(){ setSugg.hidden = true; }, 150); });
+
+  if(isEdit){
+    document.getElementById('deleteBinderBtn2').addEventListener('click', async function(){
+      const deleted = await deleteBinder(existingBinder);
+      if(!deleted) return;
+      closeModal(); renderBinders();
+      if(currentOpenBinderId === existingBinder.id){ document.getElementById('detailPanel').hidden = true; currentOpenBinderId = null; }
+    });
+  }
+
+  document.getElementById('saveBinderBtn').addEventListener('click', async function(){
+    const nm = document.getElementById('binderNameInput').value.trim();
+    if(!nm){ toast('Ponle un nombre a la carpeta'); return; }
+    const type = currentType();
+    if(type === 'set' && !pickedSet){ toast('Elige una edición de la lista'); return; }
+    const iconData = {type:type, color: currentColor(), setCode: type==='set' ? pickedSet.code : null, setName: type==='set' ? pickedSet.name : null};
+    if(isEdit){
+      existingBinder.name = nm;
+      existingBinder.icon = iconData;
+      await dbPut('binders', existingBinder);
+    } else {
+      const binder = {id:uuid(), name:nm, icon:iconData, createdAt:Date.now()};
+      await dbPut('binders', binder);
+      state.binders.push(binder);
+    }
+    closeModal();
+    renderBinders();
+    if(isEdit && currentOpenBinderId === existingBinder.id) refreshOpenBinder();
   });
 }
 
@@ -1450,8 +1605,15 @@ async function init(){
     const row = e.target.closest('[data-action="open-deck"]');
     if(row) openDeckDetail(row.dataset.id);
   });
-  document.getElementById('newBinderBtn').addEventListener('click', newBinderModal);
+  document.getElementById('newBinderBtn').addEventListener('click', function(){ openBinderModal(null); });
   document.getElementById('bindersList').addEventListener('click', function(e){
+    const editBtn = e.target.closest('[data-action="edit-binder"]');
+    if(editBtn){
+      e.stopPropagation();
+      const b = state.binders.find(function(x){ return x.id === editBtn.dataset.id; });
+      if(b) openBinderModal(b);
+      return;
+    }
     const row = e.target.closest('[data-action="open-binder"]');
     if(row) openBinderDetail(row.dataset.id);
   });
