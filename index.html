@@ -139,6 +139,35 @@
   .qty-btn:hover{background:var(--surface-2); color:var(--ink);}
   .qty-val{font-family:var(--font-mono); min-width:1.3em; text-align:center; font-variant-numeric:tabular-nums; font-size:.85rem;}
 
+  .collection-toolbar{display:flex; align-items:center; gap:.5rem; margin:-.2rem 0 .8rem;}
+  .collection-toolbar .segmented{margin-left:auto;}
+  .collection-toolbar .segmented button{display:flex; align-items:center; justify-content:center; padding:.4rem .55rem;}
+  .collection-toolbar .segmented button svg{width:16px;height:16px;display:block;}
+
+  .card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem;}
+  .card-grid-item{cursor:pointer;}
+  .card-grid-item .gimg-wrap{position:relative; border-radius:9px; overflow:hidden; aspect-ratio:63/88; background:var(--surface-2); box-shadow:0 1px 3px rgba(0,0,0,.18);}
+  .card-grid-item .gimg-wrap img{width:100%; height:100%; object-fit:cover; display:block;}
+  .card-grid-item .gimg-wrap .card-thumb-empty{width:100%; height:100%;}
+  .card-grid-item .gqty{position:absolute; top:4px; left:4px; background:rgba(20,16,26,.68); color:#fff; font-family:var(--font-mono); font-size:.62rem; padding:1px 6px; border-radius:999px; font-variant-numeric:tabular-nums;}
+  .card-grid-item .gfoil{position:absolute; top:4px; right:4px; background:var(--accent); color:var(--on-accent); font-size:.58rem; padding:1px 5px; border-radius:999px; font-weight:700; letter-spacing:.02em;}
+  .card-grid-item .gprice{position:absolute; bottom:4px; right:4px; background:rgba(20,16,26,.72); color:#fff; font-family:var(--font-mono); font-size:.64rem; padding:1px 6px; border-radius:6px; font-variant-numeric:tabular-nums;}
+  .card-grid-item .gname{font-family:var(--font-display); font-weight:500; font-size:.72rem; margin-top:.35rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-grid-item .gsub{font-size:.6rem; color:var(--ink-soft); font-family:var(--font-mono); margin-top:1px;}
+
+  .modal-card-image{display:block; width:150px; max-width:55%; aspect-ratio:63/88; object-fit:cover; margin:0 auto .9rem; border-radius:12px; box-shadow:var(--shadow); cursor:zoom-in;}
+  .modal-card-image-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint); background:var(--surface-2);}
+  #lightboxRoot[hidden]{display:none;}
+  .lightbox-backdrop{position:fixed; inset:0; background:rgba(10,8,14,.92); z-index:70; display:flex; align-items:center; justify-content:center; padding:1.4rem; cursor:zoom-out;}
+  .lightbox-backdrop img{max-width:100%; max-height:100%; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.5);}
+  .lightbox-close{position:absolute; top:calc(1rem + env(safe-area-inset-top)); right:1rem; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .sort-option{display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .1rem; border-bottom:1px solid var(--line);}
+  .sort-option:last-child{border-bottom:none;}
+  .sort-option .solabel{font-size:.88rem; font-weight:500; display:flex; align-items:center; gap:.4rem;}
+  .sort-option .sodirs{display:flex; gap:.4rem;}
+  .sort-dir-btn{border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); border-radius:999px; padding:.35rem .7rem; font-size:.72rem; cursor:pointer; font-family:var(--font-mono);}
+  .sort-dir-btn.active{background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:600;}
+
   #modalRoot[hidden]{display:none;}
   .modal-backdrop{position:fixed; inset:0; background:rgba(20,16,30,.52); display:flex; align-items:flex-end; justify-content:center; z-index:50; padding:0;}
   @media (min-width:640px){ .modal-backdrop{align-items:center;} }
@@ -247,6 +276,13 @@
       <h2>Tu colección <span class="count-pill" id="collectionCount">0</span></h2>
       <button class="icon-btn" id="filterToggleBtn" aria-label="Filtrar colección" title="Filtrar"></button>
     </div>
+    <div class="collection-toolbar">
+      <button class="btn btn-secondary" id="sortToggleBtn" style="padding:.5rem .8rem;"></button>
+      <div class="segmented" id="viewModeSegmented" role="group" aria-label="Vista">
+        <button data-view="list" title="Vista de lista"></button>
+        <button data-view="grid" title="Vista de cuadrícula"></button>
+      </div>
+    </div>
     <input id="collectionFilterInput" class="text-input" placeholder="Filtrar por nombre o edición…" hidden style="margin-bottom:.8rem;">
     <div id="collectionList"></div>
   </section>
@@ -340,6 +376,7 @@
 
 <div id="detailPanel" hidden></div>
 <div id="modalRoot" hidden></div>
+<div id="lightboxRoot" hidden></div>
 <div id="toastRoot"></div>
 
 <script>
@@ -360,7 +397,10 @@ const ICONS = {
   chevron:'<polyline points="9 18 15 12 9 6"/>',
   back:'<polyline points="15 18 9 12 15 6"/>',
   image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
-  cameraOff:'<line x1="2" y1="2" x2="22" y2="22"/><path d="M4 8h2l1.6-2h6.8L17 8h3v11H7"/><path d="M4 8v11h2"/>'
+  cameraOff:'<line x1="2" y1="2" x2="22" y2="22"/><path d="M4 8h2l1.6-2h6.8L17 8h3v11H7"/><path d="M4 8v11h2"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>',
+  list:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+  sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -482,8 +522,9 @@ const state = {
   ocrLoading: false
 };
 function loadSettings(){
-  try{ const raw = localStorage.getItem('mtgLedgerSettings'); if(raw) return Object.assign({theme:'auto',currency:'EUR'}, JSON.parse(raw)); }catch(e){}
-  return {theme:'auto', currency:'EUR'};
+  const defaults = {theme:'auto', currency:'EUR', viewMode:'list', sort:{field:'added', dir:'desc'}};
+  try{ const raw = localStorage.getItem('mtgLedgerSettings'); if(raw) return Object.assign({}, defaults, JSON.parse(raw)); }catch(e){}
+  return defaults;
 }
 function saveSettings(){ try{ localStorage.setItem('mtgLedgerSettings', JSON.stringify(state.settings)); }catch(e){} }
 function applyTheme(){
@@ -539,25 +580,52 @@ function cardRowHTML(c){
     '</div>'
   );
 }
+function cardGridItemHTML(c){
+  const price = itemPrice(c, state.settings.currency);
+  const img = c.imageSmall
+    ? '<img src="'+esc(c.imageSmall)+'" alt="" loading="lazy">'
+    : '<div class="card-thumb-empty">'+icon('image',20)+'</div>';
+  return (
+    '<div class="card-grid-item" data-id="'+c.id+'" data-action="edit-card">'+
+      '<div class="gimg-wrap">'+img+
+        '<span class="gqty">×'+c.quantity+'</span>'+
+        (c.foil ? '<span class="gfoil">F</span>' : '')+
+        '<span class="gprice">'+fmtMoney(price, state.settings.currency)+'</span>'+
+      '</div>'+
+      '<div class="gname">'+esc(c.name)+'</div>'+
+      '<div class="gsub">'+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</div>'+
+    '</div>'
+  );
+}
 function emptyStateHTML(iconName, text, ctaHTML){
   return '<div class="empty-state">'+icon(iconName,40)+'<p>'+text+'</p>'+(ctaHTML||'')+'</div>';
 }
-function renderCollection(list){
+function renderCardsInto(container, items, emptyHTML){
+  if(items.length === 0){
+    container.className = '';
+    container.innerHTML = emptyHTML;
+    return;
+  }
+  if(state.settings.viewMode === 'grid'){
+    container.className = 'card-grid';
+    container.innerHTML = items.map(cardGridItemHTML).join('');
+  } else {
+    container.className = '';
+    container.innerHTML = items.map(cardRowHTML).join('');
+  }
+}
+function renderCollection(){
   const container = document.getElementById('collectionList');
   const filterVal = document.getElementById('collectionFilterInput').value.trim().toLowerCase();
-  let items = list || state.cards.slice().sort(function(a,b){ return (b.addedAt||0)-(a.addedAt||0); });
+  let items = sortCollection(state.cards);
   if(filterVal){
     items = items.filter(function(c){
       return c.name.toLowerCase().indexOf(filterVal) > -1 || (c.setName||'').toLowerCase().indexOf(filterVal) > -1 || (c.setCode||'').toLowerCase().indexOf(filterVal) > -1;
     });
   }
-  if(items.length === 0){
-    container.innerHTML = filterVal
-      ? emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'".')
-      : emptyStateHTML('layers','Tu colección está vacía todavía.<br>Busca una carta arriba para añadir la primera.');
-  } else {
-    container.innerHTML = items.map(cardRowHTML).join('');
-  }
+  renderCardsInto(container, items, filterVal
+    ? emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'".')
+    : emptyStateHTML('layers','Tu colección está vacía todavía.<br>Busca una carta arriba para añadir la primera.'));
   renderStats();
 }
 async function changeQty(id, delta){
@@ -600,11 +668,72 @@ async function startAddFlow(name){
 }
 
 function printFace(card){
+  const iu = card.image_uris || (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) || {};
   return {
-    image: (card.image_uris && card.image_uris.small) || (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris && card.card_faces[0].image_uris.small) || '',
+    image: iu.small || '',
+    imageNormal: iu.normal || iu.large || iu.small || '',
     colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || []
   };
 }
+
+/* ---------- Lightbox (bigger card image) ---------- */
+function openLightbox(url, alt){
+  if(!url) return;
+  const root = document.getElementById('lightboxRoot');
+  root.innerHTML = '<div class="lightbox-backdrop" id="lightboxBackdrop"><button class="lightbox-close" aria-label="Cerrar">'+icon('x',18)+'</button><img src="'+esc(url)+'" alt="'+esc(alt||'')+'"></div>';
+  root.hidden = false;
+  document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
+}
+function closeLightbox(){ const root = document.getElementById('lightboxRoot'); root.hidden = true; root.innerHTML=''; }
+
+/* ---------- Sorting ---------- */
+const SORT_FIELDS = ['added','name','price','quantity','releasedAt'];
+function sortCollection(items){
+  const s = state.settings.sort || {field:'added', dir:'desc'};
+  const mul = s.dir === 'asc' ? 1 : -1;
+  return items.slice().sort(function(a,b){
+    let av, bv;
+    if(s.field === 'name'){ av = a.name.toLowerCase(); bv = b.name.toLowerCase(); return mul * (av < bv ? -1 : av > bv ? 1 : 0); }
+    if(s.field === 'price'){ av = itemPrice(a, state.settings.currency) || 0; bv = itemPrice(b, state.settings.currency) || 0; return mul * (av - bv); }
+    if(s.field === 'quantity'){ return mul * ((a.quantity||0) - (b.quantity||0)); }
+    if(s.field === 'releasedAt'){ av = a.releasedAt || ''; bv = b.releasedAt || ''; return mul * (av < bv ? -1 : av > bv ? 1 : 0); }
+    return mul * ((a.addedAt||0) - (b.addedAt||0));
+  });
+}
+function openSortModal(){
+  const s = state.settings.sort || {field:'added', dir:'desc'};
+  function row(field, label, iconName, dirs){
+    const active = s.field === field;
+    const dirBtns = dirs.map(function(d){
+      const isActive = active && s.dir === d.dir;
+      return '<button class="sort-dir-btn'+(isActive?' active':'')+'" data-field="'+field+'" data-dir="'+d.dir+'">'+d.label+'</button>';
+    }).join('');
+    return '<div class="sort-option"><span class="solabel">'+icon(iconName,15)+' '+label+'</span><div class="sodirs">'+dirBtns+'</div></div>';
+  }
+  openModal(
+    '<h3 class="modal-title">'+icon('sort',20)+' Ordenar colección</h3>'+
+    row('added','Añadida','check',[{dir:'desc',label:'Recientes'},{dir:'asc',label:'Antiguas'}])+
+    row('name','Nombre','layers',[{dir:'asc',label:'A-Z'},{dir:'desc',label:'Z-A'}])+
+    row('price','Precio','image',[{dir:'desc',label:'Mayor'},{dir:'asc',label:'Menor'}])+
+    row('quantity','Cantidad','plus',[{dir:'desc',label:'Mayor'},{dir:'asc',label:'Menor'}])+
+    row('releasedAt','Fecha de lanzamiento','folder',[{dir:'desc',label:'Reciente'},{dir:'asc',label:'Antigua'}])
+  );
+  document.querySelector('#modalRoot .modal-sheet').addEventListener('click', function(e){
+    const btn = e.target.closest('.sort-dir-btn');
+    if(!btn) return;
+    state.settings.sort = {field: btn.dataset.field, dir: btn.dataset.dir};
+    saveSettings();
+    closeModal();
+    if(!document.getElementById('detailPanel').hidden){
+      const list = document.getElementById('binderCardsList');
+      if(list) refreshOpenBinder();
+    } else {
+      renderCollection();
+    }
+  });
+}
+let currentOpenBinderId = null;
+function refreshOpenBinder(){ if(currentOpenBinderId !== null) openBinderDetail(currentOpenBinderId); }
 function openPrintingPicker(prints, onPickExtra){
   const rows = prints.map(function(p, idx){
     const face = printFace(p);
@@ -643,9 +772,13 @@ function openAddDetailsModal(card, existingItem){
     return '<option value="'+b.id+'" '+(binderId===b.id?'selected':'')+'>'+esc(b.name)+'</option>';
   }).join('');
 
+  const bigImage = face.imageNormal || face.image;
   openModal(
-    '<h3 class="modal-title">'+(face.image?('<img src="'+esc(face.image)+'" style="width:28px;height:39px;border-radius:3px;object-fit:cover;">'):'')+' '+esc(card.name)+'</h3>'+
-    '<div class="section-note" style="margin-top:-.6rem;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
+    (bigImage
+      ? '<img id="modalCardImage" class="modal-card-image" src="'+esc(bigImage)+'" alt="'+esc(card.name)+'" title="Toca para ampliar">'
+      : '<div class="modal-card-image modal-card-image-empty">'+icon('image',28)+'</div>')+
+    '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(card.name)+'</h3>'+
+    '<div class="section-note" style="margin-top:-.6rem; text-align:center;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
     '<div class="stepper-lg">'+
       '<button class="qty-btn" id="addQtyDec">'+icon('minus',16)+'</button>'+
       '<span class="qty-val" id="addQtyVal">'+qty+'</span>'+
@@ -669,6 +802,8 @@ function openAddDetailsModal(card, existingItem){
   const qtyValEl = document.getElementById('addQtyVal');
   document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; } });
   document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; });
+  const modalImg = document.getElementById('modalCardImage');
+  if(modalImg) modalImg.addEventListener('click', function(){ openLightbox(bigImage, card.name); });
 
   if(isEdit){
     document.getElementById('deleteCardBtn').addEventListener('click', async function(){
@@ -697,8 +832,8 @@ function openAddDetailsModal(card, existingItem){
         id: uuid(), scryfallId: card.id, name: card.name, setCode: card.set, setName: card.set_name,
         collectorNumber: card.collector_number, rarity: card.rarity,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        cmc: card.cmc || 0, typeLine: card.type_line || '',
-        imageSmall: face.image, prices: prices,
+        cmc: card.cmc || 0, typeLine: card.type_line || '', releasedAt: card.released_at || null,
+        imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         foil: foilVal, condition: conditionVal, lang: langVal, quantity: curQty, binderId: binderVal,
         addedAt: Date.now()
       };
@@ -714,7 +849,8 @@ function openEditCardModal(id){
   if(!item) return;
   const pseudoCard = {
     id: item.scryfallId, name: item.name, set: item.setCode, set_name: item.setName, collector_number: item.collectorNumber,
-    rarity: item.rarity, lang: item.lang, image_uris: {small: item.imageSmall},
+    rarity: item.rarity, lang: item.lang, released_at: item.releasedAt,
+    image_uris: {small: item.imageSmall, normal: item.imageNormal || item.imageSmall},
     prices: {eur: item.prices.eur, eur_foil: item.prices.eurFoil, usd: item.prices.usd, usd_foil: item.prices.usdFoil},
     finishes: item.foil ? ['nonfoil','foil'] : (item.prices.eurFoil||item.prices.usdFoil ? ['nonfoil','foil'] : ['nonfoil'])
   };
@@ -990,18 +1126,22 @@ function openBinderDetail(id){
   const isNone = id === '__none__';
   const binder = isNone ? {id:null, name:'Sin carpeta'} : state.binders.find(function(b){ return b.id===id; });
   if(!binder) return;
-  const items = state.cards.filter(function(c){ return isNone ? !c.binderId : c.binderId===id; });
+  currentOpenBinderId = id;
+  const items = sortCollection(state.cards.filter(function(c){ return isNone ? !c.binderId : c.binderId===id; }));
   const panel = document.getElementById('detailPanel');
   panel.innerHTML =
     '<div class="detail-header"><button class="icon-btn" id="binderBackBtn">'+icon('back',18)+'</button><h2>'+esc(binder.name)+'</h2>'+
+      '<button class="icon-btn" id="binderSortBtn" title="Ordenar">'+icon('sort',16)+'</button>'+
       (isNone ? '' : '<button class="icon-btn" id="binderDeleteBtn" title="Eliminar carpeta">'+icon('trash',16)+'</button>')+
     '</div>'+
     '<div class="detail-body">'+
       '<div class="section-note">'+items.length+' cartas distintas</div>'+
-      '<div id="binderCardsList">'+(items.length ? items.map(cardRowHTML).join('') : emptyStateHTML('folder','No hay cartas asignadas a esta carpeta todavía. Edita una carta de tu colección para moverla aquí.'))+'</div>'+
+      '<div id="binderCardsList"></div>'+
     '</div>';
   panel.hidden = false;
-  document.getElementById('binderBackBtn').addEventListener('click', function(){ panel.hidden=true; renderBinders(); });
+  renderCardsInto(document.getElementById('binderCardsList'), items, emptyStateHTML('folder','No hay cartas asignadas a esta carpeta todavía. Edita una carta de tu colección para moverla aquí.'));
+  document.getElementById('binderSortBtn').addEventListener('click', openSortModal);
+  document.getElementById('binderBackBtn').addEventListener('click', function(){ panel.hidden=true; currentOpenBinderId=null; renderBinders(); });
   if(!isNone){
     document.getElementById('binderDeleteBtn').addEventListener('click', async function(){
       if(!confirm('¿Eliminar la carpeta "'+binder.name+'"? Las cartas no se borrarán.')) return;
@@ -1009,7 +1149,7 @@ function openBinderDetail(id){
       state.binders = state.binders.filter(function(b){ return b.id!==binder.id; });
       const affected = state.cards.filter(function(c){ return c.binderId===binder.id; });
       for(const c of affected){ c.binderId = null; await dbPut('cards', c); }
-      panel.hidden = true; renderBinders(); toast('Carpeta eliminada');
+      panel.hidden = true; currentOpenBinderId=null; renderBinders(); toast('Carpeta eliminada');
     });
   }
   document.getElementById('binderCardsList').addEventListener('click', function(e){
@@ -1138,7 +1278,8 @@ async function importCSVFile(file){
         id: uuid(), scryfallId: card.id, name: card.name, setCode: card.set, setName: card.set_name,
         collectorNumber: card.collector_number, rarity: card.rarity,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        cmc: card.cmc||0, typeLine: card.type_line||'', imageSmall: face.image,
+        cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at || null,
+        imageSmall: face.image, imageNormal: face.imageNormal || face.image,
         prices: {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)},
         foil: foilFlag, condition: normalizeCondition(idx.condition!==undefined ? r[idx.condition] : ''),
         lang: (idx.lang!==undefined && r[idx.lang] && r[idx.lang].toUpperCase()) || 'EN',
@@ -1185,6 +1326,9 @@ async function init(){
     b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
   });
   document.getElementById('filterToggleBtn').innerHTML = icon('search',16);
+  document.getElementById('sortToggleBtn').innerHTML = icon('sort',15)+' Ordenar';
+  document.querySelector('#viewModeSegmented button[data-view="list"]').innerHTML = icon('list',16);
+  document.querySelector('#viewModeSegmented button[data-view="grid"]').innerHTML = icon('grid',16);
   document.getElementById('newDeckBtn').innerHTML = icon('plus',15)+' Nuevo mazo';
   document.getElementById('newBinderBtn').innerHTML = icon('plus',15)+' Nueva carpeta';
 
@@ -1222,6 +1366,15 @@ async function init(){
     if(!inp.hidden) inp.focus(); else { inp.value=''; renderCollection(); }
   });
   document.getElementById('collectionFilterInput').addEventListener('input', debounce(function(){ renderCollection(); }, 150));
+  document.getElementById('sortToggleBtn').addEventListener('click', openSortModal);
+  document.querySelectorAll('#viewModeSegmented button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.view === state.settings.viewMode);
+    b.addEventListener('click', function(){
+      state.settings.viewMode = b.dataset.view; saveSettings();
+      document.querySelectorAll('#viewModeSegmented button').forEach(function(x){ x.classList.toggle('active', x===b); });
+      renderCollection();
+    });
+  });
   document.getElementById('collectionList').addEventListener('click', function(e){
     const inc = e.target.closest('[data-action="inc-qty"]');
     const dec = e.target.closest('[data-action="dec-qty"]');
