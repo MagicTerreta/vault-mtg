@@ -14,6 +14,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/npm/keyrune@3.19.0/css/keyrune.css" rel="stylesheet">
 <style>
   :root{
     --paper:#f6f2ea; --surface:#ffffff; --surface-2:#ede6d8; --surface-hover:#e4dbc5;
@@ -128,12 +130,12 @@
   .pip-R{background:var(--mana-r); border-color:var(--mana-r);}
   .pip-G{background:var(--mana-g); border-color:var(--mana-g);}
   .pip-C{background:var(--mana-c); border-color:var(--mana-c);}
-  .badge{font-family:var(--font-mono); padding:1px 7px; border-radius:999px; font-size:.63rem; background:var(--surface-2); color:var(--ink-soft); white-space:nowrap;}
+  .badge{font-family:var(--font-mono); padding:1px 7px; border-radius:999px; font-size:.63rem; background:var(--surface-2); color:var(--ink-soft); white-space:nowrap; display:inline-flex; align-items:center; gap:3px;}
   .badge-foil{background:var(--accent-soft); color:var(--accent-strong);}
   .badge-good{background:var(--good-soft); color:var(--good);}
   .badge-warn{background:var(--warn-soft); color:var(--warn);}
   .card-value{display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0;}
-  .price{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600; font-size:.88rem;}
+  .price{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-weight:600; font-size:.88rem; color:var(--good);}
   .qty-stepper{display:flex; align-items:center; gap:.35rem;}
   .qty-btn{width:23px; height:23px; border-radius:50%; border:1px solid var(--line); background:var(--surface); font-size:.9rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
   .qty-btn:hover{background:var(--surface-2); color:var(--ink);}
@@ -153,8 +155,12 @@
   .card-grid-item .gfoil{position:absolute; top:4px; right:4px; background:var(--accent); color:var(--on-accent); font-size:.58rem; line-height:1; padding:3px 5px; border-radius:999px; font-weight:700; letter-spacing:.02em;}
   .card-grid-item .gname{font-family:var(--font-display); font-weight:500; font-size:.72rem; line-height:1.3; height:1.3em; margin-top:.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-grid-item .gsub{display:flex; align-items:baseline; justify-content:space-between; gap:.3rem; font-size:.6rem; line-height:1.3; height:1.3em; color:var(--ink-soft); font-family:var(--font-mono); margin-top:1px; overflow:hidden;}
-  .card-grid-item .gsub .gsetnum{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .card-grid-item .gsub .gprice{flex:none; color:var(--ink); font-weight:600;}
+  .card-grid-item .gsub .gsetnum{display:inline-flex; align-items:center; gap:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .card-grid-item .gsub .gprice{flex:none; color:var(--good); font-weight:600;}
+  .set-icon{flex-shrink:0; font-size:1.1em;}
+  /* Keyrune's default rarity colors are tuned for a white background; common (near-black)
+     is invisible in dark theme, so we override just that one to follow the app's ink color. */
+  .set-icon.ss-common{color:var(--ink);}
 
   .modal-card-image{display:block; width:150px; max-width:55%; aspect-ratio:63/88; object-fit:cover; margin:0 auto .9rem; border-radius:12px; box-shadow:var(--shadow); cursor:zoom-in;}
   .modal-card-image-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint); background:var(--surface-2);}
@@ -542,6 +548,18 @@ function itemPrice(item, currency){
   return item.foil ? (p.usdFoil ?? p.usd) : (p.usd ?? p.usdFoil);
 }
 
+/* ---------- Set symbol icons ----------
+   Uses the Keyrune icon font (https://keyrune.andrewgioia.com), loaded via <link> in <head>.
+   It ships the real symbol for every MTG set as a font glyph, pre-colored by rarity —
+   no per-card network request needed, unlike fetching Scryfall's icon SVGs ourselves. */
+const KEYRUNE_RARITY = {common:'ss-common', uncommon:'ss-uncommon', rare:'ss-rare', mythic:'ss-mythic', special:'ss-timeshifted', bonus:'ss-timeshifted'};
+function setIconSpanHTML(setCode, rarity){
+  const code = (setCode||'').toLowerCase().trim();
+  if(!code) return '';
+  const rarityCls = KEYRUNE_RARITY[(rarity||'').toLowerCase()] || 'ss-common';
+  return '<i class="ss set-icon ss-'+esc(code)+' '+rarityCls+'" aria-hidden="true"></i>';
+}
+
 /* ---------- Stats ---------- */
 function renderStats(){
   const totalCards = state.cards.reduce(function(a,c){ return a + (c.quantity||0); }, 0);
@@ -564,7 +582,7 @@ function cardRowHTML(c){
       '<div class="card-info">'+
         '<div class="card-name">'+esc(c.name)+'</div>'+
         '<div class="card-meta">'+colorPipsHTML(c.colors)+
-          '<span class="badge">'+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
+          '<span class="badge">'+setIconSpanHTML(c.setCode, c.rarity)+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
           (c.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
           '<span class="badge">'+esc(c.condition)+'</span>'+
           '<span class="badge">'+esc(c.lang)+'</span>'+
@@ -595,7 +613,7 @@ function cardGridItemHTML(c){
       '</div>'+
       '<div class="gname">'+esc(c.name)+'</div>'+
       '<div class="gsub">'+
-        '<span class="gsetnum">'+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
+        '<span class="gsetnum">'+setIconSpanHTML(c.setCode, c.rarity)+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
         '<span class="gprice">'+fmtMoney(price, state.settings.currency)+'</span>'+
       '</div>'+
     '</div>'
