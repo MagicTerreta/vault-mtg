@@ -155,7 +155,9 @@
     animation:foilShimmer 7s ease-in-out infinite alternate;
   }
   @keyframes foilShimmer{ from{background-position:10% 40%;} to{background-position:90% 60%;} }
-  .modal-card-image-wrap{position:relative; width:150px; max-width:55%; margin:0 auto .9rem;}
+  .modal-card-image-wrap{position:relative; width:82%; max-width:320px; margin:0 auto .9rem;}
+  .change-printing-btn{display:flex; align-items:center; justify-content:center; gap:.3rem; margin:0 auto .9rem; background:none; border:none; color:var(--accent); font-size:.78rem; font-weight:600; cursor:pointer; padding:.3rem .5rem;}
+  .change-printing-btn:hover{text-decoration:underline;}
   .modal-card-image-wrap .modal-card-image{width:100%; max-width:none; margin:0;}
   .modal-card-image-wrap .foil-fx{opacity:.8;}
   .card-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
@@ -945,20 +947,21 @@ function openPrintingPicker(prints, onPickExtra){
     const pick = e.target.closest('.print-pick');
     if(!pick) return;
     const card = prints[parseInt(pick.dataset.idx,10)];
-    openAddDetailsModal(card, null);
+    if(onPickExtra) onPickExtra(card);
+    else openAddDetailsModal(card, null);
   });
 }
 
-function openAddDetailsModal(card, existingItem){
+function openAddDetailsModal(card, existingItem, overrides){
   const isEdit = !!existingItem;
   const finishes = card.finishes || (existingItem ? ['nonfoil','foil'] : ['nonfoil']);
   const canFoil = finishes.indexOf('foil') > -1 || finishes.indexOf('etched') > -1;
   const face = printFace(card);
-  const qty = existingItem ? existingItem.quantity : 1;
-  const foil = existingItem ? existingItem.foil : false;
-  const condition = existingItem ? existingItem.condition : 'NM';
-  const lang = existingItem ? existingItem.lang : (card.lang ? card.lang.toUpperCase() : 'EN');
-  const binderId = existingItem ? (existingItem.binderId || '') : '';
+  const qty = overrides ? overrides.quantity : (existingItem ? existingItem.quantity : 1);
+  const foil = overrides ? overrides.foil : (existingItem ? existingItem.foil : false);
+  const condition = overrides ? overrides.condition : (existingItem ? existingItem.condition : 'NM');
+  const lang = overrides ? overrides.lang : (existingItem ? existingItem.lang : (card.lang ? card.lang.toUpperCase() : 'EN'));
+  const binderId = overrides ? (overrides.binderId || '') : (existingItem ? (existingItem.binderId || '') : '');
 
   const binderOptions = '<option value="">Sin carpeta</option>' + state.binders.map(function(b){
     return '<option value="'+b.id+'" '+(binderId===b.id?'selected':'')+'>'+esc(b.name)+'</option>';
@@ -974,6 +977,7 @@ function openAddDetailsModal(card, existingItem){
     '</div>'+
     '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(card.name)+'</h3>'+
     '<div class="section-note" style="margin-top:-.6rem; text-align:center;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
+    '<button type="button" class="change-printing-btn" id="changePrintingBtn">'+icon('layers',14)+' Cambiar edición</button>'+
     '<div class="stepper-lg">'+
       '<button class="qty-btn" id="addQtyDec">'+icon('minus',16)+'</button>'+
       '<span class="qty-val" id="addQtyVal">'+qty+'</span>'+
@@ -1005,6 +1009,22 @@ function openAddDetailsModal(card, existingItem){
   if(addFoilChkEl && modalFoilFx){
     addFoilChkEl.addEventListener('change', function(){ modalFoilFx.hidden = !addFoilChkEl.checked; });
   }
+  document.getElementById('changePrintingBtn').addEventListener('click', async function(){
+    const overridesNow = {
+      quantity: curQty, foil: canFoil ? addFoilChkEl.checked : false,
+      condition: document.getElementById('addCondition').value,
+      lang: document.getElementById('addLang').value,
+      binderId: document.getElementById('addBinder').value || null
+    };
+    toast('Buscando otras ediciones…', 1200);
+    try{
+      const prints = await scryPrintsByName(card.name);
+      if(prints.length < 2){ toast('No se han encontrado más ediciones de esta carta.'); return; }
+      openPrintingPicker(prints, function(pickedCard){
+        openAddDetailsModal(pickedCard, existingItem, overridesNow);
+      });
+    }catch(e){ toast(e.message || 'No se pudieron cargar las ediciones'); }
+  });
 
   if(isEdit){
     document.getElementById('deleteCardBtn').addEventListener('click', async function(){
@@ -1025,8 +1045,14 @@ function openAddDetailsModal(card, existingItem){
       usd: toNum(card.prices && card.prices.usd), usdFoil: toNum(card.prices && card.prices.usd_foil)
     };
     if(isEdit){
-      existingItem.quantity = curQty; existingItem.foil = foilVal; existingItem.condition = conditionVal;
-      existingItem.lang = langVal; existingItem.binderId = binderVal;
+      Object.assign(existingItem, {
+        scryfallId: card.id, name: card.name, setCode: card.set, setName: card.set_name,
+        collectorNumber: card.collector_number, rarity: card.rarity,
+        colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
+        cmc: card.cmc || 0, typeLine: card.type_line || '', releasedAt: card.released_at || null,
+        imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
+        quantity: curQty, foil: foilVal, condition: conditionVal, lang: langVal, binderId: binderVal
+      });
       await dbPut('cards', existingItem);
     } else {
       const item = {
