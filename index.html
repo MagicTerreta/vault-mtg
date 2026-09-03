@@ -66,12 +66,25 @@
   :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 
+  /* ---------- Shared micro-interactions ---------- */
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  @keyframes slideUpIn{ from{transform:translateY(28px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  @keyframes slideInRight{ from{transform:translateX(18px); opacity:0;} to{transform:translateX(0); opacity:1;} }
+  @keyframes bumpPulse{ 0%{transform:scale(1);} 40%{transform:scale(1.28);} 100%{transform:scale(1);} }
+  .btn, .icon-btn, .qty-btn, .card-row, .group-card, .card-grid-item, .color-swatch,
+  .segmented button, .stat-highlight-card, .suggestion-item{ transition:transform .12s ease, opacity .12s ease, background .15s ease; }
+  .btn:active, .icon-btn:active, .qty-btn:active, .card-row:active, .group-card:active,
+  .card-grid-item:active, .stat-highlight-card:active, .color-swatch:active{ transform:scale(.95); }
+  .qty-val.bump{ animation:bumpPulse .28s ease; display:inline-block; }
+  .tab-panel:not([hidden]){ animation:fadeIn .2s ease; }
+
   .topbar{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);}
   .topbar-inner{display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem;}
   .wordmark{display:flex; align-items:baseline; gap:.45rem;}
   .wordmark .mark{font-family:var(--font-display); font-weight:600; font-size:1.2rem; letter-spacing:.01em;}
   .wordmark .sub{font-family:var(--font-mono); font-size:.62rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.09em;}
-  .stats-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line);}
+  .stats-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line); cursor:pointer;}
+  .stats-strip:active{opacity:.85;}
   .stat-tile{background:var(--surface); padding:.5rem .75rem .6rem;}
   .stat-tile .value{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.05rem; font-weight:600; line-height:1.3;}
   .stat-tile .label{font-size:.66rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;}
@@ -137,8 +150,11 @@
       rgba(255,225,80,.45) 82%,
       rgba(255,80,190,.5) 90%,
       transparent 100%);
+    background-size:220% 220%; background-position:20% 50%;
     mix-blend-mode:color-dodge; opacity:.7;
+    animation:foilShimmer 7s ease-in-out infinite alternate;
   }
+  @keyframes foilShimmer{ from{background-position:10% 40%;} to{background-position:90% 60%;} }
   .modal-card-image-wrap{position:relative; width:150px; max-width:55%; margin:0 auto .9rem;}
   .modal-card-image-wrap .modal-card-image{width:100%; max-width:none; margin:0;}
   .modal-card-image-wrap .foil-fx{opacity:.8;}
@@ -198,9 +214,11 @@
   .sort-dir-btn.active{background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:600;}
 
   #modalRoot[hidden]{display:none;}
-  .modal-backdrop{position:fixed; inset:0; background:rgba(20,16,30,.52); display:flex; align-items:flex-end; justify-content:center; z-index:50; padding:0;}
+  .modal-backdrop{position:fixed; inset:0; background:rgba(20,16,30,.52); display:flex; align-items:flex-end; justify-content:center; z-index:50; padding:0; animation:fadeIn .18s ease-out;}
+  .modal-backdrop.closing{ animation:fadeIn .16s ease-in reverse; }
   @media (min-width:640px){ .modal-backdrop{align-items:center;} }
-  .modal-sheet{background:var(--surface); width:100%; max-width:480px; border-radius:var(--radius-l) var(--radius-l) 0 0; padding:1.1rem 1.15rem calc(1.3rem + env(safe-area-inset-bottom)); max-height:88vh; overflow-y:auto; box-shadow:var(--shadow);}
+  .modal-sheet{background:var(--surface); width:100%; max-width:480px; border-radius:var(--radius-l) var(--radius-l) 0 0; padding:1.1rem 1.15rem calc(1.3rem + env(safe-area-inset-bottom)); max-height:88vh; overflow-y:auto; box-shadow:var(--shadow); animation:slideUpIn .24s cubic-bezier(.2,.8,.2,1);}
+  .modal-backdrop.closing .modal-sheet{ animation:slideUpIn .16s ease-in reverse; }
   @media (min-width:640px){ .modal-sheet{border-radius:var(--radius-l); max-height:82vh;} }
   .modal-handle{width:38px; height:4px; border-radius:999px; background:var(--line); margin:0 auto .9rem;}
   .modal-title{font-size:1.15rem; font-weight:600; margin:0 0 .95rem; display:flex; align-items:center; gap:.5rem;}
@@ -231,6 +249,7 @@
 
   #detailPanel[hidden]{display:none;}
   #detailPanel{position:fixed; inset:0; z-index:40; background:var(--paper); display:flex; flex-direction:column;}
+  #detailPanel:not([hidden]){ animation:slideInRight .22s ease-out; }
   .detail-header{display:flex; align-items:center; gap:.6rem; padding:calc(.7rem + env(safe-area-inset-top)) 1rem .7rem; border-bottom:1px solid var(--line); background:var(--surface);}
   .detail-header h2{font-size:1.05rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .detail-body{flex:1; overflow-y:auto; padding:1.1rem 1rem calc(2rem + env(safe-area-inset-bottom)); max-width:640px; margin:0 auto; width:100%;}
@@ -257,6 +276,19 @@
   .color-swatch.active{border-color:var(--ink);}
   .binder-preview{background:var(--surface-2); border:1px dashed var(--line); cursor:default;}
   .binder-preview:hover{background:var(--surface-2);}
+
+  .stat-section{margin-bottom:1.6rem;}
+  .stat-section h3{font-size:.95rem; margin-bottom:.7rem;}
+  .stat-bar-row{display:flex; align-items:center; gap:.6rem; margin-bottom:.55rem;}
+  .stat-bar-row .lbl{width:104px; flex-shrink:0; font-size:.74rem; color:var(--ink-soft); display:flex; align-items:center; gap:.35rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .stat-bar-row .lbl .set-icon{font-size:1rem;}
+  .stat-bar-track{flex:1; height:10px; border-radius:999px; background:var(--surface-2); overflow:hidden;}
+  .stat-bar-fill{height:100%; border-radius:999px; min-width:3px;}
+  .stat-bar-row .amt{width:64px; flex-shrink:0; text-align:right; font-family:var(--font-mono); font-size:.76rem; color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+  .stat-grid-tiles{display:grid; grid-template-columns:1fr 1fr; gap:.6rem;}
+  .stat-grid-tiles .stat-tile{border:1px solid var(--line); border-radius:var(--radius-m); text-align:center; padding:.7rem .5rem;}
+  .stat-highlight-card{display:flex; align-items:center; gap:.7rem; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:.6rem .75rem; cursor:pointer;}
+  .stat-highlight-card:hover{background:var(--surface-2);}
 
   .scan-frame{position:relative; border-radius:var(--radius-l); overflow:hidden; background:#0d0b12; aspect-ratio:3/4; max-width:340px; margin:0 auto; box-shadow:var(--shadow);}
   #scanVideo{width:100%; height:100%; object-fit:cover; display:block;}
@@ -292,7 +324,7 @@
   <div class="topbar-inner">
     <div class="wordmark"><span class="mark">Ledger</span><span class="sub">Colección MTG</span></div>
   </div>
-  <div class="stats-strip">
+  <div class="stats-strip" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección" title="Ver estadísticas">
     <div class="stat-tile"><div class="value" id="statTotal">0</div><div class="label">Cartas</div></div>
     <div class="stat-tile"><div class="value" id="statUnique">0</div><div class="label">Únicas</div></div>
     <div class="stat-tile"><div class="value" id="statValue">—</div><div class="label">Valor total</div></div>
@@ -436,7 +468,8 @@ const ICONS = {
   grid:'<rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>',
   list:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
   sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>',
-  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  stats:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="5.5" y="12" width="3" height="8" rx="0.6"/><rect x="10.5" y="7" width="3" height="13" rx="0.6"/><rect x="15.5" y="3" width="3" height="17" rx="0.6"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -600,6 +633,104 @@ function renderStats(){
   document.getElementById('statValue').textContent = fmtMoney(valor, currency);
   document.getElementById('collectionCount').textContent = unique;
 }
+function openStatsPanel(){
+  const panel = document.getElementById('detailPanel');
+  const currency = state.settings.currency;
+  const cards = state.cards;
+  const totalQty = cards.reduce(function(a,c){ return a+(c.quantity||0); }, 0);
+
+  if(cards.length === 0){
+    panel.innerHTML =
+      '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
+      '<div class="detail-body">'+emptyStateHTML('stats','Todavía no tienes cartas en tu colección.')+'</div>';
+    panel.hidden = false;
+    document.getElementById('statsBackBtn').addEventListener('click', function(){ panel.hidden = true; });
+    return;
+  }
+
+  const RARITY_ORDER = ['common','uncommon','rare','mythic'];
+  const RARITY_LABELS = {common:'Común', uncommon:'Infrecuente', rare:'Rara', mythic:'Mítica', other:'Especial'};
+  const RARITY_COLORS = {common:'#707883', uncommon:'#5f5871', rare:'#a58e4a', mythic:'#bf4427', other:'#8b5fbf'};
+  const rarityCounts = {};
+  cards.forEach(function(c){
+    const r = RARITY_ORDER.indexOf(c.rarity)>-1 ? c.rarity : 'other';
+    rarityCounts[r] = (rarityCounts[r]||0) + (c.quantity||0);
+  });
+  const rarityRows = RARITY_ORDER.concat(['other']).filter(function(r){ return rarityCounts[r]>0; }).map(function(r){
+    return {label:RARITY_LABELS[r], color:RARITY_COLORS[r], count:rarityCounts[r]};
+  });
+  const rarityMax = Math.max.apply(null, rarityRows.map(function(r){ return r.count; }).concat([1]));
+
+  const COLOR_ORDER = ['W','U','B','R','G'];
+  const colorCounts = {W:0,U:0,B:0,R:0,G:0,C:0};
+  cards.forEach(function(c){
+    const cols = c.colors || [];
+    if(cols.length===0){ colorCounts.C += (c.quantity||0); }
+    else { cols.forEach(function(col){ if(colorCounts[col]!==undefined) colorCounts[col] += (c.quantity||0); }); }
+  });
+  const colorRows = COLOR_ORDER.concat(['C']).map(function(k){ return {key:k, label: k==='C' ? 'Incoloro' : manaName(k), count: colorCounts[k]}; });
+  const colorMax = Math.max.apply(null, colorRows.map(function(r){ return r.count; }).concat([1]));
+
+  const setMap = {};
+  cards.forEach(function(c){
+    const key = c.setCode || '?';
+    if(!setMap[key]) setMap[key] = {code:c.setCode, name:c.setName||c.setCode, qty:0};
+    setMap[key].qty += (c.quantity||0);
+  });
+  const allSets = Object.keys(setMap).map(function(k){ return setMap[k]; });
+  const topSets = allSets.slice().sort(function(a,b){ return b.qty-a.qty; }).slice(0,6);
+  const setMax = topSets.length ? topSets[0].qty : 1;
+
+  const pricedItems = cards.filter(function(c){ const p=itemPrice(c,currency); return p!==null && p!==undefined; });
+  const totalValue = cards.reduce(function(a,c){ const p=itemPrice(c,currency); return a + (p!=null?p*c.quantity:0); }, 0);
+  const pricedQty = pricedItems.reduce(function(a,c){ return a+c.quantity; }, 0);
+  const avgPrice = pricedQty ? (totalValue/pricedQty) : 0;
+  let mostValuable = null;
+  pricedItems.forEach(function(c){ const p=itemPrice(c,currency); if(!mostValuable || p > itemPrice(mostValuable,currency)) mostValuable = c; });
+  const foilQty = cards.filter(function(c){ return c.foil; }).reduce(function(a,c){ return a+c.quantity; }, 0);
+  const uniqueSets = allSets.length;
+
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
+    '<div class="detail-body">'+
+      '<div class="stat-section"><div class="stat-grid-tiles">'+
+        '<div class="stat-tile"><div class="value">'+fmtMoney(avgPrice, currency)+'</div><div class="label">Precio medio</div></div>'+
+        '<div class="stat-tile"><div class="value">'+uniqueSets+'</div><div class="label">Ediciones distintas</div></div>'+
+        '<div class="stat-tile"><div class="value">'+foilQty+'</div><div class="label">Cartas foil</div></div>'+
+        '<div class="stat-tile"><div class="value">'+(totalQty ? Math.round((foilQty/totalQty)*100) : 0)+'%</div><div class="label">De tu colección es foil</div></div>'+
+      '</div></div>'+
+      (mostValuable ? (
+        '<div class="stat-section"><h3>Carta más valiosa</h3>'+
+        '<div class="stat-highlight-card" id="statsMostValuableCard" data-id="'+mostValuable.id+'">'+
+          (mostValuable.imageSmall ? '<img class="card-thumb" src="'+esc(mostValuable.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>')+
+          '<div class="card-info"><div class="card-name">'+esc(mostValuable.name)+'</div><div class="card-meta">'+setIconSpanHTML(mostValuable.setCode, mostValuable.rarity)+' <span class="badge">'+esc((mostValuable.setCode||'').toUpperCase())+'</span></div></div>'+
+          '<div class="price">'+fmtMoney(itemPrice(mostValuable,currency), currency)+'</div>'+
+        '</div></div>'
+      ) : '')+
+      '<div class="stat-section"><h3>Por rareza</h3>'+
+        rarityRows.map(function(r){
+          return '<div class="stat-bar-row"><div class="lbl">'+r.label+'</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.max(3,Math.round(r.count/rarityMax*100))+'%; background:'+r.color+';"></div></div><div class="amt">'+r.count+'</div></div>';
+        }).join('')+
+      '</div>'+
+      '<div class="stat-section"><h3>Por color</h3>'+
+        colorRows.map(function(r){
+          const barColor = 'var(--mana-'+r.key.toLowerCase()+')';
+          return '<div class="stat-bar-row"><div class="lbl">'+colorPipsHTML(r.key==='C'?[]:[r.key])+' '+r.label+'</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.max(3,Math.round(r.count/colorMax*100))+'%; background:'+barColor+';"></div></div><div class="amt">'+r.count+'</div></div>';
+        }).join('')+
+      '</div>'+
+      (topSets.length ? (
+        '<div class="stat-section"><h3>Ediciones con más cartas</h3>'+
+          topSets.map(function(s){
+            return '<div class="stat-bar-row"><div class="lbl">'+setIconSpanHTML(s.code,'common')+' '+esc((s.code||'').toUpperCase())+'</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.max(3,Math.round(s.qty/setMax*100))+'%; background:var(--accent);"></div></div><div class="amt">'+s.qty+'</div></div>';
+          }).join('')+
+        '</div>'
+      ) : '')+
+    '</div>';
+  panel.hidden = false;
+  document.getElementById('statsBackBtn').addEventListener('click', function(){ panel.hidden = true; });
+  const mvEl = document.getElementById('statsMostValuableCard');
+  if(mvEl) mvEl.addEventListener('click', function(){ openEditCardModal(mvEl.dataset.id); });
+}
 
 /* ---------- Collection tab ---------- */
 function cardRowHTML(c){
@@ -701,7 +832,9 @@ const CONDITIONS = ['NM','LP','MP','HP','DMG'];
 const CONDITION_NAMES = {NM:'Como nueva (NM)', LP:'Levemente jugada (LP)', MP:'Moderadamente jugada (MP)', HP:'Muy jugada (HP)', DMG:'Dañada (DMG)'};
 const LANGS = ['EN','ES','FR','DE','IT','PT','JA','KO','RU','ZHS','ZHT'];
 
+let modalCloseTimer = null;
 function openModal(innerHTML){
+  if(modalCloseTimer){ clearTimeout(modalCloseTimer); modalCloseTimer = null; }
   const root = document.getElementById('modalRoot');
   root.innerHTML = '<div class="modal-backdrop" id="modalBackdrop"><div class="modal-sheet" role="dialog" aria-modal="true">'+
       '<div class="modal-handle"></div>'+ innerHTML +
@@ -709,7 +842,13 @@ function openModal(innerHTML){
   root.hidden = false;
   document.getElementById('modalBackdrop').addEventListener('click', function(e){ if(e.target.id === 'modalBackdrop') closeModal(); });
 }
-function closeModal(){ const root = document.getElementById('modalRoot'); root.hidden = true; root.innerHTML=''; }
+function closeModal(){
+  const root = document.getElementById('modalRoot');
+  const backdrop = document.getElementById('modalBackdrop');
+  if(!backdrop){ root.hidden = true; root.innerHTML = ''; return; }
+  backdrop.classList.add('closing');
+  modalCloseTimer = setTimeout(function(){ root.hidden = true; root.innerHTML = ''; modalCloseTimer = null; }, 160);
+}
 
 async function startAddFlow(name){
   toast('Buscando "'+name+'"…', 1400);
@@ -856,8 +995,9 @@ function openAddDetailsModal(card, existingItem){
 
   let curQty = qty;
   const qtyValEl = document.getElementById('addQtyVal');
-  document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; } });
-  document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; });
+  function bumpQtyVal(){ qtyValEl.classList.remove('bump'); void qtyValEl.offsetWidth; qtyValEl.classList.add('bump'); }
+  document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; bumpQtyVal(); } });
+  document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; bumpQtyVal(); });
   const modalImg = document.getElementById('modalCardImage');
   if(modalImg) modalImg.addEventListener('click', function(){ openLightbox(bigImage, card.name); });
   const addFoilChkEl = document.getElementById('addFoilChk');
@@ -1452,6 +1592,9 @@ function normalizeCondition(v){
 }
 function isFoilValue(v){ return /foil|etched|^true$|^1$|^yes$|^s[ií]$/i.test((v||'').trim()); }
 
+function importMatchKey(scryfallId, foil, condition, lang){
+  return scryfallId+'|'+(foil?'F':'N')+'|'+condition+'|'+lang;
+}
 async function importCSVFile(file){
   const text = await file.text();
   const rows = parseCSV(text);
@@ -1461,7 +1604,15 @@ async function importCSVFile(file){
   header.forEach(function(h,i){ idx[h]=i; });
   const dataRows = rows.slice(1);
   setSettingsProgress(0,true);
-  let ok=0, fail=0;
+
+  // Index the cards already in the collection so re-importing the same (or an updated)
+  // export merges into existing rows instead of duplicating them every time.
+  const existingByKey = {};
+  state.cards.forEach(function(c){
+    existingByKey[importMatchKey(c.scryfallId, c.foil, c.condition, c.lang)] = c;
+  });
+
+  let created=0, updated=0, fail=0;
   for(let i=0;i<dataRows.length;i++){
     const r = dataRows[i];
     const name = idx.name!==undefined ? r[idx.name] : null;
@@ -1476,6 +1627,9 @@ async function importCSVFile(file){
       if(!card) throw new Error('sin datos suficientes');
       const face = printFace(card);
       const foilFlag = idx.foil!==undefined && isFoilValue(r[idx.foil]);
+      const condition = normalizeCondition(idx.condition!==undefined ? r[idx.condition] : '');
+      const lang = (idx.lang!==undefined && r[idx.lang] && r[idx.lang].toUpperCase()) || 'EN';
+      const quantity = (idx.quantity!==undefined && parseInt(r[idx.quantity],10)) || 1;
       const binderNameVal = idx.binder!==undefined ? (r[idx.binder]||'').trim() : '';
       let binderId = null;
       if(binderNameVal){
@@ -1483,28 +1637,42 @@ async function importCSVFile(file){
         if(!b){ b = {id:uuid(), name:binderNameVal, createdAt:Date.now()}; await dbPut('binders', b); state.binders.push(b); }
         binderId = b.id;
       }
-      const item = {
-        id: uuid(), scryfallId: card.id, name: card.name, setCode: card.set, setName: card.set_name,
+
+      const key = importMatchKey(card.id, foilFlag, condition, lang);
+      const existing = existingByKey[key];
+      const sharedFields = {
+        name: card.name, setCode: card.set, setName: card.set_name,
         collectorNumber: card.collector_number, rarity: card.rarity,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
         cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at || null,
         imageSmall: face.image, imageNormal: face.imageNormal || face.image,
         prices: {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)},
-        foil: foilFlag, condition: normalizeCondition(idx.condition!==undefined ? r[idx.condition] : ''),
-        lang: (idx.lang!==undefined && r[idx.lang] && r[idx.lang].toUpperCase()) || 'EN',
-        quantity: (idx.quantity!==undefined && parseInt(r[idx.quantity],10)) || 1,
-        binderId: binderId, addedAt: Date.now()
       };
-      await dbPut('cards', item);
-      state.cards.push(item);
-      ok++;
+      if(existing){
+        // Same card + foil + condition + language already in the collection: refresh its
+        // data and quantity instead of adding a duplicate row. Only overwrite the binder
+        // if this CSV row actually specifies one, so we don't undo a manual move.
+        Object.assign(existing, sharedFields, {quantity: quantity});
+        if(binderNameVal) existing.binderId = binderId;
+        await dbPut('cards', existing);
+        updated++;
+      } else {
+        const item = Object.assign({
+          id: uuid(), scryfallId: card.id, foil: foilFlag, condition: condition, lang: lang,
+          quantity: quantity, binderId: binderId, addedAt: Date.now()
+        }, sharedFields);
+        await dbPut('cards', item);
+        state.cards.push(item);
+        existingByKey[key] = item;
+        created++;
+      }
     }catch(e){ fail++; }
     setSettingsProgress(Math.round((i+1)/dataRows.length*100), true);
     await sleep(110);
   }
   setSettingsProgress(0,false);
   renderCollection();
-  toast(ok+' importadas'+(fail?(', '+fail+' con error'):''));
+  toast(created+' añadidas, '+updated+' actualizadas'+(fail?(', '+fail+' con error'):''));
 }
 async function wipeAll(){
   if(!confirm('Esto borrará TODA tu colección, mazos y carpetas de este dispositivo. ¿Continuar?')) return;
@@ -1576,6 +1744,8 @@ async function init(){
   });
   document.getElementById('collectionFilterInput').addEventListener('input', debounce(function(){ renderCollection(); }, 150));
   document.getElementById('sortToggleBtn').addEventListener('click', openSortModal);
+  document.getElementById('statsStripBtn').addEventListener('click', openStatsPanel);
+  document.getElementById('statsStripBtn').addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openStatsPanel(); } });
   document.querySelectorAll('#viewModeSegmented button').forEach(function(b){
     b.classList.toggle('active', b.dataset.view === state.settings.viewMode);
     b.addEventListener('click', function(){
