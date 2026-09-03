@@ -118,8 +118,30 @@
 
   .card-row{display:flex; gap:.7rem; align-items:center; padding:.55rem .4rem; border-radius:var(--radius-m); cursor:pointer;}
   .card-row:hover{background:var(--surface-2);}
-  .card-thumb{width:40px; height:56px; border-radius:5px; object-fit:cover; background:var(--surface-2); flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,.18);}
+  .thumb-wrap{position:relative; width:40px; height:56px; border-radius:5px; overflow:hidden; flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,.18);}
+  .card-thumb{width:40px; height:56px; border-radius:5px; object-fit:cover; background:var(--surface-2); flex-shrink:0;}
+  .thumb-wrap .card-thumb{box-shadow:none;}
   .card-thumb-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint);}
+  /* Foil shine: a diagonal rainbow band blended over the card art so foil cards read
+     as shiny at a glance, similar to how ManaBox and other trackers mark foils. */
+  .foil-fx{position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:linear-gradient(115deg,
+      transparent 0%, transparent 8%,
+      rgba(255,80,190,.6) 16%,
+      rgba(255,225,80,.55) 24%,
+      rgba(120,255,180,.55) 32%,
+      rgba(90,150,255,.6) 40%,
+      rgba(200,110,255,.55) 48%,
+      transparent 58%, transparent 66%,
+      rgba(90,150,255,.45) 74%,
+      rgba(255,225,80,.45) 82%,
+      rgba(255,80,190,.5) 90%,
+      transparent 100%);
+    mix-blend-mode:color-dodge; opacity:.7;
+  }
+  .modal-card-image-wrap{position:relative; width:150px; max-width:55%; margin:0 auto .9rem;}
+  .modal-card-image-wrap .modal-card-image{width:100%; max-width:none; margin:0;}
+  .modal-card-image-wrap .foil-fx{opacity:.8;}
   .card-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
   .card-name{font-family:var(--font-display); font-weight:500; font-size:.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-meta{display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;}
@@ -576,9 +598,10 @@ function renderStats(){
 function cardRowHTML(c){
   const price = itemPrice(c, state.settings.currency);
   const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
+  const thumb = '<div class="thumb-wrap">'+img+(c.foil ? '<div class="foil-fx"></div>' : '')+'</div>';
   return (
     '<div class="card-row" data-id="'+c.id+'" data-action="edit-card">'+
-      img+
+      thumb+
       '<div class="card-info">'+
         '<div class="card-name">'+esc(c.name)+'</div>'+
         '<div class="card-meta">'+colorPipsHTML(c.colors)+
@@ -608,6 +631,7 @@ function cardGridItemHTML(c){
   return (
     '<div class="card-grid-item" data-id="'+c.id+'" data-action="edit-card">'+
       '<div class="gimg-wrap">'+img+
+        (c.foil ? '<div class="foil-fx"></div>' : '')+
         '<span class="gqty">×'+c.quantity+'</span>'+
         (c.foil ? '<span class="gfoil">F</span>' : '')+
       '</div>'+
@@ -796,9 +820,12 @@ function openAddDetailsModal(card, existingItem){
 
   const bigImage = face.imageNormal || face.image;
   openModal(
-    (bigImage
-      ? '<img id="modalCardImage" class="modal-card-image" src="'+esc(bigImage)+'" alt="'+esc(card.name)+'" title="Toca para ampliar">'
-      : '<div class="modal-card-image modal-card-image-empty">'+icon('image',28)+'</div>')+
+    '<div class="modal-card-image-wrap">'+
+      (bigImage
+        ? '<img id="modalCardImage" class="modal-card-image" src="'+esc(bigImage)+'" alt="'+esc(card.name)+'" title="Toca para ampliar">'
+        : '<div class="modal-card-image modal-card-image-empty">'+icon('image',28)+'</div>')+
+      '<div class="foil-fx" id="modalFoilFx" '+(foil?'':'hidden')+'></div>'+
+    '</div>'+
     '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(card.name)+'</h3>'+
     '<div class="section-note" style="margin-top:-.6rem; text-align:center;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
     '<div class="stepper-lg">'+
@@ -826,6 +853,11 @@ function openAddDetailsModal(card, existingItem){
   document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; });
   const modalImg = document.getElementById('modalCardImage');
   if(modalImg) modalImg.addEventListener('click', function(){ openLightbox(bigImage, card.name); });
+  const addFoilChkEl = document.getElementById('addFoilChk');
+  const modalFoilFx = document.getElementById('modalFoilFx');
+  if(addFoilChkEl && modalFoilFx){
+    addFoilChkEl.addEventListener('change', function(){ modalFoilFx.hidden = !addFoilChkEl.checked; });
+  }
 
   if(isEdit){
     document.getElementById('deleteCardBtn').addEventListener('click', async function(){
