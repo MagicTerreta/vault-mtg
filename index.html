@@ -358,7 +358,7 @@
 
   <section class="tab-panel" data-tab="scan" hidden>
     <div class="panel-head"><h2>Escanear carta</h2></div>
-    <p class="section-note">Lee el nombre impreso en la carta con la cámara (reconocimiento de texto) y busca su ficha en Scryfall. Funciona mejor con buena luz y la carta bien enfocada; si falla, corrige el texto a mano o escribe el nombre directamente abajo.</p>
+    <p class="section-note">Lee el nombre impreso en la carta con la cámara (reconocimiento de texto) y la añade directamente a «Todas las escaneadas» con su edición más reciente. Sigue escaneando cartas sin parar; revisa y corrige la edición, el foil o la cantidad de cada una antes de pasarlas todas a tu colección.</p>
     <div class="scan-frame" id="scanFrame">
       <div class="scan-placeholder" id="scanPlaceholder"></div>
       <video id="scanVideo" playsinline muted hidden></video>
@@ -375,8 +375,14 @@
       <label for="manualScanInput">Nombre de la carta</label>
       <input id="manualScanInput" class="text-input" placeholder="Escribe el nombre tal y como aparece en la carta">
     </div>
-    <button class="btn btn-primary btn-block" id="manualScanBtn">Buscar carta</button>
-    <div id="scanResultBox"></div>
+    <button class="btn btn-primary btn-block" id="manualScanBtn">Añadir a escaneadas</button>
+
+    <div class="panel-head" style="margin-top:1.6rem;">
+      <h2>Todas las escaneadas <span class="count-pill" id="scanQueueCount">0</span></h2>
+      <button class="icon-btn" id="scanQueueClearBtn" title="Vaciar todas" aria-label="Vaciar todas"></button>
+    </div>
+    <div id="scanQueueList"></div>
+    <button class="btn btn-primary btn-block" id="scanQueueAddAllBtn" hidden style="margin-top:.8rem;"></button>
   </section>
 
   <section class="tab-panel" data-tab="decks" hidden>
@@ -587,6 +593,7 @@ const state = {
   cards: [],
   decks: [],
   binders: [],
+  scanQueue: loadScanQueue(),
   settings: loadSettings(),
   filterOpen: false,
   scanStream: null,
@@ -646,7 +653,8 @@ function openStatsPanel(){
       '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
       '<div class="detail-body">'+emptyStateHTML('stats','Todavía no tienes cartas en tu colección.')+'</div>';
     panel.hidden = false;
-    document.getElementById('statsBackBtn').addEventListener('click', function(){ panel.hidden = true; });
+    navPush();
+    document.getElementById('statsBackBtn').addEventListener('click', navBack);
     return;
   }
 
@@ -729,7 +737,8 @@ function openStatsPanel(){
       ) : '')+
     '</div>';
   panel.hidden = false;
-  document.getElementById('statsBackBtn').addEventListener('click', function(){ panel.hidden = true; });
+  navPush();
+  document.getElementById('statsBackBtn').addEventListener('click', navBack);
   const mvEl = document.getElementById('statsMostValuableCard');
   if(mvEl) mvEl.addEventListener('click', function(){ openEditCardModal(mvEl.dataset.id); });
 }
@@ -843,14 +852,16 @@ function openModal(innerHTML){
     '</div></div>';
   root.hidden = false;
   document.getElementById('modalBackdrop').addEventListener('click', function(e){ if(e.target.id === 'modalBackdrop') closeModal(); });
+  navPush();
 }
-function closeModal(){
+function dismissModal(){
   const root = document.getElementById('modalRoot');
   const backdrop = document.getElementById('modalBackdrop');
   if(!backdrop){ root.hidden = true; root.innerHTML = ''; return; }
   backdrop.classList.add('closing');
   modalCloseTimer = setTimeout(function(){ root.hidden = true; root.innerHTML = ''; modalCloseTimer = null; }, 160);
 }
+function closeModal(){ navBack(); }
 
 async function startAddFlow(name){
   toast('Buscando "'+name+'"…', 1400);
@@ -877,8 +888,10 @@ function openLightbox(url, alt){
   root.innerHTML = '<div class="lightbox-backdrop" id="lightboxBackdrop"><button class="lightbox-close" aria-label="Cerrar">'+icon('x',18)+'</button><img src="'+esc(url)+'" alt="'+esc(alt||'')+'"></div>';
   root.hidden = false;
   document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
+  navPush();
 }
-function closeLightbox(){ const root = document.getElementById('lightboxRoot'); root.hidden = true; root.innerHTML=''; }
+function dismissLightbox(){ const root = document.getElementById('lightboxRoot'); root.hidden = true; root.innerHTML=''; }
+function closeLightbox(){ navBack(); }
 
 /* ---------- Sorting ---------- */
 const SORT_FIELDS = ['added','name','price','quantity','releasedAt'];
@@ -952,8 +965,9 @@ function openPrintingPicker(prints, onPickExtra){
   });
 }
 
-function openAddDetailsModal(card, existingItem, overrides){
+function openAddDetailsModal(card, existingItem, overrides, target){
   const isEdit = !!existingItem;
+  const isQueueMode = !!(target && target.queue);
   const finishes = card.finishes || (existingItem ? ['nonfoil','foil'] : ['nonfoil']);
   const canFoil = finishes.indexOf('foil') > -1 || finishes.indexOf('etched') > -1;
   const face = printFace(card);
@@ -992,8 +1006,8 @@ function openAddDetailsModal(card, existingItem, overrides){
     '</div>'+
     '<div class="field"><label for="addBinder">Carpeta</label><select id="addBinder" class="text-input">'+binderOptions+'</select></div>'+
     '<div class="btn-row">'+
-      (isEdit ? '<button class="btn btn-danger" id="deleteCardBtn">'+icon('trash',15)+' Eliminar</button>' : '')+
-      '<button class="btn btn-primary btn-block" id="confirmAddBtn">'+icon('check',15)+' '+(isEdit?'Guardar cambios':'Añadir a la colección')+'</button>'+
+      ((isEdit||isQueueMode) ? '<button class="btn btn-danger" id="deleteCardBtn">'+icon('trash',15)+' '+(isQueueMode?'Quitar de escaneadas':'Eliminar')+'</button>' : '')+
+      '<button class="btn btn-primary btn-block" id="confirmAddBtn">'+icon('check',15)+' '+(isQueueMode?'Guardar':(isEdit?'Guardar cambios':'Añadir a la colección'))+'</button>'+
     '</div>'
   );
 
@@ -1021,13 +1035,19 @@ function openAddDetailsModal(card, existingItem, overrides){
       const prints = await scryPrintsByName(card.name);
       if(prints.length < 2){ toast('No se han encontrado más ediciones de esta carta.'); return; }
       openPrintingPicker(prints, function(pickedCard){
-        openAddDetailsModal(pickedCard, existingItem, overridesNow);
+        openAddDetailsModal(pickedCard, existingItem, overridesNow, target);
       });
     }catch(e){ toast(e.message || 'No se pudieron cargar las ediciones'); }
   });
 
-  if(isEdit){
+  if(isEdit || isQueueMode){
     document.getElementById('deleteCardBtn').addEventListener('click', async function(){
+      if(isQueueMode){
+        if(!confirm('¿Quitar "'+card.name+'" de las escaneadas?')) return;
+        removeScanQueueItem(target.qid);
+        closeModal(); toast('Quitada de escaneadas');
+        return;
+      }
       if(!confirm('¿Eliminar "'+existingItem.name+'" de tu colección?')) return;
       await dbDelete('cards', existingItem.id);
       state.cards = state.cards.filter(function(c){ return c.id !== existingItem.id; });
@@ -1040,6 +1060,17 @@ function openAddDetailsModal(card, existingItem, overrides){
     const conditionVal = document.getElementById('addCondition').value;
     const langVal = document.getElementById('addLang').value;
     const binderVal = document.getElementById('addBinder').value || null;
+    if(isQueueMode){
+      const qi = state.scanQueue.find(function(x){ return x.qid === target.qid; });
+      if(qi){
+        Object.assign(qi, {card: card, quantity: curQty, foil: foilVal, condition: conditionVal, lang: langVal, binderId: binderVal});
+        saveScanQueue();
+        renderScanQueue();
+      }
+      closeModal();
+      toast('Cambios guardados');
+      return;
+    }
     const prices = {
       eur: toNum(card.prices && card.prices.eur), eurFoil: toNum(card.prices && card.prices.eur_foil),
       usd: toNum(card.prices && card.prices.usd), usdFoil: toNum(card.prices && card.prices.usd_foil)
@@ -1157,35 +1188,149 @@ async function captureAndRead(){
     let text = (result.data && result.data.text || '').replace(/\n/g,' ').replace(/[^a-zA-Z' ,-]/g,' ').replace(/\s+/g,' ').trim();
     if(!text){ toast('No se ha podido leer texto. Prueba con más luz o escribe el nombre.'); return; }
     document.getElementById('manualScanInput').value = text;
-    toast('Texto leído: "'+text+'" — revísalo y pulsa Buscar carta');
+    await scanSearchToQueue(text);
   }catch(err){
     toast(err.message || 'Error al leer el texto de la carta.');
   }finally{
     btn.disabled = false; btn.innerHTML = originalHTML;
   }
 }
-async function scanSearch(text){
+/* ---------- Scan queue ("Todas las escaneadas") ----------
+   Scanning (camera OCR or the manual field) resolves straight to a card and
+   drops it into this staging list instead of asking for edition/foil/condition
+   on every single card — by default we take the most recent printing (Scryfall
+   returns prints ordered released desc), same as a ManaBox-style quick-scan.
+   Wrong edition, foil, etc. get fixed by tapping the row before the whole
+   batch gets added to the real collection with "Añadir todas". */
+function saveScanQueue(){ try{ localStorage.setItem('mtgLedgerScanQueue', JSON.stringify(state.scanQueue)); }catch(e){} }
+function loadScanQueue(){
+  try{ const raw = localStorage.getItem('mtgLedgerScanQueue'); if(raw){ const v = JSON.parse(raw); if(Array.isArray(v)) return v; } }catch(e){}
+  return [];
+}
+function addToScanQueue(card){
+  const defaultLang = card.lang ? card.lang.toUpperCase() : 'EN';
+  // Scanning the same card twice in a row (still at its default foil/condition/
+  // lang, i.e. not yet hand-edited) just bumps the quantity instead of adding
+  // a second identical row.
+  const dup = state.scanQueue.find(function(x){
+    return x.card.id === card.id && x.foil === false && x.condition === 'NM' && x.lang === defaultLang && !x.binderId;
+  });
+  if(dup){ dup.quantity++; saveScanQueue(); renderScanQueue(); return dup; }
+  const item = {qid: uuid(), card: card, quantity: 1, foil: false, condition: 'NM', lang: defaultLang, binderId: null, addedAt: Date.now()};
+  state.scanQueue.push(item);
+  saveScanQueue();
+  renderScanQueue();
+  return item;
+}
+function removeScanQueueItem(qid){
+  state.scanQueue = state.scanQueue.filter(function(x){ return x.qid !== qid; });
+  saveScanQueue();
+  renderScanQueue();
+}
+function openScanQueueItemModal(qid){
+  const item = state.scanQueue.find(function(x){ return x.qid === qid; });
+  if(!item) return;
+  const overrides = {quantity: item.quantity, foil: item.foil, condition: item.condition, lang: item.lang, binderId: item.binderId};
+  openAddDetailsModal(item.card, null, overrides, {queue: true, qid: qid});
+}
+function scanQueueItemHTML(item){
+  const c = item.card;
+  const face = printFace(c);
+  const img = face.image ? '<img class="card-thumb" src="'+esc(face.image)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
+  const thumb = '<div class="thumb-wrap">'+img+(item.foil ? '<div class="foil-fx"></div>' : '')+'</div>';
+  return (
+    '<div class="card-row" data-qid="'+item.qid+'" data-action="edit-scan-item">'+
+      thumb+
+      '<div class="card-info">'+
+        '<div class="card-name">'+esc(c.name)+'</div>'+
+        '<div class="card-meta">'+
+          '<span class="badge">'+setIconSpanHTML(c.set, c.rarity)+esc((c.set||'').toUpperCase())+' #'+esc(c.collector_number)+'</span>'+
+          (item.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
+          '<span class="badge">'+esc(item.condition)+'</span>'+
+          (item.quantity>1 ? '<span class="badge">×'+item.quantity+'</span>' : '')+
+        '</div>'+
+      '</div>'+
+      '<button class="icon-btn" data-action="remove-scan-item" data-qid="'+item.qid+'" aria-label="Quitar" title="Quitar">'+icon('x',15)+'</button>'+
+    '</div>'
+  );
+}
+function renderScanQueue(){
+  const list = document.getElementById('scanQueueList');
+  const countEl = document.getElementById('scanQueueCount');
+  const addAllBtn = document.getElementById('scanQueueAddAllBtn');
+  const clearBtn = document.getElementById('scanQueueClearBtn');
+  const n = state.scanQueue.length;
+  countEl.textContent = n;
+  addAllBtn.hidden = n === 0;
+  clearBtn.hidden = n === 0;
+  if(n > 0) addAllBtn.innerHTML = icon('check',15)+' Añadir todas a la colección ('+n+')';
+  if(n === 0){
+    list.innerHTML = emptyStateHTML('camera','Las cartas que escanees aparecerán aquí.<br>Revísalas y corrige la edición si hace falta antes de añadirlas todas a la colección.');
+    return;
+  }
+  list.innerHTML = state.scanQueue.slice().reverse().map(scanQueueItemHTML).join('');
+}
+async function scanSearchToQueue(text){
   text = text.trim();
   if(!text){ toast('Escribe o escanea un nombre primero.'); return; }
-  const box = document.getElementById('scanResultBox');
-  box.innerHTML = '<p class="section-note">Buscando…</p>';
+  toast('Buscando "'+text+'"…', 1200);
   try{
-    const card = await scryFuzzy(text);
-    const face = printFace(card);
-    box.innerHTML = '<div class="scan-result">'+
-      (face.image?'<img src="'+esc(face.image)+'" alt="">':'')+
-      '<div style="flex:1;"><div class="card-name">'+esc(card.name)+'</div><div class="section-note" style="margin:.2rem 0 0;">'+esc(card.set_name)+'</div></div>'+
-      '<button class="btn btn-primary" id="scanAddBtn">Añadir</button>'+
-    '</div>';
-    document.getElementById('scanAddBtn').addEventListener('click', async function(){
-      try{
-        const prints = await scryPrintsByName(card.name);
-        openPrintingPicker(prints.length?prints:[card], null);
-      }catch(e){ toast(e.message); }
-    });
+    let prints = await scryPrintsByName(text);
+    let card;
+    if(prints.length){
+      card = prints[0]; // scryPrintsByName sorts released desc: the newest printing
+    } else {
+      // No exact match (likely imperfect OCR text) — fall back to a fuzzy name
+      // match, then still prefer that card's most recent printing.
+      const fuzzy = await scryFuzzy(text);
+      const reprints = await scryPrintsByName(fuzzy.name);
+      card = reprints.length ? reprints[0] : fuzzy;
+    }
+    const item = addToScanQueue(card);
+    toast('"'+card.name+'" ('+(card.set_name||card.set||'')+')'+(item.quantity>1?' ×'+item.quantity:'')+' — '+state.scanQueue.length+' escaneada(s)');
+    document.getElementById('manualScanInput').value = '';
   }catch(err){
-    box.innerHTML = '<p class="section-note">'+esc(err.message)+'</p>';
+    toast(err.message || 'No se encontró esa carta.');
   }
+}
+async function addAllScanQueueToCollection(){
+  const n = state.scanQueue.length;
+  if(n === 0) return;
+  for(const item of state.scanQueue){
+    const card = item.card;
+    const face = printFace(card);
+    const prices = {
+      eur: toNum(card.prices && card.prices.eur), eurFoil: toNum(card.prices && card.prices.eur_foil),
+      usd: toNum(card.prices && card.prices.usd), usdFoil: toNum(card.prices && card.prices.usd_foil)
+    };
+    // Same merge-not-duplicate rule as CSV import: if this exact printing/foil/
+    // condition/lang/binder is already in the collection, bump its quantity.
+    const existing = state.cards.find(function(c){
+      return c.scryfallId === card.id && c.foil === item.foil && c.condition === item.condition &&
+        c.lang === item.lang && (c.binderId||null) === (item.binderId||null);
+    });
+    if(existing){
+      existing.quantity += item.quantity;
+      await dbPut('cards', existing);
+    } else {
+      const newItem = {
+        id: uuid(), scryfallId: card.id, name: card.name, setCode: card.set, setName: card.set_name,
+        collectorNumber: card.collector_number, rarity: card.rarity,
+        colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
+        cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at||null,
+        imageSmall: face.image, imageNormal: face.imageNormal||face.image, prices: prices,
+        foil: item.foil, condition: item.condition, lang: item.lang, quantity: item.quantity, binderId: item.binderId,
+        addedAt: Date.now()
+      };
+      await dbPut('cards', newItem);
+      state.cards.push(newItem);
+    }
+  }
+  state.scanQueue = [];
+  saveScanQueue();
+  renderScanQueue();
+  renderCollection();
+  toast(n+' carta'+(n===1?'':'s')+' añadida'+(n===1?'':'s')+' a tu colección');
 }
 
 /* ---------- Decks ---------- */
@@ -1262,8 +1407,9 @@ function openDeckDetail(id){
       '<div id="deckCardsList">'+(deck.cards.length ? deck.cards.map(function(c){ return deckCardRowHTML(deck,c); }).join('') : emptyStateHTML('search','Añade cartas buscándolas arriba.'))+'</div>'+
     '</div>';
   panel.hidden = false;
+  navPush();
 
-  document.getElementById('deckBackBtn').addEventListener('click', function(){ panel.hidden = true; renderDecks(); });
+  document.getElementById('deckBackBtn').addEventListener('click', navBack);
   document.getElementById('deckDeleteBtn').addEventListener('click', async function(){
     if(!confirm('¿Eliminar el mazo "'+deck.name+'"?')) return;
     await dbDelete('decks', deck.id);
@@ -1411,6 +1557,7 @@ function openBinderDetail(id){
       '<div id="binderCardsList"></div>'+
     '</div>';
   panel.hidden = false;
+  navPush();
   renderCardsInto(document.getElementById('binderCardsList'), items, emptyStateHTML('folder','No hay cartas asignadas a esta carpeta todavía. Edita una carta de tu colección para moverla aquí.'));
   document.getElementById('binderSortBtn').addEventListener('click', openSortModal);
   document.querySelectorAll('#binderViewModeSegmented button').forEach(function(b){
@@ -1420,7 +1567,7 @@ function openBinderDetail(id){
       refreshOpenBinder();
     });
   });
-  document.getElementById('binderBackBtn').addEventListener('click', function(){ panel.hidden=true; currentOpenBinderId=null; renderBinders(); });
+  document.getElementById('binderBackBtn').addEventListener('click', navBack);
   if(!isNone){
     document.getElementById('binderEditBtn').addEventListener('click', function(){ openBinderModal(binder); });
     document.getElementById('binderDeleteBtn').addEventListener('click', async function(){
@@ -1709,8 +1856,62 @@ async function wipeAll(){
   toast('Colección vaciada');
 }
 
+/* ---------- Navigation / Android back button ----------
+   Installed as a TWA (Trusted Web Activity), the Android back button just
+   walks this page's own session history — with nothing pushed there it closes
+   the whole app immediately, even from inside a folder or a card's edit
+   screen. We push one history entry for every screen we open (a non-Colección
+   tab, a binder/deck/stats detail panel, a modal, the image lightbox) so back
+   closes that instead, and only offer to actually exit — after confirming —
+   once we're back at the empty Colección "home" screen. */
+const HOME_TAB = 'collection';
+let navDepth = 0;
+function navPush(){
+  navDepth++;
+  history.pushState({navDepth: navDepth}, '');
+}
+function navBack(){
+  if(navDepth > 0) history.back();
+}
+function pushNavGuard(){
+  navDepth = 0;
+  history.pushState({navDepth: 0}, '');
+}
+function applyTopLayer(){
+  const lightboxRoot = document.getElementById('lightboxRoot');
+  const modalRoot = document.getElementById('modalRoot');
+  const detailPanel = document.getElementById('detailPanel');
+  if(!lightboxRoot.hidden){ dismissLightbox(); return; }
+  if(!modalRoot.hidden){ dismissModal(); return; }
+  if(!detailPanel.hidden){
+    detailPanel.hidden = true; detailPanel.innerHTML = '';
+    currentOpenBinderId = null;
+    renderBinders(); renderDecks();
+    return;
+  }
+  if(state.tab !== HOME_TAB){ switchTab(HOME_TAB, true); }
+}
+function requestExitConfirm(){
+  if(confirm('¿Seguro que quieres salir de Ledger?')){
+    history.back(); // nothing of ours left pushed: this lets the app actually close
+  } else {
+    pushNavGuard(); // restore the buffer so the next back press behaves the same way
+  }
+}
+window.addEventListener('popstate', function(e){
+  if(e.state && typeof e.state.navDepth === 'number'){
+    navDepth = e.state.navDepth;
+    applyTopLayer();
+  } else {
+    // No state at all means we've gone back past our guard entry to the
+    // original, untagged page-load entry — the "wants to exit" signal.
+    requestExitConfirm();
+  }
+});
+
 /* ---------- Tabs & init ---------- */
-function switchTab(tab){
+function switchTab(tab, fromNav){
+  const wasHome = state.tab === HOME_TAB;
   state.tab = tab;
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
@@ -1719,6 +1920,14 @@ function switchTab(tab){
   if(tab === 'decks') renderDecks();
   if(tab === 'binders') renderBinders();
   if(tab === 'settings') renderSettings();
+
+  if(fromNav) return; // reflecting a back-button pop we already consumed — don't touch history again
+  if(tab === HOME_TAB){
+    if(!wasHome) navBack();
+  } else if(wasHome){
+    navPush();
+  }
+  // switching between two non-home tabs: no history change — back still goes straight home
 }
 
 async function init(){
@@ -1793,8 +2002,22 @@ async function init(){
   document.getElementById('startCameraBtn').addEventListener('click', startCamera);
   document.getElementById('stopCameraBtn').addEventListener('click', stopCamera);
   document.getElementById('captureBtn').addEventListener('click', captureAndRead);
-  document.getElementById('manualScanBtn').addEventListener('click', function(){ scanSearch(document.getElementById('manualScanInput').value); });
-  document.getElementById('manualScanInput').addEventListener('keydown', function(e){ if(e.key==='Enter') scanSearch(e.target.value); });
+  document.getElementById('manualScanBtn').addEventListener('click', function(){ scanSearchToQueue(document.getElementById('manualScanInput').value); });
+  document.getElementById('manualScanInput').addEventListener('keydown', function(e){ if(e.key==='Enter') scanSearchToQueue(e.target.value); });
+  document.getElementById('scanQueueClearBtn').innerHTML = icon('trash',15);
+  renderScanQueue();
+  document.getElementById('scanQueueList').addEventListener('click', function(e){
+    const rm = e.target.closest('[data-action="remove-scan-item"]');
+    if(rm){ e.stopPropagation(); removeScanQueueItem(rm.dataset.qid); return; }
+    const row = e.target.closest('[data-action="edit-scan-item"]');
+    if(row) openScanQueueItemModal(row.dataset.qid);
+  });
+  document.getElementById('scanQueueClearBtn').addEventListener('click', function(){
+    if(state.scanQueue.length === 0) return;
+    if(!confirm('¿Vaciar todas las cartas escaneadas pendientes? No se añadirán a tu colección.')) return;
+    state.scanQueue = []; saveScanQueue(); renderScanQueue();
+  });
+  document.getElementById('scanQueueAddAllBtn').addEventListener('click', addAllScanQueueToCollection);
 
   document.getElementById('newDeckBtn').addEventListener('click', newDeckModal);
   document.getElementById('decksList').addEventListener('click', function(e){
@@ -1833,6 +2056,8 @@ async function init(){
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
   }
+
+  pushNavGuard();
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
