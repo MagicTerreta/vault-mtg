@@ -386,7 +386,17 @@
   </section>
 
   <section class="tab-panel" data-tab="decks" hidden>
-    <div class="panel-head"><h2>Mazos</h2><button class="btn btn-primary" id="newDeckBtn"></button></div>
+    <div class="panel-head">
+      <h2>Mazos</h2>
+      <div style="display:flex; gap:.5rem;">
+        <button class="btn btn-secondary" id="importDeckBtn"></button>
+        <button class="btn btn-primary" id="newDeckBtn"></button>
+      </div>
+    </div>
+    <input type="file" id="importDeckFileInput" accept=".txt,text/plain" hidden>
+    <div id="decksImportProgress" hidden>
+      <div class="progress-track"><div class="progress-fill" id="decksImportProgressFill"></div></div>
+    </div>
     <div id="decksList"></div>
   </section>
 
@@ -477,7 +487,8 @@ const ICONS = {
   list:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
   sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>',
   edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-  stats:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="5.5" y="12" width="3" height="8" rx="0.6"/><rect x="10.5" y="7" width="3" height="13" rx="0.6"/><rect x="15.5" y="3" width="3" height="17" rx="0.6"/>'
+  stats:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="5.5" y="12" width="3" height="8" rx="0.6"/><rect x="10.5" y="7" width="3" height="13" rx="0.6"/><rect x="15.5" y="3" width="3" height="17" rx="0.6"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -1471,6 +1482,84 @@ function newDeckModal(){
   });
 }
 
+// ManaBox (and MTG Arena, which it mirrors) export decklists as plain text:
+// one card per line as "QTY Name" or "QTY Name (SET) 123" — the set/number
+// are optional. Section headers like "Deck"/"Sideboard"/"Commander" and
+// blank or comment lines are skipped; everything else is folded into one
+// flat list, matching how this app's decks already work (no separate
+// sideboard concept here).
+const DECK_TXT_HEADER_RE = /^(deck|sideboard|commander|companion|maybeboard|about|name)\b.*$/i;
+function parseDeckImportText(text){
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i].trim();
+    if(!line || line.startsWith('//') || line.startsWith('#')) continue;
+    if(DECK_TXT_HEADER_RE.test(line)) continue;
+    const m = line.match(/^(\d+)\s*x?\s+(.+)$/i);
+    if(!m) continue;
+    const qty = parseInt(m[1],10) || 1;
+    let rest = m[2].trim();
+    let setCode = null, collectorNumber = null;
+    const setMatch = rest.match(/^(.*?)\s*\(([A-Za-z0-9]{2,5})\)\s*([A-Za-z0-9\-★]*)\s*$/);
+    if(setMatch){
+      rest = setMatch[1].trim();
+      setCode = setMatch[2];
+      collectorNumber = (setMatch[3]||'').trim() || null;
+    }
+    rest = rest.replace(/\s*\*F\*\s*$/i,'').trim(); // strip a trailing foil marker some exporters add
+    if(!rest) continue;
+    out.push({qty:qty, name:rest, setCode:setCode, collectorNumber:collectorNumber});
+  }
+  return out;
+}
+function setDecksImportProgress(pct, show){
+  const wrap = document.getElementById('decksImportProgress');
+  wrap.hidden = !show;
+  document.getElementById('decksImportProgressFill').style.width = pct+'%';
+}
+async function importDeckTxtFile(file){
+  const text = await file.text();
+  const entries = parseDeckImportText(text);
+  if(!entries.length){ toast('No se ha podido leer ninguna carta de ese archivo.'); return; }
+
+  const defaultName = file.name.replace(/\.[^.]+$/, '').trim() || 'Mazo importado';
+  const deck = {id:uuid(), name:defaultName, format:'', cards:[], createdAt:Date.now()};
+
+  setDecksImportProgress(0, true);
+  let fail = 0;
+  for(let i=0;i<entries.length;i++){
+    const e = entries[i];
+    try{
+      let card = null;
+      if(e.setCode && e.collectorNumber){
+        try{ const rr = await fetch(SCRYFALL+'/cards/'+e.setCode.toLowerCase()+'/'+e.collectorNumber); if(rr.ok) card = await rr.json(); }catch(err){}
+      }
+      if(!card) card = await scryFuzzy(e.name);
+      const face = printFace(card);
+      const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
+      if(existing) existing.qty += e.qty;
+      else deck.cards.push({
+        name: card.name, qty: e.qty, cmc: card.cmc||0,
+        colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
+        imageSmall: face.image, typeLine: card.type_line||''
+      });
+    }catch(err){ fail++; }
+    setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
+    await sleep(110);
+  }
+  setDecksImportProgress(0, false);
+
+  if(deck.cards.length === 0){ toast('No se pudo reconocer ninguna carta de ese archivo.'); return; }
+
+  await dbPut('decks', deck);
+  state.decks.push(deck);
+  renderDecks();
+  openDeckDetail(deck.id);
+  const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
+  toast('Mazo importado: '+total+' cartas'+(fail?(', '+fail+' no encontradas'):''));
+}
+
 /* ---------- Binders ---------- */
 const BINDER_COLORS = ['#5a3fae','#0f68ab','#2f7d5b','#146c43','#a86a2e','#ae4331','#b968d1','#5f5871'];
 async function scryAllSets(){
@@ -1942,6 +2031,7 @@ async function init(){
   document.querySelector('#viewModeSegmented button[data-view="list"]').innerHTML = icon('list',16);
   document.querySelector('#viewModeSegmented button[data-view="grid"]').innerHTML = icon('grid',16);
   document.getElementById('newDeckBtn').innerHTML = icon('plus',15)+' Nuevo mazo';
+  document.getElementById('importDeckBtn').innerHTML = icon('upload',15)+' Importar mazo';
   document.getElementById('newBinderBtn').innerHTML = icon('plus',15)+' Nueva carpeta';
 
   applyTheme();
@@ -2020,6 +2110,14 @@ async function init(){
   document.getElementById('scanQueueAddAllBtn').addEventListener('click', addAllScanQueueToCollection);
 
   document.getElementById('newDeckBtn').addEventListener('click', newDeckModal);
+  document.getElementById('importDeckBtn').addEventListener('click', function(){ document.getElementById('importDeckFileInput').click(); });
+  document.getElementById('importDeckFileInput').addEventListener('change', async function(e){
+    const file = e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    try{ await importDeckTxtFile(file); }
+    catch(err){ setDecksImportProgress(0,false); toast(err.message || 'No se pudo importar el archivo'); }
+  });
   document.getElementById('decksList').addEventListener('click', function(e){
     const row = e.target.closest('[data-action="open-deck"]');
     if(row) openDeckDetail(row.dataset.id);
