@@ -80,9 +80,9 @@
 
   .topbar{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);}
   .topbar-inner{display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem;}
-  .wordmark{display:flex; align-items:baseline; gap:.45rem;}
+  .wordmark{display:flex; align-items:center; gap:.55rem;}
+  .wordmark .app-icon{width:28px; height:28px; border-radius:8px; display:block;}
   .wordmark .mark{font-family:var(--font-display); font-weight:600; font-size:1.2rem; letter-spacing:.01em;}
-  .wordmark .sub{font-family:var(--font-mono); font-size:.62rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.09em;}
   .stats-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line); cursor:pointer;}
   .stats-strip:active{opacity:.85;}
   .stat-tile{background:var(--surface); padding:.5rem .75rem .6rem;}
@@ -324,7 +324,7 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="wordmark"><span class="mark">Ledger</span><span class="sub">Colección MTG</span></div>
+    <div class="wordmark"><img class="app-icon" src="icons/icon-192.png" alt=""><span class="mark">Ledger</span></div>
   </div>
   <div class="stats-strip" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección" title="Ver estadísticas">
     <div class="stat-tile"><div class="value" id="statTotal">0</div><div class="label">Cartas</div></div>
