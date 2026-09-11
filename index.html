@@ -135,6 +135,12 @@
   .card-thumb{width:40px; height:56px; border-radius:5px; object-fit:cover; background:var(--surface-2); flex-shrink:0;}
   .thumb-wrap .card-thumb{box-shadow:none;}
   .card-thumb-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint);}
+  .card-thumb-lg{width:64px; height:90px; border-radius:7px;}
+  .commander-row{background:var(--warn-soft); border:1px solid var(--warn); border-radius:var(--radius-m);}
+  .commander-row:hover{background:var(--warn-soft);}
+  .commander-row .card-name{font-size:1.02rem;}
+  .crown-btn{color:var(--ink-faint);}
+  .crown-btn.active{color:var(--warn);}
   /* Foil shine: a diagonal rainbow band blended over the card art so foil cards read
      as shiny at a glance, similar to how ManaBox and other trackers mark foils. */
   .foil-fx{position:absolute; inset:0; border-radius:inherit; pointer-events:none;
@@ -488,7 +494,8 @@ const ICONS = {
   sort:'<line x1="6" y1="20" x2="6" y2="4"/><polyline points="3 8 6 4 9 8"/><line x1="18" y1="4" x2="18" y2="20"/><polyline points="15 16 18 20 21 16"/>',
   edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   stats:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="5.5" y="12" width="3" height="8" rx="0.6"/><rect x="10.5" y="7" width="3" height="13" rx="0.6"/><rect x="15.5" y="3" width="3" height="17" rx="0.6"/>',
-  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  crown:'<path d="M3 18h18l-1.4-8.2-4.3 3.3L12 6l-3.3 7.1-4.3-3.3L3 18z"/><line x1="4.5" y1="21" x2="19.5" y2="21"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -1351,17 +1358,31 @@ function deckSummary(deck){
   deck.cards.forEach(function(c){ (c.colors||[]).forEach(function(col){ colorSet[col]=true; }); });
   return {total: total, unique: deck.cards.length, colors: Object.keys(colorSet)};
 }
+// Deck tiles show the commander's own art when the deck has one marked, falling
+// back to a generic deck icon otherwise — laid out in the same 3-column grid
+// used by the collection's grid view, for a consistent "wall of cards" look.
+function deckGridItemHTML(deck){
+  const s = deckSummary(deck);
+  const commander = deck.cards.find(function(c){ return c.commander; });
+  const bigSrc = commander ? (commander.imageNormal || commander.imageSmall) : null;
+  const img = bigSrc
+    ? '<img src="'+esc(bigSrc)+'" alt="" loading="lazy">'
+    : '<div class="card-thumb-empty">'+icon('layers',22)+'</div>';
+  return (
+    '<div class="card-grid-item" data-id="'+deck.id+'" data-action="open-deck">'+
+      '<div class="gimg-wrap">'+img+'</div>'+
+      '<div class="gname">'+esc(deck.name)+'</div>'+
+      '<div class="gsub">'+
+        '<span class="gsetnum">'+s.total+' cartas · '+s.unique+' únicas</span>'+
+      '</div>'+
+    '</div>'
+  );
+}
 function renderDecks(){
   const el = document.getElementById('decksList');
-  if(state.decks.length === 0){ el.innerHTML = emptyStateHTML('layers','Todavía no tienes mazos.<br>Crea uno para empezar a planificarlo.'); return; }
-  el.innerHTML = state.decks.map(function(d){
-    const s = deckSummary(d);
-    return '<div class="group-card" data-id="'+d.id+'" data-action="open-deck">'+
-      '<div class="gicon">'+icon('layers',20)+'</div>'+
-      '<div class="gmeta"><div class="gname">'+esc(d.name)+'</div><div class="gsub">'+s.total+' cartas · '+s.unique+' únicas'+(d.format?(' · '+esc(d.format)):'')+'</div></div>'+
-      '<div class="chev">'+icon('chevron',18)+'</div>'+
-    '</div>';
-  }).join('');
+  if(state.decks.length === 0){ el.className=''; el.innerHTML = emptyStateHTML('layers','Todavía no tienes mazos.<br>Crea uno para empezar a planificarlo.'); return; }
+  el.className = 'card-grid';
+  el.innerHTML = state.decks.map(deckGridItemHTML).join('');
 }
 function ownedQtyForName(name){
   const n = name.toLowerCase();
@@ -1382,16 +1403,51 @@ function curveHTML(deck){
   const labels = ['0','1','2','3','4','5','6','7+'].map(function(l){ return '<span>'+l+'</span>'; }).join('');
   return '<div class="curve-chart">'+bars+'</div><div class="curve-labels">'+labels+'</div>';
 }
-function deckCardRowHTML(deck, c){
+// Cards are grouped by broad type so a deck reads the way most deckbuilders lay
+// one out: creatures/planeswalkers/battles first (the "action" cards), then the
+// spells, then permanents, with lands last. A card matching more than one type
+// (e.g. "Artifact Creature") lands in the first/most relevant bucket it matches.
+const DECK_CATEGORIES = [
+  {key:'creature', label:'Criaturas', test:/creature/i},
+  {key:'planeswalker', label:'Planeswalkers', test:/planeswalker/i},
+  {key:'battle', label:'Batallas', test:/battle/i},
+  {key:'instant', label:'Instantáneos', test:/instant/i},
+  {key:'sorcery', label:'Conjuros', test:/sorcery/i},
+  {key:'artifact', label:'Artefactos', test:/artifact/i},
+  {key:'enchantment', label:'Encantamientos', test:/enchantment/i},
+  {key:'land', label:'Tierras', test:/land/i}
+];
+function cardTypeCategory(typeLine){
+  const t = typeLine || '';
+  for(let i=0;i<DECK_CATEGORIES.length;i++){ if(DECK_CATEGORIES[i].test.test(t)) return DECK_CATEGORIES[i].key; }
+  return 'other';
+}
+function groupDeckCards(deck){
+  const commanders = deck.cards.filter(function(c){ return c.commander; });
+  const rest = deck.cards.filter(function(c){ return !c.commander; });
+  const byKey = {};
+  rest.forEach(function(c){ const k = cardTypeCategory(c.typeLine); (byKey[k] = byKey[k]||[]).push(c); });
+  const labels = {other:'Otros'};
+  DECK_CATEGORIES.forEach(function(cat){ labels[cat.key] = cat.label; });
+  const order = DECK_CATEGORIES.map(function(cat){ return cat.key; }).concat(['other']);
+  const sections = order.filter(function(k){ return byKey[k] && byKey[k].length; }).map(function(k){
+    return {key:k, label:labels[k], cards: byKey[k].slice().sort(function(a,b){ return a.name.localeCompare(b.name); })};
+  });
+  return {commanders: commanders, sections: sections};
+}
+function deckCardRowHTML(deck, c, big){
   const owned = ownedQtyForName(c.name);
   let badge;
   if(owned >= c.qty) badge = '<span class="badge badge-good">En colección: '+owned+'</span>';
   else if(owned > 0) badge = '<span class="badge badge-warn">En colección: '+owned+'</span>';
   else badge = '<span class="badge">En colección: 0</span>';
-  return '<div class="card-row" data-name="'+esc(c.name)+'">'+
-    (c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>')+
+  const img = (big ? c.imageNormal : null) || c.imageSmall;
+  const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
+  return '<div class="card-row'+(big?' commander-row':'')+'" data-name="'+esc(c.name)+'">'+
+    (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="card-meta">'+colorPipsHTML(c.colors)+badge+'</div></div>'+
     '<div class="card-value">'+
+      '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>'+
       '<div class="qty-stepper">'+
         '<button class="qty-btn" data-action="deck-dec" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('minus',13)+'</button>'+
         '<span class="qty-val">'+c.qty+'</span>'+
@@ -1399,6 +1455,21 @@ function deckCardRowHTML(deck, c){
       '</div>'+
     '</div>'+
   '</div>';
+}
+function deckCardsListHTML(deck){
+  if(!deck.cards.length) return emptyStateHTML('search','Añade cartas buscándolas arriba.');
+  const g = groupDeckCards(deck);
+  let html = '';
+  if(g.commanders.length){
+    html += '<div class="settings-section-title">'+icon('crown',13)+' Comandante</div>'+
+      g.commanders.map(function(c){ return deckCardRowHTML(deck, c, true); }).join('');
+  }
+  g.sections.forEach(function(sec){
+    const n = sec.cards.reduce(function(a,c){ return a+c.qty; }, 0);
+    html += '<div class="settings-section-title">'+esc(sec.label)+' <span class="count-pill">'+n+'</span></div>'+
+      sec.cards.map(function(c){ return deckCardRowHTML(deck, c, false); }).join('');
+  });
+  return html;
 }
 function openDeckDetail(id){
   const deck = state.decks.find(function(d){ return d.id===id; });
@@ -1415,7 +1486,7 @@ function openDeckDetail(id){
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Añadir carta al mazo</h2></div>'+
       '<div class="search-box"><input id="deckSearchInput" class="text-input" placeholder="Nombre de la carta" autocomplete="off"><div id="deckSuggestions" class="suggestions" hidden></div></div>'+
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Cartas del mazo</h2></div>'+
-      '<div id="deckCardsList">'+(deck.cards.length ? deck.cards.map(function(c){ return deckCardRowHTML(deck,c); }).join('') : emptyStateHTML('search','Añade cartas buscándolas arriba.'))+'</div>'+
+      '<div id="deckCardsList">'+deckCardsListHTML(deck)+'</div>'+
     '</div>';
   panel.hidden = false;
   navPush();
@@ -1447,12 +1518,18 @@ function openDeckDetail(id){
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
       if(existing) existing.qty += 1;
-      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, typeLine:card.type_line||''});
+      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', commander:false});
       await dbPut('decks', deck);
       openDeckDetail(deck.id);
     }catch(err){ toast(err.message); }
   });
   document.getElementById('deckCardsList').addEventListener('click', async function(e){
+    const crown = e.target.closest('[data-action="toggle-commander"]');
+    if(crown){
+      const c = deck.cards.find(function(x){ return x.name===crown.dataset.name; });
+      if(c){ c.commander = !c.commander; await dbPut('decks', deck); openDeckDetail(deck.id); }
+      return;
+    }
     const inc = e.target.closest('[data-action="deck-inc"]');
     const dec = e.target.closest('[data-action="deck-dec"]');
     if(!inc && !dec) return;
@@ -1492,10 +1569,12 @@ const DECK_TXT_HEADER_RE = /^(deck|sideboard|commander|companion|maybeboard|abou
 function parseDeckImportText(text){
   const lines = text.split(/\r?\n/);
   const out = [];
+  let section = 'deck';
   for(let i=0;i<lines.length;i++){
     const line = lines[i].trim();
     if(!line || line.startsWith('//') || line.startsWith('#')) continue;
-    if(DECK_TXT_HEADER_RE.test(line)) continue;
+    const headerMatch = line.match(DECK_TXT_HEADER_RE);
+    if(headerMatch){ section = headerMatch[1].toLowerCase(); continue; }
     const m = line.match(/^(\d+)\s*x?\s+(.+)$/i);
     if(!m) continue;
     const qty = parseInt(m[1],10) || 1;
@@ -1509,7 +1588,7 @@ function parseDeckImportText(text){
     }
     rest = rest.replace(/\s*\*F\*\s*$/i,'').trim(); // strip a trailing foil marker some exporters add
     if(!rest) continue;
-    out.push({qty:qty, name:rest, setCode:setCode, collectorNumber:collectorNumber});
+    out.push({qty:qty, name:rest, setCode:setCode, collectorNumber:collectorNumber, commander: section==='commander'});
   }
   return out;
 }
@@ -1538,11 +1617,11 @@ async function importDeckTxtFile(file){
       if(!card) card = await scryFuzzy(e.name);
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
-      if(existing) existing.qty += e.qty;
+      if(existing){ existing.qty += e.qty; if(e.commander) existing.commander = true; }
       else deck.cards.push({
         name: card.name, qty: e.qty, cmc: card.cmc||0,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        imageSmall: face.image, typeLine: card.type_line||''
+        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', commander: !!e.commander
       });
     }catch(err){ fail++; }
     setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
