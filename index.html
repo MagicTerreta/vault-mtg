@@ -111,6 +111,12 @@
   .suggestions[hidden]{display:none;}
   .suggestion-item{padding:.62rem .9rem; cursor:pointer; border-bottom:1px solid var(--line); font-size:.9rem;}
   .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item.with-thumb{display:flex; align-items:center; gap:.75rem; padding:.4rem .9rem .4rem .55rem;}
+  .sugg-thumb{flex:none; width:34px; height:47px; border-radius:3px; overflow:hidden; background:var(--surface-2); box-shadow:0 1px 2px rgba(0,0,0,.18);}
+  .sugg-thumb img{display:block; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .2s ease;}
+  .sugg-thumb img.loaded{opacity:1;}
+  .sugg-name{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .suggestions.has-thumbs{max-height:360px;}
   .suggestion-item:hover, .suggestion-item:focus{background:var(--surface-2);}
 
   .btn{font-weight:600; border-radius:var(--radius-m); padding:.68rem 1.1rem; border:none; cursor:pointer; font-size:.88rem; display:inline-flex; align-items:center; gap:.4rem; justify-content:center;}
@@ -197,6 +203,15 @@
   .card-grid-item .gimg-wrap{position:relative; min-width:0; border-radius:9px; overflow:hidden; aspect-ratio:63/88; background:var(--surface-2); box-shadow:0 1px 3px rgba(0,0,0,.18);}
   .card-grid-item .gimg-wrap img{display:block; width:100%; height:100%; min-width:0; max-width:100%; object-fit:cover; object-position:center;}
   .card-grid-item .gimg-wrap .card-thumb-empty{width:100%; height:100%;}
+  /* Two partner commanders sharing one tile: each art fills its half, split on a diagonal */
+  .partner-art{position:absolute; inset:0; background:var(--surface-2);}
+  .partner-layer{position:absolute; left:0; right:0; height:59%; overflow:hidden;}
+  .partner-a{top:0; clip-path:polygon(0 0, 100% 0, 100% 69.5%, 0 100%);}
+  .partner-b{bottom:0; clip-path:polygon(0 30.5%, 100% 0, 100% 100%, 0 100%);}
+  .card-grid-item .gimg-wrap .partner-layer img{width:100%; height:100%; object-fit:cover; object-position:center;}
+  .card-grid-item .gimg-wrap .partner-layer img.full-card{object-position:50% 22%;}
+  .partner-divider{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+  .partner-divider line{stroke:#f6f2ea; stroke-width:3px; vector-effect:non-scaling-stroke; filter:drop-shadow(0 0 1.5px rgba(0,0,0,.45));}
   .card-grid-item .gqty{position:absolute; top:4px; left:4px; background:rgba(20,16,26,.72); color:#fff; font-family:var(--font-mono); font-size:.62rem; line-height:1; padding:3px 6px; border-radius:999px; font-variant-numeric:tabular-nums;}
   .card-grid-item .gfoil{position:absolute; top:4px; right:4px; background:var(--accent); color:var(--on-accent); font-size:.58rem; line-height:1; padding:3px 5px; border-radius:999px; font-weight:700; letter-spacing:.02em;}
   .card-grid-item .gname{font-family:var(--font-display); font-weight:500; font-size:.72rem; line-height:1.3; height:1.3em; margin-top:.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -585,6 +600,63 @@ async function scryAutocomplete(q){
   if(!r.ok) return [];
   const j = await r.json();
   return j.data || [];
+}
+/* Small card thumbnails for the autocomplete dropdowns. Autocomplete only returns names,
+   so we resolve all of them with a single /cards/collection request (up to 75 per call)
+   and cache the result per name for the rest of the session. */
+const nameThumbCache = new Map();
+async function fetchNameThumbs(names){
+  const missing = names.filter(function(n){ return !nameThumbCache.has(n.toLowerCase()); }).slice(0, 75);
+  if(missing.length){
+    try{
+      const r = await fetch(SCRYFALL+'/cards/collection', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({identifiers: missing.map(function(n){ return {name:n}; })})
+      });
+      if(r.ok){
+        const j = await r.json();
+        (j.data || []).forEach(function(card){
+          const url = printFace(card).image;
+          nameThumbCache.set(card.name.toLowerCase(), url);
+          const front = card.name.split(' // ')[0].toLowerCase();
+          if(!nameThumbCache.has(front)) nameThumbCache.set(front, url);
+        });
+      }
+    }catch(e){ /* thumbnails are a nice-to-have; the names still work without them */ }
+    missing.forEach(function(n){ if(!nameThumbCache.has(n.toLowerCase())) nameThumbCache.set(n.toLowerCase(), ''); });
+  }
+  const out = {};
+  names.forEach(function(n){ out[n] = nameThumbCache.get(n.toLowerCase()) || ''; });
+  return out;
+}
+function nameSuggestionsHTML(names){
+  return names.map(function(n){
+    const cached = nameThumbCache.get(n.toLowerCase());
+    const img = cached ? '<img class="loaded" src="'+esc(cached)+'" alt="">' : '';
+    return '<div class="suggestion-item with-thumb" data-name="'+esc(n)+'">'+
+      '<span class="sugg-thumb">'+img+'</span><span class="sugg-name">'+esc(n)+'</span></div>';
+  }).join('');
+}
+/* Renders the name list right away, then drops the thumbnails in once they arrive
+   (skipped if the user has typed something else in the meantime). */
+async function showNameSuggestions(container, names){
+  container.classList.add('has-thumbs');
+  container.innerHTML = nameSuggestionsHTML(names);
+  container.hidden = false;
+  const token = Symbol();
+  container._thumbToken = token;
+  const thumbs = await fetchNameThumbs(names);
+  if(container._thumbToken !== token) return;
+  container.querySelectorAll('.suggestion-item[data-name]').forEach(function(item){
+    const slot = item.querySelector('.sugg-thumb');
+    const url = thumbs[item.dataset.name];
+    if(!slot || !url || slot.querySelector('img')) return;
+    const im = document.createElement('img');
+    im.alt = '';
+    im.onload = function(){ im.classList.add('loaded'); };
+    im.src = url;
+    slot.appendChild(im);
+  });
 }
 async function scryPrintsByName(name){
   const q = '!"'+name.replace(/"/g,'\\"')+'"';
@@ -1361,13 +1433,42 @@ function deckSummary(deck){
 // Deck tiles show the commander's own art when the deck has one marked, falling
 // back to a generic deck icon otherwise — laid out in the same 3-column grid
 // used by the collection's grid view, for a consistent "wall of cards" look.
+/* Scryfall serves every image size from the same path, only the size folder changes:
+   cards.scryfall.io/normal/front/a/b/<id>.jpg -> cards.scryfall.io/art_crop/front/a/b/<id>.jpg
+   Returns null for anything that isn't a Scryfall CDN URL. */
+function artCropUrl(src){
+  if(!src || !/\/\/cards\.scryfall\.io\/(small|normal|large|png)\//.test(src)) return null;
+  return src.replace(/(\/\/cards\.scryfall\.io\/)(small|normal|large|png)\//, '$1art_crop/').replace(/\.png(\?|$)/, '.jpg$1');
+}
+function partnerArtHTML(a, b){
+  function layer(c, cls){
+    const src = c.imageNormal || c.imageSmall || '';
+    const art = artCropUrl(src);
+    // art_crop fills the half nicely; if it isn't available fall back to the full card
+    // framed on its illustration area.
+    return '<div class="partner-layer '+cls+'"><img src="'+esc(art || src)+'" alt="" loading="lazy"'+
+      (art ? ' data-fallback="'+esc(src)+'" onerror="this.onerror=null;this.classList.add(\'full-card\');this.src=this.dataset.fallback;"' : ' class="full-card"')+
+      '></div>';
+  }
+  return (
+    '<div class="partner-art">'+
+      layer(a, 'partner-a')+
+      layer(b, 'partner-b')+
+      '<svg class="partner-divider" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="-2" y1="59" x2="102" y2="41"/></svg>'+
+    '</div>'
+  );
+}
 function deckGridItemHTML(deck){
   const s = deckSummary(deck);
-  const commander = deck.cards.find(function(c){ return c.commander; });
-  const bigSrc = commander ? (commander.imageNormal || commander.imageSmall) : null;
-  const img = bigSrc
-    ? '<img src="'+esc(bigSrc)+'" alt="" loading="lazy">'
-    : '<div class="card-thumb-empty">'+icon('layers',22)+'</div>';
+  const commanders = deck.cards.filter(function(c){ return c.commander && (c.imageNormal || c.imageSmall); });
+  let img;
+  if(commanders.length >= 2){
+    img = partnerArtHTML(commanders[0], commanders[1]);
+  } else if(commanders.length === 1){
+    img = '<img src="'+esc(commanders[0].imageNormal || commanders[0].imageSmall)+'" alt="" loading="lazy">';
+  } else {
+    img = '<div class="card-thumb-empty">'+icon('layers',22)+'</div>';
+  }
   return (
     '<div class="card-grid-item" data-id="'+deck.id+'" data-action="open-deck">'+
       '<div class="gimg-wrap">'+img+'</div>'+
@@ -1505,8 +1606,7 @@ function openDeckDetail(id){
     if(q.length<2){ sugg.hidden=true; return; }
     const names = await scryAutocomplete(q);
     if(!names.length){ sugg.hidden=true; return; }
-    sugg.innerHTML = names.map(function(n){ return '<div class="suggestion-item" data-name="'+esc(n)+'">'+esc(n)+'</div>'; }).join('');
-    sugg.hidden = false;
+    showNameSuggestions(sugg, names);
   }, 250));
   sugg.addEventListener('click', async function(e){
     const item = e.target.closest('.suggestion-item');
@@ -2128,8 +2228,7 @@ async function init(){
     if(q.length<2){ addSugg.hidden=true; return; }
     const names = await scryAutocomplete(q);
     if(!names.length){ addSugg.hidden=true; return; }
-    addSugg.innerHTML = names.map(function(n){ return '<div class="suggestion-item" data-name="'+esc(n)+'">'+esc(n)+'</div>'; }).join('');
-    addSugg.hidden = false;
+    showNameSuggestions(addSugg, names);
   }, 250));
   addSugg.addEventListener('click', function(e){
     const item = e.target.closest('.suggestion-item');
