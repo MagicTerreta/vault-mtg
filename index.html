@@ -100,6 +100,25 @@
   .tab-btn{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:.5rem 0 .5rem; background:none; border:none; color:var(--ink-faint); font-size:.65rem; cursor:pointer;}
   .tab-btn svg{width:21px; height:21px;}
   .tab-btn.active{color:var(--accent);}
+  .tab-btn{position:relative;}
+  .tab-btn.needs-attention::after{content:''; position:absolute; top:.4rem; left:calc(50% + 8px); width:8px; height:8px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 2px var(--surface);}
+  .wish-summary{display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin:.9rem 0 .4rem; font-size:.8rem; color:var(--ink-soft);}
+  .wish-summary strong{color:var(--ink); font-family:var(--font-mono); font-weight:600;}
+  .wish-for{font-size:.68rem; color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-row .card-info{min-width:0;}
+  .deck-tools{display:flex; gap:.5rem; flex-wrap:wrap; margin:.2rem 0 .4rem;}
+  .deck-tools .btn{padding:.5rem .8rem; font-size:.8rem;}
+  .export-preview{width:100%; min-height:9rem; max-height:14rem; resize:vertical; font-family:var(--font-mono); font-size:.72rem; line-height:1.5; padding:.6rem .7rem; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface-2); color:var(--ink); margin:.2rem 0 .8rem;}
+  .export-actions{display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:.5rem;}
+  .segmented.export-mode{margin-bottom:.8rem; display:flex; width:100%;}
+  .segmented.export-mode button{flex:1; white-space:nowrap;}
+  .backup-actions{display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end;}
+  .backup-status .srlabel{display:flex; align-items:center; gap:.45rem;}
+  .backup-status.ok .srlabel::before, .backup-status.overdue .srlabel::before{content:''; flex:none; width:8px; height:8px; border-radius:50%;}
+  .backup-status.ok .srlabel::before{background:var(--good);}
+  .backup-status.overdue{background:var(--warn-soft);}
+  .backup-status.overdue .srlabel{color:var(--warn);}
+  .backup-status.overdue .srlabel::before{background:var(--warn);}
 
   .icon-btn{background:none; border:1px solid var(--line); border-radius:999px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer; flex-shrink:0;}
   .icon-btn:hover{background:var(--surface-2); color:var(--ink);}
@@ -421,6 +440,19 @@
     <div id="decksList"></div>
   </section>
 
+  <section class="tab-panel" data-tab="wishlist" hidden>
+    <div class="panel-head">
+      <h2>Lista de deseos</h2>
+      <button class="btn btn-secondary" id="wishlistExportBtn"></button>
+    </div>
+    <div class="search-box">
+      <input id="wishSearchInput" class="text-input" placeholder="Añadir carta a la lista de deseos" autocomplete="off">
+      <div id="wishSuggestions" class="suggestions" hidden></div>
+    </div>
+    <div class="wish-summary" id="wishSummary" hidden></div>
+    <div id="wishlistList"></div>
+  </section>
+
   <section class="tab-panel" data-tab="binders" hidden>
     <div class="panel-head"><h2>Carpetas</h2><button class="btn btn-primary" id="newBinderBtn"></button></div>
     <div id="bindersList"></div>
@@ -428,6 +460,24 @@
 
   <section class="tab-panel" data-tab="settings" hidden>
     <div class="panel-head"><h2>Ajustes</h2></div>
+    <div class="settings-section-title">Copia de seguridad</div>
+    <div class="settings-list">
+      <div class="settings-row backup-status" id="backupStatusRow">
+        <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub">Incluye cartas, mazos, carpetas, deseos y ajustes</div></div>
+      </div>
+      <div class="settings-row">
+        <div><div class="srlabel">Crear copia</div><div class="srsub">Guárdala fuera del móvil (Drive, correo, PC…)</div></div>
+        <div class="backup-actions">
+          <button class="btn btn-secondary" id="backupShareBtn" hidden>Enviar a…</button>
+          <button class="btn btn-primary" id="backupDownloadBtn">Descargar</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div><div class="srlabel">Restaurar copia</div><div class="srsub">Sustituye los datos de este dispositivo por los de la copia</div></div>
+        <button class="btn btn-secondary" id="backupRestoreBtn">Restaurar</button>
+        <input type="file" id="backupFileInput" accept=".json,.txt,application/json,text/plain" hidden>
+      </div>
+    </div>
     <div class="settings-section-title">Apariencia</div>
     <div class="settings-list">
       <div class="settings-row">
@@ -460,7 +510,7 @@
         <input type="file" id="importFileInput" accept=".csv,text/csv" hidden>
       </div>
       <div class="settings-row">
-        <div><div class="srlabel" style="color:var(--danger);">Vaciar colección</div><div class="srsub">Borra cartas, mazos y carpetas — no se puede deshacer</div></div>
+        <div><div class="srlabel" style="color:var(--danger);">Vaciar colección</div><div class="srsub">Borra cartas, mazos, carpetas y deseos — no se puede deshacer</div></div>
         <button class="btn btn-danger" id="wipeAllBtn">Vaciar</button>
       </div>
     </div>
@@ -476,6 +526,7 @@
   <button class="tab-btn active" data-tab="collection"></button>
   <button class="tab-btn" data-tab="scan"></button>
   <button class="tab-btn" data-tab="decks"></button>
+  <button class="tab-btn" data-tab="wishlist"></button>
   <button class="tab-btn" data-tab="binders"></button>
   <button class="tab-btn" data-tab="settings"></button>
 </nav>
@@ -510,7 +561,12 @@ const ICONS = {
   edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   stats:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="5.5" y="12" width="3" height="8" rx="0.6"/><rect x="10.5" y="7" width="3" height="13" rx="0.6"/><rect x="15.5" y="3" width="3" height="17" rx="0.6"/>',
   upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-  crown:'<path d="M3 18h18l-1.4-8.2-4.3 3.3L12 6l-3.3 7.1-4.3-3.3L3 18z"/><line x1="4.5" y1="21" x2="19.5" y2="21"/>'
+  crown:'<path d="M3 18h18l-1.4-8.2-4.3 3.3L12 6l-3.3 7.1-4.3-3.3L3 18z"/><line x1="4.5" y1="21" x2="19.5" y2="21"/>',
+  star:'<polygon points="12 2.8 14.8 8.7 21.2 9.5 16.5 13.9 17.7 20.3 12 17.2 6.3 20.3 7.5 13.9 2.8 9.5 9.2 8.7 12 2.8"/>',
+  exportOut:'<path d="M14 3h7v7"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>',
+  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
@@ -570,7 +626,7 @@ function parseCSV(text){
 }
 
 /* ---------- IndexedDB ---------- */
-const DB_NAME = 'mtgLedgerDB', DB_VERSION = 1;
+const DB_NAME = 'mtgLedgerDB', DB_VERSION = 2;
 let dbPromise = null;
 function openDB(){
   if(dbPromise) return dbPromise;
@@ -582,8 +638,16 @@ function openDB(){
       if(!db.objectStoreNames.contains('cards')) db.createObjectStore('cards', {keyPath:'id'});
       if(!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', {keyPath:'id'});
       if(!db.objectStoreNames.contains('binders')) db.createObjectStore('binders', {keyPath:'id'});
+      if(!db.objectStoreNames.contains('wishlist')) db.createObjectStore('wishlist', {keyPath:'id'});
     };
-    req.onsuccess = function(){ resolve(req.result); };
+    req.onsuccess = function(){
+      const db = req.result;
+      // A newer version of the app (e.g. in another tab or the installed app) needs to
+      // upgrade the database: let go of it and reload so both run the same version.
+      db.onversionchange = function(){ db.close(); location.reload(); };
+      resolve(db);
+    };
+    req.onblocked = function(){ toast('Cierra las otras ventanas de Ledger para terminar de actualizar la app.', 5000); };
     req.onerror = function(){ reject(req.error); };
   });
   return dbPromise;
@@ -683,6 +747,7 @@ const state = {
   cards: [],
   decks: [],
   binders: [],
+  wishlist: [],
   scanQueue: loadScanQueue(),
   settings: loadSettings(),
   filterOpen: false,
@@ -723,6 +788,7 @@ function setIconSpanHTML(setCode, rarity){
 
 /* ---------- Stats ---------- */
 function renderStats(){
+  renderBackupStatus();
   const totalCards = state.cards.reduce(function(a,c){ return a + (c.quantity||0); }, 0);
   const unique = state.cards.length;
   const currency = state.settings.currency;
@@ -912,6 +978,7 @@ function renderCollection(){
     ? emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'".')
     : emptyStateHTML('layers','Tu colección está vacía todavía.<br>Busca una carta arriba para añadir la primera.'));
   renderStats();
+  if(state.tab === 'wishlist') renderWishlist();
 }
 async function changeQty(id, delta){
   const item = state.cards.find(function(c){ return c.id === id; });
@@ -1579,6 +1646,7 @@ function openDeckDetail(id){
   const panel = document.getElementById('detailPanel');
   panel.innerHTML =
     '<div class="detail-header"><button class="icon-btn" id="deckBackBtn">'+icon('back',18)+'</button><h2>'+esc(deck.name)+'</h2>'+
+      '<button class="icon-btn" id="deckExportBtn" title="Exportar mazo" aria-label="Exportar mazo">'+icon('exportOut',16)+'</button>'+
       '<button class="icon-btn" id="deckDeleteBtn" title="Eliminar mazo">'+icon('trash',16)+'</button></div>'+
     '<div class="detail-body">'+
       '<div class="section-note">'+s.total+' cartas · '+s.unique+' únicas'+(deck.format?(' · '+esc(deck.format)):'')+'</div>'+
@@ -1587,12 +1655,23 @@ function openDeckDetail(id){
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Añadir carta al mazo</h2></div>'+
       '<div class="search-box"><input id="deckSearchInput" class="text-input" placeholder="Nombre de la carta" autocomplete="off"><div id="deckSuggestions" class="suggestions" hidden></div></div>'+
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Cartas del mazo</h2></div>'+
+      (function(){
+        const miss = deckMissingCards(deck).reduce(function(a,x){ return a+x.missing; }, 0);
+        return miss ? '<div class="deck-tools"><button class="btn btn-secondary" id="deckMissingToWishBtn">'+icon('star',14)+' Añadir las que me faltan a deseos ('+miss+')</button></div>' : '';
+      })()+
       '<div id="deckCardsList">'+deckCardsListHTML(deck)+'</div>'+
     '</div>';
   panel.hidden = false;
   navPush();
 
   document.getElementById('deckBackBtn').addEventListener('click', navBack);
+  document.getElementById('deckExportBtn').addEventListener('click', function(){ openDeckExportModal(deck); });
+  const missBtn = document.getElementById('deckMissingToWishBtn');
+  if(missBtn) missBtn.addEventListener('click', async function(){
+    missBtn.disabled = true;
+    await addDeckMissingToWishlist(deck);
+    missBtn.disabled = false;
+  });
   document.getElementById('deckDeleteBtn').addEventListener('click', async function(){
     if(!confirm('¿Eliminar el mazo "'+deck.name+'"?')) return;
     await dbDelete('decks', deck.id);
@@ -2116,12 +2195,462 @@ async function importCSVFile(file){
   toast(created+' añadidas, '+updated+' actualizadas'+(fail?(', '+fail+' con error'):''));
 }
 async function wipeAll(){
-  if(!confirm('Esto borrará TODA tu colección, mazos y carpetas de este dispositivo. ¿Continuar?')) return;
+  if(!confirm('Esto borrará TODA tu colección, mazos, carpetas y lista de deseos de este dispositivo.'+(backupIsOverdue()?'\n\nNo tienes una copia de seguridad reciente: te recomendamos crear una antes (Ajustes → Copia de seguridad).':'')+'\n\n¿Continuar?')) return;
   if(!confirm('Confirma otra vez: se perderán todos los datos guardados aquí. ¿Seguro?')) return;
-  await dbClear('cards'); await dbClear('decks'); await dbClear('binders');
-  state.cards = []; state.decks = []; state.binders = [];
-  renderCollection(); renderDecks(); renderBinders();
+  await dbClear('cards'); await dbClear('decks'); await dbClear('binders'); await dbClear('wishlist');
+  state.cards = []; state.decks = []; state.binders = []; state.wishlist = [];
+  renderCollection(); renderStats(); renderDecks(); renderBinders(); renderWishlist(); renderBackupStatus();
   toast('Colección vaciada');
+}
+
+/* ---------- Text export (decks & wishlist) ----------
+   Plain "1 Card Name" lines, grouped with Arena-style section headers for decks.
+   ManaBox, Moxfield, Archidekt, MTG Arena and Cardmarket's wants list all read this, and
+   Ledger's own deck importer reads it back. */
+function safeFileName(name){
+  return (String(name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-') || 'lista').slice(0,60);
+}
+function deckMissingCards(deck){
+  return deck.cards.map(function(c){
+    return {card:c, missing: Math.max(0, c.qty - ownedQtyForName(c.name))};
+  }).filter(function(x){ return x.missing > 0; });
+}
+function deckExportText(deck, mode){
+  if(mode === 'missing'){
+    return deckMissingCards(deck).map(function(x){ return x.missing+' '+x.card.name; }).join('\n');
+  }
+  const g = groupDeckCards(deck);
+  const lines = [];
+  if(g.commanders.length){
+    lines.push('Commander');
+    g.commanders.forEach(function(c){ lines.push(c.qty+' '+c.name); });
+    lines.push('');
+  }
+  lines.push('Deck');
+  g.sections.forEach(function(sec){ sec.cards.forEach(function(c){ lines.push(c.qty+' '+c.name); }); });
+  return lines.join('\n');
+}
+function wishlistExportText(){
+  return sortedWishlist().map(function(w){ return w.qty+' '+w.name; }).join('\n');
+}
+async function copyText(text){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(text); return true; }
+  }catch(e){}
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove(); return ok;
+  }catch(e){ return false; }
+}
+/* opts: {title, fileBase, modes:[{key,label}]|null, build(modeKey) -> text, emptyText} */
+function openTextExportModal(opts){
+  let mode = opts.modes ? opts.modes[0].key : null;
+  const canShare = typeof navigator.share === 'function';
+  openModal(
+    '<h3 class="modal-title">'+icon('exportOut',20)+' '+esc(opts.title)+'</h3>'+
+    (opts.modes ? '<div class="segmented export-mode" id="exportModeSeg" role="group">'+
+      opts.modes.map(function(m){ return '<button data-mode="'+m.key+'">'+esc(m.label)+'</button>'; }).join('')+'</div>' : '')+
+    '<textarea class="export-preview" id="exportPreview" readonly></textarea>'+
+    '<div class="export-actions">'+
+      '<button class="btn btn-primary" id="exportCopyBtn">'+icon('copy',15)+' Copiar</button>'+
+      '<button class="btn btn-secondary" id="exportDownloadBtn">'+icon('download',15)+' .txt</button>'+
+      (canShare ? '<button class="btn btn-secondary" id="exportShareBtn">'+icon('share',15)+' Enviar</button>' : '')+
+    '</div>'+
+    '<p class="about-note" style="padding-top:.8rem;">Formato compatible con ManaBox, Moxfield, Archidekt, MTG Arena y la lista de «Wants» de Cardmarket.</p>'
+  );
+  const preview = document.getElementById('exportPreview');
+  function current(){ return opts.build(mode); }
+  function refresh(){
+    const t = current();
+    preview.value = t || opts.emptyText || '';
+    document.querySelectorAll('#exportModeSeg button').forEach(function(b){ b.classList.toggle('active', b.dataset.mode === mode); });
+    ['exportCopyBtn','exportDownloadBtn','exportShareBtn'].forEach(function(id){ const b = document.getElementById(id); if(b) b.disabled = !t; });
+  }
+  refresh();
+  const seg = document.getElementById('exportModeSeg');
+  if(seg) seg.addEventListener('click', function(e){ const b = e.target.closest('button[data-mode]'); if(!b) return; mode = b.dataset.mode; refresh(); });
+  document.getElementById('exportCopyBtn').addEventListener('click', async function(){
+    const t = current(); if(!t) return;
+    toast(await copyText(t) ? 'Lista copiada al portapapeles' : 'No se pudo copiar; mantén pulsado el texto para copiarlo');
+  });
+  document.getElementById('exportDownloadBtn').addEventListener('click', function(){
+    const t = current(); if(!t) return;
+    downloadBlob(t+'\n', safeFileName(opts.fileBase + (mode === 'missing' ? '-faltan' : ''))+'.txt', 'text/plain;charset=utf-8');
+    toast('Archivo descargado');
+  });
+  const shareBtn = document.getElementById('exportShareBtn');
+  if(shareBtn) shareBtn.addEventListener('click', async function(){
+    const t = current(); if(!t) return;
+    try{ await navigator.share({title: opts.title, text: t}); }
+    catch(e){ if(!(e && e.name === 'AbortError')) toast('No se pudo compartir'); }
+  });
+}
+function openDeckExportModal(deck){
+  const hasMissing = deckMissingCards(deck).length > 0;
+  openTextExportModal({
+    title: 'Exportar «'+deck.name+'»',
+    fileBase: deck.name,
+    modes: [{key:'full', label:'Mazo completo'}, {key:'missing', label:'Solo lo que me falta'}],
+    build: function(m){ return deckExportText(deck, m); },
+    emptyText: hasMissing ? '' : '¡Ya tienes todas las cartas de este mazo en tu colección!'
+  });
+}
+
+/* ---------- Wishlist ----------
+   Name-based like decks (any printing counts). Each entry keeps the default printing's
+   image and price from Scryfall, plus which decks asked for it. */
+async function scryCollectionByNames(names, onProgress){
+  const out = {};
+  for(let i=0;i<names.length;i+=75){
+    const chunk = names.slice(i, i+75);
+    try{
+      const r = await fetch(SCRYFALL+'/cards/collection', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({identifiers: chunk.map(function(n){ return {name:n}; })})
+      });
+      if(r.ok){
+        const j = await r.json();
+        (j.data || []).forEach(function(card){
+          out[card.name.toLowerCase()] = card;
+          const front = card.name.split(' // ')[0].toLowerCase();
+          if(!out[front]) out[front] = card;
+        });
+      }
+    }catch(e){}
+    if(onProgress) onProgress(Math.min(names.length, i+75), names.length);
+    if(i+75 < names.length) await sleep(120);
+  }
+  return out;
+}
+function wishDataFromCard(card){
+  const face = printFace(card);
+  return {
+    name: card.name,
+    imageSmall: face.image, imageNormal: face.imageNormal,
+    colors: face.colors, typeLine: card.type_line || '', cmc: card.cmc || 0,
+    prices: {eur: toNum(card.prices && card.prices.eur), usd: toNum(card.prices && card.prices.usd)},
+    pricesAt: Date.now()
+  };
+}
+function findWish(name){
+  const n = name.toLowerCase();
+  return state.wishlist.find(function(w){ return w.name.toLowerCase() === n; });
+}
+/* qtyMode 'add' sums (manual adds), 'atLeast' keeps the larger (re-sending a deck's
+   missing cards doesn't double them). */
+async function upsertWish(data, qty, qtyMode, deckName){
+  let w = findWish(data.name);
+  if(w){
+    w.qty = qtyMode === 'atLeast' ? Math.max(w.qty, qty) : w.qty + qty;
+    if(data.imageSmall){ w.imageSmall = data.imageSmall; w.imageNormal = data.imageNormal; }
+    if(data.prices){ w.prices = data.prices; w.pricesAt = data.pricesAt; }
+  } else {
+    w = Object.assign({id: uuid(), qty: qty, decks: [], addedAt: Date.now()}, data);
+    state.wishlist.push(w);
+  }
+  if(deckName && w.decks.indexOf(deckName) === -1) w.decks.push(deckName);
+  await dbPut('wishlist', w);
+  return w;
+}
+function sortedWishlist(){
+  return state.wishlist.slice().sort(function(a,b){ return (b.addedAt||0) - (a.addedAt||0); });
+}
+function wishPrice(w){
+  const p = w.prices || {};
+  return state.settings.currency === 'USD' ? p.usd : p.eur;
+}
+function wishRowHTML(w){
+  const owned = ownedQtyForName(w.name);
+  let badge = '';
+  if(owned >= w.qty) badge = '<span class="badge badge-good">'+icon('check',11)+' Ya la tienes ('+owned+')</span>';
+  else if(owned > 0) badge = '<span class="badge badge-warn">Tienes '+owned+'</span>';
+  const price = wishPrice(w);
+  const img = w.imageSmall ? '<img class="card-thumb" src="'+esc(w.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
+  return '<div class="card-row" data-wish-id="'+w.id+'" data-action="wish-open">'+
+    img+
+    '<div class="card-info">'+
+      '<div class="card-name">'+esc(w.name)+'</div>'+
+      '<div class="card-meta">'+colorPipsHTML(w.colors)+badge+'</div>'+
+      (w.decks && w.decks.length ? '<div class="wish-for">Para: '+esc(w.decks.join(', '))+'</div>' : '')+
+    '</div>'+
+    '<div class="card-value">'+
+      '<div class="price">'+fmtMoney(price, state.settings.currency)+'</div>'+
+      '<div class="qty-stepper">'+
+        '<button class="qty-btn" data-action="wish-dec" data-wish-id="'+w.id+'" aria-label="Restar">'+icon('minus',13)+'</button>'+
+        '<span class="qty-val">'+w.qty+'</span>'+
+        '<button class="qty-btn" data-action="wish-inc" data-wish-id="'+w.id+'" aria-label="Sumar">'+icon('plus',13)+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function renderWishlist(){
+  const list = document.getElementById('wishlistList');
+  const summary = document.getElementById('wishSummary');
+  if(!list) return;
+  const items = sortedWishlist();
+  document.getElementById('wishlistExportBtn').disabled = items.length === 0;
+  if(!items.length){
+    summary.hidden = true;
+    list.innerHTML = emptyStateHTML('star','Tu lista de deseos está vacía.<br>Busca una carta arriba o, desde un mazo, añade de golpe las que te faltan.');
+    return;
+  }
+  const copies = items.reduce(function(a,w){ return a+w.qty; }, 0);
+  let total = 0, unpriced = 0;
+  items.forEach(function(w){ const p = wishPrice(w); if(p != null) total += p*w.qty; else unpriced++; });
+  const ownedAll = items.filter(function(w){ return ownedQtyForName(w.name) >= w.qty; }).length;
+  summary.hidden = false;
+  summary.innerHTML =
+    '<span><strong>'+copies+'</strong> '+(copies===1?'carta':'cartas')+' · aprox. <strong>'+fmtMoney(total, state.settings.currency)+'</strong>'+(unpriced?' <span title="Sin precio en Scryfall">(+'+unpriced+' sin precio)</span>':'')+'</span>'+
+    (ownedAll ? '<button class="btn btn-ghost" id="wishRemoveOwnedBtn">'+icon('check',14)+' Quitar las que ya tengo ('+ownedAll+')</button>' : '');
+  list.innerHTML = items.map(wishRowHTML).join('');
+  const rm = document.getElementById('wishRemoveOwnedBtn');
+  if(rm) rm.addEventListener('click', removeOwnedFromWishlist);
+}
+async function removeOwnedFromWishlist(){
+  const owned = state.wishlist.filter(function(w){ return ownedQtyForName(w.name) >= w.qty; });
+  if(!owned.length) return;
+  if(!confirm('¿Quitar de la lista de deseos '+owned.length+' '+(owned.length===1?'carta que ya tienes':'cartas que ya tienes')+' en la colección?')) return;
+  for(const w of owned) await dbDelete('wishlist', w.id);
+  const ids = owned.map(function(w){ return w.id; });
+  state.wishlist = state.wishlist.filter(function(w){ return ids.indexOf(w.id) === -1; });
+  renderWishlist();
+  toast('Quitadas '+owned.length+' de la lista de deseos');
+}
+async function changeWishQty(id, delta){
+  const w = state.wishlist.find(function(x){ return x.id === id; });
+  if(!w) return;
+  if(w.qty + delta <= 0){
+    if(!confirm('¿Quitar "'+w.name+'" de la lista de deseos?')) return;
+    await dbDelete('wishlist', id);
+    state.wishlist = state.wishlist.filter(function(x){ return x.id !== id; });
+  } else {
+    w.qty += delta;
+    await dbPut('wishlist', w);
+  }
+  renderWishlist();
+}
+async function addNameToWishlist(name){
+  try{
+    const card = await scryFuzzy(name);
+    const w = await upsertWish(wishDataFromCard(card), 1, 'add', null);
+    renderWishlist();
+    toast('«'+w.name+'» en tu lista de deseos');
+  }catch(err){ toast(err.message || 'No se pudo añadir'); }
+}
+async function addDeckMissingToWishlist(deck){
+  const missing = deckMissingCards(deck);
+  if(!missing.length){ toast('Ya tienes todas las cartas de este mazo'); return; }
+  toast('Buscando precios de '+missing.length+' cartas…', 1800);
+  const byName = await scryCollectionByNames(missing.map(function(x){ return x.card.name; }));
+  let added = 0;
+  for(const x of missing){
+    const card = byName[x.card.name.toLowerCase()];
+    const data = card ? wishDataFromCard(card) : {
+      name: x.card.name, imageSmall: x.card.imageSmall, imageNormal: x.card.imageNormal,
+      colors: x.card.colors || [], typeLine: x.card.typeLine || '', cmc: x.card.cmc || 0, prices: null, pricesAt: 0
+    };
+    data.name = x.card.name; // keep the deck's spelling so ownership/deck matching stays consistent
+    await upsertWish(data, x.missing, 'atLeast', deck.name);
+    added += x.missing;
+  }
+  renderWishlist();
+  toast('Añadidas '+added+' '+(added===1?'carta':'cartas')+' a tu lista de deseos', 3200);
+}
+let wishPriceRefreshRunning = false;
+async function refreshWishlistPricesIfStale(){
+  if(wishPriceRefreshRunning) return;
+  const stale = state.wishlist.filter(function(w){ return !w.pricesAt || (Date.now() - w.pricesAt) > DAY_MS; });
+  if(!stale.length) return;
+  wishPriceRefreshRunning = true;
+  try{
+    const byName = await scryCollectionByNames(stale.map(function(w){ return w.name; }));
+    for(const w of stale){
+      const card = byName[w.name.toLowerCase()];
+      if(!card) continue;
+      const d = wishDataFromCard(card);
+      w.prices = d.prices; w.pricesAt = d.pricesAt;
+      if(!w.imageSmall){ w.imageSmall = d.imageSmall; w.imageNormal = d.imageNormal; }
+      await dbPut('wishlist', w);
+    }
+    if(state.tab === 'wishlist') renderWishlist();
+  } finally { wishPriceRefreshRunning = false; }
+}
+
+/* ---------- Full backup / restore ----------
+   The CSV export only covers the collection; decks, binders and settings live only in this
+   browser's storage and would be lost if the site data is cleared or the phone changes.
+   A backup is one JSON file with everything, restorable in one step. */
+const BACKUP_META_KEY = 'mtgLedgerBackupMeta';
+const BACKUP_OVERDUE_DAYS = 14;
+const BACKUP_REMIND_EVERY_DAYS = 7;
+const DAY_MS = 86400000;
+function loadBackupMeta(){ try{ return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{}') || {}; }catch(e){ return {}; } }
+function saveBackupMeta(m){ try{ localStorage.setItem(BACKUP_META_KEY, JSON.stringify(m)); }catch(e){} }
+function hasAnyData(){ return state.cards.length > 0 || state.decks.length > 0 || state.binders.length > 0 || state.wishlist.length > 0; }
+function backupIsOverdue(){
+  if(!hasAnyData()) return false;
+  const last = loadBackupMeta().lastBackupAt;
+  return !last || (Date.now() - last) > BACKUP_OVERDUE_DAYS*DAY_MS;
+}
+function daysAgoText(ts){
+  const startOf = function(t){ const d = new Date(t); d.setHours(0,0,0,0); return d.getTime(); };
+  const days = Math.round((startOf(Date.now()) - startOf(ts)) / DAY_MS);
+  if(days <= 0) return 'hoy';
+  if(days === 1) return 'ayer';
+  return 'hace '+days+' días';
+}
+function renderBackupStatus(){
+  const row = document.getElementById('backupStatusRow');
+  const label = document.getElementById('backupStatusLabel');
+  if(!row || !label) return;
+  const last = loadBackupMeta().lastBackupAt;
+  const overdue = backupIsOverdue();
+  if(last){
+    const when = new Date(last).toLocaleDateString('es-ES', {day:'numeric', month:'short', year:'numeric'});
+    label.textContent = 'Última copia: '+daysAgoText(last)+' ('+when+')';
+  } else {
+    label.textContent = 'Nunca has hecho una copia';
+  }
+  row.classList.toggle('overdue', overdue);
+  row.classList.toggle('ok', !!last && !overdue);
+  const tab = document.querySelector('.tab-btn[data-tab="settings"]');
+  if(tab) tab.classList.toggle('needs-attention', overdue);
+}
+function buildBackup(){
+  return {
+    app: 'ledger', kind: 'backup', version: 1,
+    createdAt: new Date().toISOString(),
+    counts: { cards: state.cards.length, decks: state.decks.length, binders: state.binders.length, wishlist: state.wishlist.length },
+    cards: state.cards, decks: state.decks, binders: state.binders, wishlist: state.wishlist,
+    settings: state.settings,
+    scanQueue: state.scanQueue || []
+  };
+}
+function backupFileName(ext){
+  const d = new Date();
+  const p = function(n){ return String(n).padStart(2,'0'); };
+  return 'ledger-copia-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.'+ext;
+}
+function markBackupDone(){
+  const m = loadBackupMeta(); m.lastBackupAt = Date.now(); saveBackupMeta(m);
+  renderBackupStatus();
+}
+function backupSummaryText(b){
+  const n = function(v, one, many){ return v+' '+(v===1?one:many); };
+  const copies = b.cards.reduce(function(t, c){ return t + (Number(c.quantity) || 1); }, 0);
+  const parts = [n(copies,'carta','cartas'), n(b.decks.length,'mazo','mazos'), n(b.binders.length,'carpeta','carpetas')];
+  if(Array.isArray(b.wishlist)) parts.push(n(b.wishlist.length,'deseo','deseos'));
+  return parts.slice(0,-1).join(', ')+' y '+parts[parts.length-1];
+}
+function downloadBackup(){
+  const b = buildBackup();
+  downloadBlob(JSON.stringify(b), backupFileName('json'), 'application/json');
+  markBackupDone();
+  toast('Copia descargada: '+backupSummaryText(b), 3400);
+}
+/* Android's share sheet lets the user drop the file straight into Drive, Gmail, WhatsApp…
+   Chrome only shares a fixed list of file types and JSON isn't always on it, so fall back
+   to a .txt file (restore accepts both). */
+function shareableBackupFile(json){
+  if(!navigator.canShare || typeof File === 'undefined') return null;
+  const candidates = [
+    { name: backupFileName('json'), type: 'application/json' },
+    { name: backupFileName('txt'),  type: 'text/plain' }
+  ];
+  for(let i=0;i<candidates.length;i++){
+    try{
+      const f = new File([json], candidates[i].name, {type: candidates[i].type});
+      if(navigator.canShare({files:[f]})) return f;
+    }catch(e){}
+  }
+  return null;
+}
+async function shareBackup(){
+  const b = buildBackup();
+  const file = shareableBackupFile(JSON.stringify(b));
+  if(!file){ downloadBackup(); return; }
+  try{
+    await navigator.share({ files:[file], title:'Copia de seguridad de Ledger' });
+    markBackupDone();
+    toast('Copia enviada: '+backupSummaryText(b), 3400);
+  }catch(e){
+    if(e && e.name === 'AbortError') return; // user closed the share sheet
+    toast('No se pudo compartir, descargando la copia…');
+    downloadBackup();
+  }
+}
+function validateBackup(b){
+  if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de Ledger');
+  if(!Array.isArray(b.cards) || !Array.isArray(b.decks) || !Array.isArray(b.binders)) throw new Error('La copia está incompleta o dañada');
+  const bad = function(arr){ return arr.some(function(x){ return !x || typeof x !== 'object' || !x.id; }); };
+  if(bad(b.cards) || bad(b.decks) || bad(b.binders)) throw new Error('La copia está incompleta o dañada');
+  if(b.wishlist !== undefined && (!Array.isArray(b.wishlist) || bad(b.wishlist))) throw new Error('La copia está incompleta o dañada');
+  return b;
+}
+/* Clear + write all three stores in ONE transaction: either the whole backup lands or
+   nothing changes (a failure half-way leaves the current data untouched). */
+async function dbReplaceAll(data){
+  const db = await openDB();
+  return new Promise(function(res, rej){
+    // Backups made before the wishlist existed have no "wishlist": leave the current one alone.
+    const stores = ['cards','decks','binders'].concat(Array.isArray(data.wishlist) ? ['wishlist'] : []);
+    const tx = db.transaction(stores, 'readwrite');
+    stores.forEach(function(store){
+      const os = tx.objectStore(store);
+      os.clear();
+      data[store].forEach(function(v){ os.put(v); });
+    });
+    tx.oncomplete = function(){ res(); };
+    tx.onerror = function(){ rej(tx.error); };
+    tx.onabort = function(){ rej(tx.error || new Error('Restauración cancelada')); };
+  });
+}
+async function restoreBackupFile(file){
+  let b;
+  try{
+    b = validateBackup(JSON.parse(await file.text()));
+  }catch(e){
+    toast(e instanceof SyntaxError ? 'Este archivo no es una copia de seguridad de Ledger' : e.message, 3400);
+    return;
+  }
+  const when = b.createdAt ? new Date(b.createdAt).toLocaleString('es-ES', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'fecha desconocida';
+  let msg = 'Copia del '+when+':\n'+backupSummaryText(b)+'.\n\n';
+  if(hasAnyData()){
+    msg += 'Se sustituirán los datos actuales de este dispositivo ('+backupSummaryText(state)+').\n\n¿Restaurar la copia?';
+  } else {
+    msg += '¿Restaurar la copia?';
+  }
+  if(!confirm(msg)) return;
+  try{
+    await dbReplaceAll(b);
+  }catch(e){
+    toast('No se pudo restaurar la copia. Tus datos no se han modificado.', 3600);
+    return;
+  }
+  state.cards = b.cards; state.decks = b.decks; state.binders = b.binders;
+  if(Array.isArray(b.wishlist)) state.wishlist = b.wishlist;
+  if(b.settings && typeof b.settings === 'object'){
+    state.settings = Object.assign({}, state.settings, b.settings);
+    saveSettings(); applyTheme(); renderSettings();
+  }
+  if(Array.isArray(b.scanQueue)){ state.scanQueue = b.scanQueue; saveScanQueue(); renderScanQueue(); }
+  // Restoring a file counts as having that backup on hand.
+  const m = loadBackupMeta(); m.lastBackupAt = b.createdAt ? Math.min(Date.parse(b.createdAt) || Date.now(), Date.now()) : Date.now(); saveBackupMeta(m);
+  renderCollection(); renderStats(); renderDecks(); renderBinders(); renderWishlist(); renderBackupStatus();
+  toast('Copia restaurada: '+backupSummaryText(b), 3400);
+}
+/* At most once a week, nudge on launch when the last backup is older than two weeks. */
+function maybeRemindBackup(){
+  if(!backupIsOverdue()) return;
+  const m = loadBackupMeta();
+  if(m.lastReminderAt && (Date.now() - m.lastReminderAt) < BACKUP_REMIND_EVERY_DAYS*DAY_MS) return;
+  m.lastReminderAt = Date.now(); saveBackupMeta(m);
+  const txt = m.lastBackupAt
+    ? 'Hace más de '+BACKUP_OVERDUE_DAYS+' días que no haces una copia de seguridad. Puedes hacerla en Ajustes.'
+    : 'Aún no tienes ninguna copia de seguridad. Puedes hacerla en Ajustes.';
+  setTimeout(function(){ toast(txt, 5000); }, 1200);
 }
 
 /* ---------- Navigation / Android back button ----------
@@ -2181,12 +2710,14 @@ window.addEventListener('popstate', function(e){
 function switchTab(tab, fromNav){
   const wasHome = state.tab === HOME_TAB;
   state.tab = tab;
+  if(tab === 'settings') renderBackupStatus();
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
   if(tab !== 'scan') stopCamera();
   if(tab === 'collection') renderCollection();
   if(tab === 'decks') renderDecks();
   if(tab === 'binders') renderBinders();
+  if(tab === 'wishlist'){ renderWishlist(); refreshWishlistPricesIfStale(); }
   if(tab === 'settings') renderSettings();
 
   if(fromNav) return; // reflecting a back-button pop we already consumed — don't touch history again
@@ -2200,8 +2731,8 @@ function switchTab(tab, fromNav){
 
 async function init(){
   document.querySelectorAll('.tab-btn').forEach(function(b, i){
-    const map = {collection:'search', scan:'camera', decks:'layers', binders:'folder', settings:'sliders'};
-    const labels = {collection:'Colección', scan:'Escanear', decks:'Mazos', binders:'Carpetas', settings:'Ajustes'};
+    const map = {collection:'search', scan:'camera', decks:'layers', wishlist:'star', binders:'folder', settings:'sliders'};
+    const labels = {collection:'Colección', scan:'Escanear', decks:'Mazos', wishlist:'Deseos', binders:'Carpetas', settings:'Ajustes'};
     b.innerHTML = icon(map[b.dataset.tab],21) + '<span>' + labels[b.dataset.tab] + '</span>';
     b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
   });
@@ -2217,6 +2748,7 @@ async function init(){
   try{
     const [cards, decks, binders] = await Promise.all([dbGetAll('cards'), dbGetAll('decks'), dbGetAll('binders')]);
     state.cards = cards; state.decks = decks; state.binders = binders;
+    state.wishlist = await dbGetAll('wishlist');
   }catch(e){ toast('Tu navegador no soporta almacenamiento local: los datos no se guardarán.'); }
   renderCollection();
   renderStats();
@@ -2319,7 +2851,7 @@ async function init(){
   });
   document.getElementById('currencySegmented').addEventListener('click', function(e){
     const b = e.target.closest('button'); if(!b) return;
-    state.settings.currency = b.dataset.currency; saveSettings(); renderSettings(); renderCollection(); renderStats();
+    state.settings.currency = b.dataset.currency; saveSettings(); renderSettings(); renderCollection(); renderStats(); renderWishlist();
   });
   document.getElementById('refreshPricesBtn').addEventListener('click', refreshAllPrices);
   document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
@@ -2328,6 +2860,49 @@ async function init(){
     const f = e.target.files[0]; if(f) importCSVFile(f); e.target.value='';
   });
   document.getElementById('wipeAllBtn').addEventListener('click', wipeAll);
+
+  document.getElementById('backupDownloadBtn').addEventListener('click', downloadBackup);
+  const shareBtn = document.getElementById('backupShareBtn');
+  shareBtn.hidden = !shareableBackupFile('{}');
+  shareBtn.addEventListener('click', shareBackup);
+  document.getElementById('backupRestoreBtn').addEventListener('click', function(){ document.getElementById('backupFileInput').click(); });
+  document.getElementById('backupFileInput').addEventListener('change', function(e){
+    const f = e.target.files[0]; if(f) restoreBackupFile(f); e.target.value='';
+  });
+  renderBackupStatus();
+  maybeRemindBackup();
+
+  document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
+  document.getElementById('wishlistExportBtn').addEventListener('click', function(){
+    openTextExportModal({ title:'Exportar lista de deseos', fileBase:'lista-de-deseos', modes:null, build: wishlistExportText });
+  });
+  const wishInput = document.getElementById('wishSearchInput');
+  const wishSugg = document.getElementById('wishSuggestions');
+  wishInput.addEventListener('input', debounce(async function(){
+    const q = wishInput.value.trim();
+    if(q.length<2){ wishSugg.hidden=true; return; }
+    const names = await scryAutocomplete(q);
+    if(!names.length){ wishSugg.hidden=true; return; }
+    showNameSuggestions(wishSugg, names);
+  }, 250));
+  wishSugg.addEventListener('click', function(e){
+    const item = e.target.closest('.suggestion-item[data-name]');
+    if(!item) return;
+    wishSugg.hidden = true; wishInput.value = '';
+    addNameToWishlist(item.dataset.name);
+  });
+  document.addEventListener('click', function(e){ if(!e.target.closest('.search-box')) wishSugg.hidden = true; });
+  document.getElementById('wishlistList').addEventListener('click', function(e){
+    const inc = e.target.closest('[data-action="wish-inc"]');
+    const dec = e.target.closest('[data-action="wish-dec"]');
+    if(inc || dec){ e.stopPropagation(); changeWishQty((inc||dec).dataset.wishId, inc ? 1 : -1); return; }
+    // Tapping the card itself = "I got it": open the normal add-to-collection flow
+    const row = e.target.closest('[data-action="wish-open"]');
+    if(!row) return;
+    const w = state.wishlist.find(function(x){ return x.id === row.dataset.wishId; });
+    if(w) startAddFlow(w.name);
+  });
+  renderWishlist();
 
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
