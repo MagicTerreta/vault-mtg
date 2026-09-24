@@ -112,6 +112,58 @@
   .export-actions{display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:.5rem;}
   .segmented.export-mode{margin-bottom:.8rem; display:flex; width:100%;}
   .segmented.export-mode button{flex:1; white-space:nowrap;}
+  /* Commander legality */
+  .legality-card{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:.75rem .85rem; margin:.2rem 0 1.1rem;}
+  .legality-head{display:flex; align-items:center; gap:.55rem; font-weight:600; font-size:.92rem;}
+  .legality-head .lg-icon{flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center;}
+  .legality-card.ok .lg-icon{background:var(--good-soft); color:var(--good);}
+  .legality-card.bad .lg-icon{background:var(--danger-soft); color:var(--danger);}
+  .legality-card.warn .lg-icon, .legality-card.hint .lg-icon{background:var(--warn-soft); color:var(--warn);}
+  .legality-card.loading .lg-icon{background:var(--surface-2); color:var(--ink-faint);}
+  .legality-sub{font-size:.75rem; color:var(--ink-soft); font-weight:400; margin-top:1px;}
+  .legality-issues{list-style:none; margin:.65rem 0 0; padding:0; display:flex; flex-direction:column; gap:.5rem;}
+  .legality-issues li{display:flex; gap:.5rem; font-size:.8rem; line-height:1.45;}
+  .legality-issues li .li-icon{flex:none; margin-top:2px;}
+  .legality-issues li.error .li-icon{color:var(--danger);}
+  .legality-issues li.warn .li-icon{color:var(--warn);}
+  .legality-issues li.info .li-icon{color:var(--ink-faint);}
+  .legality-issues .li-cards{color:var(--ink-soft); font-size:.74rem;}
+  .legality-checks{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.6rem;}
+  .badge-bad{background:var(--danger-soft); color:var(--danger);}
+  .gimg-wrap .deck-legal-badge{position:absolute; top:5px; right:5px; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; box-shadow:0 0 0 2px var(--surface);}
+  .deck-legal-badge.ok{background:var(--good); color:#fff;}
+  .deck-legal-badge.bad{background:var(--danger); color:#fff;}
+  /* Collection value history */
+  .vh-hero{display:flex; flex-direction:column; gap:.2rem; margin-bottom:.7rem;}
+  .vh-hero .vh-value{font-size:1.9rem; font-weight:600; line-height:1.1;}
+  .vh-delta{display:inline-flex; align-items:center; gap:.3rem; font-size:.85rem; font-weight:600;}
+  .vh-delta.up{color:var(--good);} .vh-delta.down{color:var(--danger);} .vh-delta.flat{color:var(--ink-soft);}
+  .vh-delta .vh-period{color:var(--ink-soft); font-weight:400;}
+  .vh-breakdown{font-size:.74rem; color:var(--ink-soft);}
+  .segmented.vh-range{display:flex; width:100%; margin-bottom:.6rem;}
+  .segmented.vh-range button{flex:1; padding:.35rem .2rem;}
+  .vh-chart{position:relative; touch-action:pan-y; user-select:none; -webkit-user-select:none;}
+  .vh-chart svg{display:block; width:100%; overflow:visible;}
+  .vh-chart .vh-grid{stroke:var(--line); stroke-width:1;}
+  .vh-chart .vh-axis-text{fill:var(--ink-faint); font-size:10px; font-family:var(--font-mono);}
+  .vh-chart .vh-line{fill:none; stroke:var(--accent); stroke-width:2; stroke-linejoin:round; stroke-linecap:round;}
+  .vh-chart .vh-dot{fill:var(--accent); stroke:var(--surface); stroke-width:2;}
+  .vh-chart .vh-cross{stroke:var(--ink-faint); stroke-width:1;}
+  .vh-tip{position:absolute; top:0; pointer-events:none; background:var(--ink); color:var(--surface); border-radius:8px; padding:.35rem .55rem; font-size:.72rem; line-height:1.35; white-space:nowrap; transform:translateX(-50%); box-shadow:var(--shadow);}
+  .vh-tip strong{display:block; font-size:.82rem;}
+  .vh-empty{font-size:.8rem; color:var(--ink-soft); background:var(--surface-2); border-radius:var(--radius-m); padding:.75rem .85rem; line-height:1.5;}
+  .vh-table{width:100%; border-collapse:collapse; font-size:.76rem; margin-top:.5rem;}
+  .vh-table td{padding:.3rem .2rem; border-bottom:1px solid var(--line);}
+  .vh-table td:last-child{text-align:right; font-family:var(--font-mono); font-variant-numeric:tabular-nums;}
+  .vh-details summary{cursor:pointer; font-size:.78rem; color:var(--accent); margin-top:.5rem;}
+  .mover-row{display:flex; align-items:center; gap:.65rem; padding:.45rem .2rem; border-bottom:1px solid var(--line); cursor:pointer;}
+  .mover-row:last-child{border-bottom:none;}
+  .mover-row .card-info{flex:1; min-width:0;}
+  .mover-row .mover-prices{font-size:.7rem; color:var(--ink-soft); font-family:var(--font-mono);}
+  .mover-impact{flex:none; text-align:right; font-family:var(--font-mono); font-size:.8rem; font-weight:600; display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
+  .mover-impact.up{color:var(--good);} .mover-impact.down{color:var(--danger);}
+  .mover-impact small{font-weight:400; color:var(--ink-soft); font-size:.66rem;}
+  .movers-cols h4{font-size:.8rem; margin:.9rem 0 .25rem; display:flex; align-items:center; gap:.35rem;}
   .backup-actions{display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end;}
   .backup-status .srlabel{display:flex; align-items:center; gap:.45rem;}
   .backup-status.ok .srlabel::before, .backup-status.overdue .srlabel::before{content:''; flex:none; width:8px; height:8px; border-radius:50%;}
@@ -566,6 +618,10 @@ const ICONS = {
   exportOut:'<path d="M14 3h7v7"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>',
   copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  info:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  trendUp:'<polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/>',
+  trendDown:'<polyline points="3 7 9 13 13 9 21 17"/><polyline points="15 17 21 17 21 11"/>',
   share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
@@ -626,7 +682,7 @@ function parseCSV(text){
 }
 
 /* ---------- IndexedDB ---------- */
-const DB_NAME = 'mtgLedgerDB', DB_VERSION = 2;
+const DB_NAME = 'mtgLedgerDB', DB_VERSION = 3;
 let dbPromise = null;
 function openDB(){
   if(dbPromise) return dbPromise;
@@ -639,6 +695,7 @@ function openDB(){
       if(!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', {keyPath:'id'});
       if(!db.objectStoreNames.contains('binders')) db.createObjectStore('binders', {keyPath:'id'});
       if(!db.objectStoreNames.contains('wishlist')) db.createObjectStore('wishlist', {keyPath:'id'});
+      if(!db.objectStoreNames.contains('valueHistory')) db.createObjectStore('valueHistory', {keyPath:'date'});
     };
     req.onsuccess = function(){
       const db = req.result;
@@ -655,6 +712,7 @@ function openDB(){
 async function dbGetAll(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readonly'); const r=tx.objectStore(store).getAll(); r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); }
 async function dbPut(store, val){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbDelete(store, id){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbPutMany(store, vals){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbClear(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 
 /* ---------- Scryfall client ---------- */
@@ -789,6 +847,7 @@ function setIconSpanHTML(setCode, rarity){
 /* ---------- Stats ---------- */
 function renderStats(){
   renderBackupStatus();
+  scheduleTodaySnapshot();
   const totalCards = state.cards.reduce(function(a,c){ return a + (c.quantity||0); }, 0);
   const unique = state.cards.length;
   const currency = state.settings.currency;
@@ -859,6 +918,7 @@ function openStatsPanel(){
   panel.innerHTML =
     '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
     '<div class="detail-body">'+
+      '<div class="stat-section"><h3>Evolución del valor</h3><div id="valueHistorySection"></div></div>'+
       '<div class="stat-section"><div class="stat-grid-tiles">'+
         '<div class="stat-tile"><div class="value">'+fmtMoney(avgPrice, currency)+'</div><div class="label">Precio medio</div></div>'+
         '<div class="stat-tile"><div class="value">'+uniqueSets+'</div><div class="label">Ediciones distintas</div></div>'+
@@ -895,6 +955,7 @@ function openStatsPanel(){
   panel.hidden = false;
   navPush();
   document.getElementById('statsBackBtn').addEventListener('click', navBack);
+  renderValueHistorySection();
   const mvEl = document.getElementById('statsMostValuableCard');
   if(mvEl) mvEl.addEventListener('click', function(){ openEditCardModal(mvEl.dataset.id); });
 }
@@ -1538,7 +1599,10 @@ function deckGridItemHTML(deck){
   }
   return (
     '<div class="card-grid-item" data-id="'+deck.id+'" data-action="open-deck">'+
-      '<div class="gimg-wrap">'+img+'</div>'+
+      '<div class="gimg-wrap">'+img+
+        (deck.legality === 'legal' ? '<span class="deck-legal-badge ok" title="Legal en Commander">'+icon('check',12)+'</span>'
+          : deck.legality === 'illegal' ? '<span class="deck-legal-badge bad" title="No es legal en Commander">'+icon('alert',11)+'</span>' : '')+
+      '</div>'+
       '<div class="gname">'+esc(deck.name)+'</div>'+
       '<div class="gsub">'+
         '<span class="gsetnum">'+s.total+' cartas · '+s.unique+' únicas</span>'+
@@ -1609,6 +1673,9 @@ function deckCardRowHTML(deck, c, big){
   if(owned >= c.qty) badge = '<span class="badge badge-good">En colección: '+owned+'</span>';
   else if(owned > 0) badge = '<span class="badge badge-warn">En colección: '+owned+'</span>';
   else badge = '<span class="badge">En colección: 0</span>';
+  const lg = deckLegalityResults[deck.id];
+  const problems = lg && lg.flags ? (lg.flags[c.name] || []) : [];
+  badge = problems.map(function(p){ return '<span class="badge badge-bad">'+icon('alert',10)+' '+esc(p)+'</span>'; }).join('') + badge;
   const img = (big ? c.imageNormal : null) || c.imageSmall;
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
   return '<div class="card-row'+(big?' commander-row':'')+'" data-name="'+esc(c.name)+'">'+
@@ -1651,6 +1718,7 @@ function openDeckDetail(id){
     '<div class="detail-body">'+
       '<div class="section-note">'+s.total+' cartas · '+s.unique+' únicas'+(deck.format?(' · '+esc(deck.format)):'')+'</div>'+
       '<div class="pip-legend">'+s.colors.map(function(c){ return '<span class="item">'+colorPipsHTML([c])+' '+manaName(c)+'</span>'; }).join('')+'</div>'+
+      '<div id="deckLegality" data-deck-id="'+esc(deck.id)+'"></div>'+
       (deck.cards.length ? curveHTML(deck) : '')+
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Añadir carta al mazo</h2></div>'+
       '<div class="search-box"><input id="deckSearchInput" class="text-input" placeholder="Nombre de la carta" autocomplete="off"><div id="deckSuggestions" class="suggestions" hidden></div></div>'+
@@ -1665,6 +1733,7 @@ function openDeckDetail(id){
   navPush();
 
   document.getElementById('deckBackBtn').addEventListener('click', navBack);
+  runDeckLegality(deck);
   document.getElementById('deckExportBtn').addEventListener('click', function(){ openDeckExportModal(deck); });
   const missBtn = document.getElementById('deckMissingToWishBtn');
   if(missBtn) missBtn.addEventListener('click', async function(){
@@ -2056,23 +2125,320 @@ function setSettingsProgress(pct, show){
   wrap.hidden = !show;
   document.getElementById('settingsProgressFill').style.width = pct+'%';
 }
+/* ---------- Prices & collection value history ----------
+   Prices are refreshed in batches of 75 cards with /cards/collection (≈40 requests for
+   ~3.000 distinct cards instead of one request per card), automatically once a day when
+   the app opens. After every refresh — and a few seconds after any collection change —
+   today's value is stored as a snapshot, which feeds the evolution chart. Snapshots keep
+   each card's unit price for 35 days (for "what went up / down"); older ones keep totals. */
+const PRICE_REFRESH_KEY = 'mtgLedgerPriceRefreshAt';
+const HISTORY_ITEMS_DAYS = 35;
+let historyReady = false;
+// Totals-only copy of the history kept in memory, so the (synchronous) backup builder can
+// include it — the share sheet must open straight from the tap, with no await before it.
+let historyTotalsCache = [];
+function stripHistoryItems(h){ const c = Object.assign({}, h); delete c.items; return c; }
+function cacheHistoryTotals(h){
+  const t = stripHistoryItems(h);
+  const i = historyTotalsCache.findIndex(function(x){ return x.date === t.date; });
+  if(i > -1) historyTotalsCache[i] = t; else historyTotalsCache.push(t);
+  historyTotalsCache.sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+}
+function localDateKey(d){ d = d || new Date(); const p = function(n){ return String(n).padStart(2,'0'); }; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function dateFromKey(k){ const a = k.split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); }
+function collectionTotals(){
+  let eur = 0, usd = 0, copies = 0;
+  state.cards.forEach(function(c){
+    const e = itemPrice(c,'EUR'), u = itemPrice(c,'USD');
+    if(e != null) eur += e*c.quantity;
+    if(u != null) usd += u*c.quantity;
+    copies += c.quantity || 0;
+  });
+  return {eur: Math.round(eur*100)/100, usd: Math.round(usd*100)/100, copies: copies, unique: state.cards.length};
+}
+function buildSnapshot(){
+  const items = {};
+  state.cards.forEach(function(c){
+    const e = itemPrice(c,'EUR'), u = itemPrice(c,'USD');
+    items[c.id] = [e == null ? null : e, u == null ? null : u, c.quantity];
+  });
+  return Object.assign({date: localDateKey(), ts: Date.now(), items: items}, collectionTotals());
+}
+async function saveTodaySnapshot(){
+  if(!historyReady || !state.cards.length) return;
+  try{ const snap = buildSnapshot(); await dbPut('valueHistory', snap); cacheHistoryTotals(snap); await pruneHistoryOncePerDay(); }catch(e){}
+}
+let snapshotTimer = null;
+function scheduleTodaySnapshot(){
+  if(!historyReady) return;
+  clearTimeout(snapshotTimer);
+  snapshotTimer = setTimeout(saveTodaySnapshot, 3000);
+}
+async function pruneHistoryOncePerDay(){
+  const today = localDateKey();
+  try{ if(localStorage.getItem('mtgLedgerHistoryPrunedOn') === today) return; localStorage.setItem('mtgLedgerHistoryPrunedOn', today); }catch(e){}
+  const cutoff = Date.now() - HISTORY_ITEMS_DAYS*DAY_MS;
+  const all = await dbGetAll('valueHistory');
+  const stale = all.filter(function(h){ return h.items && dateFromKey(h.date).getTime() < cutoff; })
+    .map(function(h){ const c = Object.assign({}, h); delete c.items; return c; });
+  if(stale.length) await dbPutMany('valueHistory', stale);
+}
+async function refreshPricesBatch(onProgress){
+  const ids = [];
+  const seen = {};
+  state.cards.forEach(function(c){ if(c.scryfallId && !seen[c.scryfallId]){ seen[c.scryfallId] = true; ids.push(c.scryfallId); } });
+  const byId = {};
+  let reached = false;
+  for(let i=0;i<ids.length;i+=75){
+    const chunk = ids.slice(i, i+75);
+    try{
+      const r = await fetch(SCRYFALL+'/cards/collection', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({identifiers: chunk.map(function(id){ return {id:id}; })})
+      });
+      if(r.ok){ reached = true; const j = await r.json(); (j.data || []).forEach(function(card){ byId[card.id] = card; }); }
+    }catch(e){}
+    if(onProgress) onProgress(Math.min(ids.length, i+75), ids.length);
+    if(i+75 < ids.length) await sleep(110);
+  }
+  if(!reached) return false;
+  const changed = [];
+  state.cards.forEach(function(item){
+    const card = byId[item.scryfallId];
+    if(!card || !card.prices) return;
+    const np = {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)};
+    const op = item.prices || {};
+    if(np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil){ item.prices = np; changed.push(item); }
+  });
+  if(changed.length) await dbPutMany('cards', changed);
+  try{ localStorage.setItem(PRICE_REFRESH_KEY, String(Date.now())); }catch(e){}
+  await saveTodaySnapshot();
+  return true;
+}
+function valueChangeText(before, after, currency){
+  const d = Math.round((after-before)*100)/100;
+  if(Math.abs(d) < 0.01) return 'sin cambios en el valor';
+  return (d > 0 ? '+' : '−')+fmtMoney(Math.abs(d), currency)+' desde la última actualización';
+}
 async function refreshAllPrices(){
   if(state.cards.length===0){ toast('Tu colección está vacía'); return; }
+  const cur = state.settings.currency;
+  const before = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
   setSettingsProgress(0, true);
-  let done=0;
-  for(const item of state.cards){
-    try{
-      const card = await scryById(item.scryfallId);
-      item.prices = {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)};
-      await dbPut('cards', item);
-    }catch(e){ /* keep old price on failure */ }
-    done++;
-    setSettingsProgress(Math.round(done/state.cards.length*100), true);
-    await sleep(90);
-  }
+  const ok = await refreshPricesBatch(function(done, total){ setSettingsProgress(Math.round(done/total*100), true); });
   setSettingsProgress(0,false);
+  if(!ok){ toast('No se pudo conectar con Scryfall. Inténtalo más tarde.'); return; }
   renderCollection();
-  toast('Precios actualizados');
+  toast('Precios actualizados: '+valueChangeText(before, collectionTotals()[cur === 'USD' ? 'usd' : 'eur'], cur), 3600);
+}
+async function autoRefreshPricesDaily(){
+  if(!state.cards.length || navigator.onLine === false) return;
+  let last = 0;
+  try{ last = parseInt(localStorage.getItem(PRICE_REFRESH_KEY) || '0', 10) || 0; }catch(e){}
+  if(Date.now() - last < 20*3600*1000){ scheduleTodaySnapshot(); return; }
+  const cur = state.settings.currency;
+  const before = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
+  const ok = await refreshPricesBatch(null);
+  if(!ok) return;
+  renderCollection();
+  const after = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
+  if(Math.abs(after-before) >= 0.01) toast('Precios del día actualizados: '+valueChangeText(before, after, cur), 4200);
+}
+
+/* ----- evolution chart + movers (inside the Estadísticas panel) ----- */
+const VH_RANGES = [{key:'7D', label:'7 días', days:7}, {key:'1M', label:'1 mes', days:30}, {key:'3M', label:'3 meses', days:91}, {key:'1A', label:'1 año', days:365}, {key:'ALL', label:'Todo', days:null}];
+let vhRange = '1M';
+function fmtCompactMoney(v, currency){
+  try{ return new Intl.NumberFormat('es-ES',{style:'currency',currency:currency,maximumFractionDigits:0}).format(v); }catch(e){ return Math.round(v)+' '+currency; }
+}
+function fmtShortDate(d){ return d.toLocaleDateString('es-ES',{day:'numeric', month:'short'}); }
+function niceStep(range, count){
+  const raw = range / Math.max(1, count);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * mag;
+}
+function historySeries(history, currency){
+  const key = currency === 'USD' ? 'usd' : 'eur';
+  const today = localDateKey();
+  const pts = history.filter(function(h){ return h.date !== today; }).map(function(h){ return {date:h.date, t:dateFromKey(h.date).getTime(), v:h[key], snap:h}; });
+  const live = buildSnapshot();
+  pts.push({date: today, t: dateFromKey(today).getTime(), v: live[key], snap: live, live: true});
+  pts.sort(function(a,b){ return a.t - b.t; });
+  return pts;
+}
+function seriesForRange(all, rangeKey){
+  const r = VH_RANGES.find(function(x){ return x.key === rangeKey; }) || VH_RANGES[1];
+  if(!r.days) return all.slice();
+  const start = dateFromKey(localDateKey()).getTime() - r.days*DAY_MS;
+  // start from the last known point on/before the range start, so "change in 7 días" means exactly that
+  let firstIdx = all.findIndex(function(p){ return p.t >= start; });
+  if(firstIdx > 0 && all[firstIdx].t > start) firstIdx -= 1;
+  return firstIdx < 0 ? all.slice(-1) : all.slice(firstIdx);
+}
+function computeMovers(base, currency){
+  const idx = currency === 'USD' ? 1 : 0;
+  const rows = [];
+  state.cards.forEach(function(c){
+    const then = base.items && base.items[c.id];
+    if(!then) return;
+    const p0 = then[idx], p1 = itemPrice(c, currency);
+    if(p0 == null || p1 == null) return;
+    const d = p1 - p0;
+    if(Math.abs(d) < 0.005) return;
+    rows.push({card:c, p0:p0, p1:p1, unit:d, impact:d*c.quantity, pct: p0 > 0 ? d/p0*100 : null});
+  });
+  const up = rows.filter(function(r){ return r.unit > 0; }).sort(function(a,b){ return b.impact - a.impact; }).slice(0,5);
+  const down = rows.filter(function(r){ return r.unit < 0; }).sort(function(a,b){ return a.impact - b.impact; }).slice(0,5);
+  return {up:up, down:down};
+}
+function priceEffect(base, currency){
+  const idx = currency === 'USD' ? 1 : 0;
+  let eff = 0;
+  state.cards.forEach(function(c){
+    const then = base.items && base.items[c.id];
+    if(!then) return;
+    const p0 = then[idx], p1 = itemPrice(c, currency);
+    if(p0 == null || p1 == null) return;
+    eff += then[2] * (p1 - p0);
+  });
+  return eff;
+}
+function signedMoney(v, currency){ return (v > 0.004 ? '+' : v < -0.004 ? '−' : '')+fmtMoney(Math.abs(v), currency); }
+function moverRowHTML(r, currency){
+  const c = r.card, up = r.unit > 0;
+  const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',14)+'</div>';
+  return '<div class="mover-row" data-id="'+esc(c.id)+'">'+img+
+    '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div>'+
+      '<div class="mover-prices">'+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'')+' · '+fmtMoney(r.p0, currency)+' → '+fmtMoney(r.p1, currency)+'</div></div>'+
+    '<div class="mover-impact '+(up?'up':'down')+'">'+signedMoney(r.impact, currency)+
+      '<small>'+(r.pct!=null ? (up?'+':'−')+Math.abs(r.pct).toFixed(0)+' %' : '')+(c.quantity>1 ? ' · ×'+c.quantity : '')+'</small></div>'+
+  '</div>';
+}
+async function renderValueHistorySection(){
+  const box = document.getElementById('valueHistorySection');
+  if(!box) return;
+  const currency = state.settings.currency;
+  let history = [];
+  try{ history = await dbGetAll('valueHistory'); }catch(e){}
+  if(!document.getElementById('valueHistorySection')) return;
+  const all = historySeries(history, currency);
+  const pts = seriesForRange(all, vhRange);
+  const last = all[all.length-1];
+  const base = pts[0];
+  const rangeLabel = (VH_RANGES.find(function(x){ return x.key === vhRange; }) || {}).label;
+  let deltaHTML = '', breakdownHTML = '';
+  if(all.length > 1 && base !== last){
+    const d = last.v - base.v;
+    const pct = base.v > 0 ? d/base.v*100 : 0;
+    const dir = Math.abs(d) < 0.01 ? 'flat' : (d > 0 ? 'up' : 'down');
+    const rDays = (VH_RANGES.find(function(x){ return x.key === vhRange; }) || {}).days;
+    const ageDays = Math.round((dateFromKey(localDateKey()).getTime() - base.t) / DAY_MS);
+    // "en 1 mes" only when the baseline really is ~1 month old; otherwise name its date
+    const period = (rDays && ageDays >= rDays && ageDays <= rDays + 2) ? 'en '+rangeLabel : 'desde el '+fmtShortDate(new Date(base.t));
+    deltaHTML = '<div class="vh-delta '+dir+'">'+(dir==='up'?icon('trendUp',15):dir==='down'?icon('trendDown',15):'')+
+      '<span>'+signedMoney(d, currency)+' ('+(pct>=0?'+':'−')+Math.abs(pct).toFixed(1).replace('.',',')+' %)</span> <span class="vh-period">'+esc(period)+'</span></div>';
+    if(base.snap && base.snap.items && !base.live && Math.abs(d) >= 0.01){
+      const pe = priceEffect(base.snap, currency);
+      breakdownHTML = '<div class="vh-breakdown">Por cambios de precio: '+signedMoney(pe, currency)+' · Por cartas añadidas o quitadas: '+signedMoney(d - pe, currency)+'</div>';
+    }
+  }
+  let html =
+    '<div class="vh-hero"><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+deltaHTML+breakdownHTML+'</div>';
+  if(all.length < 2){
+    html += '<div class="vh-empty">El registro empieza hoy. Ledger guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
+    box.innerHTML = html;
+    return;
+  }
+  html += '<div class="segmented vh-range" id="vhRangeSeg" role="group" aria-label="Periodo">'+
+    VH_RANGES.map(function(r){ return '<button data-range="'+r.key+'"'+(r.key===vhRange?' class="active"':'')+'>'+esc(r.label)+'</button>'; }).join('')+'</div>'+
+    '<div class="vh-chart" id="vhChart"></div>'+
+    '<details class="vh-details"><summary>Ver datos</summary><table class="vh-table">'+
+      pts.slice().reverse().map(function(p){ return '<tr><td>'+esc(new Date(p.t).toLocaleDateString('es-ES',{weekday:'short', day:'numeric', month:'short', year:'numeric'}))+(p.live?' (ahora)':'')+'</td><td>'+fmtMoney(p.v, currency)+'</td></tr>'; }).join('')+
+    '</table></details>';
+  // movers
+  const moverBase = base.snap && base.snap.items && !base.live ? base : all.find(function(p){ return p.snap && p.snap.items && !p.live; });
+  if(moverBase){
+    const mv = computeMovers(moverBase.snap, currency);
+    const since = 'desde el '+fmtShortDate(new Date(moverBase.t));
+    html += '<div class="movers-cols">'+
+      '<h4>'+icon('trendUp',14)+' Las que más han subido <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
+      (mv.up.length ? mv.up.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha subido de precio en este periodo.</div>')+
+      '<h4>'+icon('trendDown',14)+' Las que más han bajado <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
+      (mv.down.length ? mv.down.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha bajado de precio en este periodo.</div>')+
+    '</div>';
+  }
+  box.innerHTML = html;
+  drawValueChart(document.getElementById('vhChart'), pts, currency);
+  document.getElementById('vhRangeSeg').addEventListener('click', function(e){
+    const b = e.target.closest('button[data-range]'); if(!b) return;
+    vhRange = b.dataset.range; renderValueHistorySection();
+  });
+  box.querySelectorAll('.mover-row').forEach(function(row){ row.addEventListener('click', function(){ openEditCardModal(row.dataset.id); }); });
+}
+function drawValueChart(container, pts, currency){
+  if(!container) return;
+  const W = Math.max(260, container.clientWidth || 320), H = 190;
+  const padL = 58, padR = 10, padT = 12, padB = 24;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  let vmin = Math.min.apply(null, pts.map(function(p){ return p.v; }));
+  let vmax = Math.max.apply(null, pts.map(function(p){ return p.v; }));
+  if(vmax - vmin < 1){ vmin -= 1; vmax += 1; }
+  const step = niceStep(vmax - vmin, 3);
+  const lo = Math.floor(vmin/step)*step, hi = Math.ceil(vmax/step)*step;
+  const t0 = pts[0].t, t1 = pts[pts.length-1].t || t0 + 1;
+  const x = function(t){ return padL + (t1 === t0 ? iw/2 : (t - t0)/(t1 - t0)*iw); };
+  const y = function(v){ return padT + (hi === lo ? ih/2 : (1 - (v - lo)/(hi - lo))*ih); };
+  let grid = '';
+  for(let v = lo; v <= hi + step/2; v += step){
+    grid += '<line class="vh-grid" x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/>'+
+      '<text class="vh-axis-text" x="'+(padL-6)+'" y="'+(y(v)+3.5).toFixed(1)+'" text-anchor="end">'+esc(fmtCompactMoney(v, currency))+'</text>';
+  }
+  const xl = [pts[0], pts[pts.length-1]];
+  if(pts.length >= 5 && iw > 240) xl.splice(1, 0, pts[Math.floor(pts.length/2)]);
+  let xlab = '';
+  xl.forEach(function(p, i){
+    const anchor = i === 0 ? 'start' : (i === xl.length-1 ? 'end' : 'middle');
+    xlab += '<text class="vh-axis-text" x="'+x(p.t).toFixed(1)+'" y="'+(H-6)+'" text-anchor="'+anchor+'">'+esc(p.live ? 'Hoy' : fmtShortDate(new Date(p.t)))+'</text>';
+  });
+  const d = pts.map(function(p, i){ return (i?'L':'M')+x(p.t).toFixed(1)+' '+y(p.v).toFixed(1); }).join(' ');
+  const lp = pts[pts.length-1];
+  container.innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="Evolución del valor de la colección">'+
+      grid+xlab+
+      '<path class="vh-line" d="'+d+'"/>'+
+      '<line class="vh-cross" id="vhCross" x1="0" x2="0" y1="'+padT+'" y2="'+(padT+ih)+'" visibility="hidden"/>'+
+      '<circle class="vh-dot" cx="'+x(lp.t).toFixed(1)+'" cy="'+y(lp.v).toFixed(1)+'" r="4.5"/>'+
+      '<circle class="vh-dot" id="vhHoverDot" r="5" visibility="hidden"/>'+
+      '<rect id="vhHit" x="'+padL+'" y="0" width="'+iw+'" height="'+(H-padB)+'" fill="transparent"/>'+
+    '</svg><div class="vh-tip" id="vhTip" hidden></div>';
+  const svg = container.querySelector('svg');
+  const cross = container.querySelector('#vhCross'), hdot = container.querySelector('#vhHoverDot'), tip = container.querySelector('#vhTip');
+  let hideTimer = null;
+  function show(ev){
+    const rect = svg.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) * (W / rect.width);
+    let best = pts[0], bd = Infinity;
+    pts.forEach(function(p){ const dd = Math.abs(x(p.t) - px); if(dd < bd){ bd = dd; best = p; } });
+    const cx = x(best.t), cy = y(best.v);
+    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.setAttribute('visibility', 'visible');
+    hdot.setAttribute('cx', cx); hdot.setAttribute('cy', cy); hdot.setAttribute('visibility', 'visible');
+    tip.textContent = '';
+    const strong = document.createElement('strong'); strong.textContent = fmtMoney(best.v, currency);
+    tip.appendChild(strong);
+    tip.appendChild(document.createTextNode(best.live ? 'Ahora' : new Date(best.t).toLocaleDateString('es-ES',{weekday:'short', day:'numeric', month:'short'})));
+    tip.hidden = false;
+    const leftPx = cx * (rect.width / W);
+    const half = tip.offsetWidth / 2;
+    tip.style.left = Math.min(rect.width - half, Math.max(half, leftPx))+'px';
+    tip.style.top = '-8px';
+    clearTimeout(hideTimer);
+    if(ev.pointerType === 'touch') hideTimer = setTimeout(hide, 2500);
+  }
+  function hide(){ cross.setAttribute('visibility','hidden'); hdot.setAttribute('visibility','hidden'); tip.hidden = true; }
+  svg.addEventListener('pointermove', show);
+  svg.addEventListener('pointerdown', show);
+  svg.addEventListener('pointerleave', function(ev){ if(ev.pointerType !== 'touch') hide(); });
 }
 function binderNameById(id){ if(!id) return ''; const b = state.binders.find(function(x){return x.id===id;}); return b?b.name:''; }
 function exportCSV(){
@@ -2197,10 +2563,236 @@ async function importCSVFile(file){
 async function wipeAll(){
   if(!confirm('Esto borrará TODA tu colección, mazos, carpetas y lista de deseos de este dispositivo.'+(backupIsOverdue()?'\n\nNo tienes una copia de seguridad reciente: te recomendamos crear una antes (Ajustes → Copia de seguridad).':'')+'\n\n¿Continuar?')) return;
   if(!confirm('Confirma otra vez: se perderán todos los datos guardados aquí. ¿Seguro?')) return;
-  await dbClear('cards'); await dbClear('decks'); await dbClear('binders'); await dbClear('wishlist');
-  state.cards = []; state.decks = []; state.binders = []; state.wishlist = [];
+  await dbClear('cards'); await dbClear('decks'); await dbClear('binders'); await dbClear('wishlist'); await dbClear('valueHistory');
+  state.cards = []; state.decks = []; state.binders = []; state.wishlist = []; historyTotalsCache = [];
   renderCollection(); renderStats(); renderDecks(); renderBinders(); renderWishlist(); renderBackupStatus();
   toast('Colección vaciada');
+}
+
+/* ---------- Commander legality ----------
+   Deck cards only store name/type/colors, so the rules data (colour identity, oracle
+   text, Scryfall's commander legality — which already reflects the official ban list)
+   is fetched in batches of 75 with /cards/collection and cached for the session. */
+const cardRulesCache = {}; // lower-case name -> Scryfall card, or null if Scryfall doesn't know it
+const deckLegalityResults = {}; // deck.id -> last computed result (for the row badges)
+async function ensureCardRules(names){
+  const missing = names.filter(function(n){ return !(n.toLowerCase() in cardRulesCache); });
+  if(!missing.length) return true;
+  let reached = false;
+  for(let i=0;i<missing.length;i+=75){
+    const chunk = missing.slice(i, i+75);
+    const r = await fetch(SCRYFALL+'/cards/collection', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifiers: chunk.map(function(n){ return {name:n}; })})
+    }).catch(function(){ return null; });
+    if(!r || !r.ok) return false; // offline / Scryfall down: don't cache anything as "unknown"
+    reached = true;
+    const j = await r.json();
+    (j.data || []).forEach(function(card){
+      cardRulesCache[card.name.toLowerCase()] = card;
+      const front = card.name.split(' // ')[0].toLowerCase();
+      if(!(front in cardRulesCache)) cardRulesCache[front] = card;
+    });
+    chunk.forEach(function(n){ if(!(n.toLowerCase() in cardRulesCache)) cardRulesCache[n.toLowerCase()] = null; });
+    if(i+75 < missing.length) await sleep(110);
+  }
+  return reached;
+}
+function rulesFor(name){ const c = cardRulesCache[name.toLowerCase()]; return c === undefined ? undefined : c; }
+function cardOracle(card){
+  if(card.card_faces && card.card_faces.length) return card.card_faces.map(function(f){ return f.oracle_text || ''; }).join('\n');
+  return card.oracle_text || '';
+}
+function cardFrontType(card){ return (card.card_faces && card.card_faces[0] && card.card_faces[0].type_line) || card.type_line || ''; }
+const NUMBER_WORDS = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
+function maxCopiesAllowed(card){
+  if(/\bBasic\b/.test(card.type_line || '')) return Infinity;
+  const t = cardOracle(card);
+  if(/A deck can have any number of cards named/i.test(t)) return Infinity;
+  const m = /A deck can have up to (\w+) cards named/i.exec(t);
+  if(m) return NUMBER_WORDS[m[1].toLowerCase()] || parseInt(m[1], 10) || 1;
+  return 1;
+}
+function commanderTraits(card){
+  const t = cardOracle(card), type = cardFrontType(card);
+  const withName = /Partner with ([^\n(]+)/.exec(t);
+  const variant = /Partner\s*[—–-]\s*([^\n(]+)/.exec(t); // e.g. "Partner—Father & son"
+  return {
+    canLead: (/Legendary/.test(type) && /Creature/.test(type)) || /can be your commander/i.test(t),
+    partner: /(^|\n)Partner(\s*\(|\s*$)/m.test(t),
+    partnerWith: withName ? withName[1].trim().toLowerCase() : null,
+    partnerVariant: variant ? variant[1].trim().toLowerCase() : null,
+    friendsForever: /Friends forever/i.test(t),
+    choosesBackground: /Choose a Background/i.test(t),
+    isBackground: /Enchantment/.test(type) && /Background/.test(type),
+    doctorsCompanion: /Doctor['’]s companion/i.test(t),
+    isDoctor: /Time Lord Doctor/i.test(type),
+    mentionsTwoCommanders: /two commanders/i.test(t)
+  };
+}
+function commanderPairOk(a, b){
+  const A = commanderTraits(a), B = commanderTraits(b);
+  if(A.partner && B.partner) return true;
+  if(A.partnerWith && B.partnerWith && A.partnerWith === b.name.toLowerCase() && B.partnerWith === a.name.toLowerCase()) return true;
+  if(A.partnerVariant && B.partnerVariant && A.partnerVariant === B.partnerVariant) return true;
+  if(A.friendsForever && B.friendsForever) return true;
+  if((A.choosesBackground && B.isBackground) || (B.choosesBackground && A.isBackground)) return true;
+  if((A.doctorsCompanion && B.isDoctor) || (B.doctorsCompanion && A.isDoctor)) return true;
+  return false;
+}
+function isCommanderDeck(deck){
+  return deck.cards.some(function(c){ return c.commander; }) || /commander|edh/i.test(deck.format || '');
+}
+function listNames(names, max){
+  max = max || 6;
+  const shown = names.slice(0, max).join(', ');
+  return names.length > max ? shown+' y '+(names.length-max)+' más' : shown;
+}
+/* Returns null while rules data is missing; otherwise
+   {status:'legal'|'illegal'|'warn', issues:[{level,title,cards}], flags:{name:[labels]}, total, gameChangers} */
+function computeCommanderLegality(deck){
+  const names = deck.cards.map(function(c){ return c.name; });
+  if(names.some(function(n){ return rulesFor(n) === undefined; })) return null;
+  const issues = [], flags = {};
+  function flag(name, label){ (flags[name] = flags[name] || []).indexOf(label) === -1 && flags[name].push(label); }
+  const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
+  const commanders = deck.cards.filter(function(c){ return c.commander; });
+  const unknown = deck.cards.filter(function(c){ return rulesFor(c.name) === null; }).map(function(c){ return c.name; });
+
+  // 1) size
+  if(total !== 100){
+    issues.push({level:'error', title: total < 100 ? 'Faltan '+(100-total)+' cartas: un mazo de Commander tiene exactamente 100 (con el comandante).' : 'Sobran '+(total-100)+' cartas: un mazo de Commander tiene exactamente 100 (con el comandante).', cards:[]});
+  }
+  // 2) commander(s)
+  const cmdCards = commanders.map(function(c){ return rulesFor(c.name); }).filter(Boolean);
+  if(commanders.length === 0){
+    issues.push({level:'error', title:'No hay comandante marcado. Márcalo con la corona en la lista de cartas.', cards:[]});
+  } else if(commanders.length > 2){
+    issues.push({level:'error', title:'Hay '+commanders.length+' cartas marcadas como comandante; como máximo puede haber 2.', cards: commanders.map(function(c){ return c.name; })});
+  } else {
+    cmdCards.forEach(function(card){
+      const tr = commanderTraits(card);
+      const other = cmdCards.find(function(x){ return x !== card; });
+      const okAsBackground = tr.isBackground && other && commanderTraits(other).choosesBackground;
+      if(!tr.canLead && !okAsBackground){
+        issues.push({level:'error', title:'«'+card.name+'» no puede ser comandante: tiene que ser una criatura legendaria (o decir que puede ser tu comandante).', cards:[]});
+        flag(card.name, 'No puede ser comandante');
+      }
+    });
+    if(cmdCards.length === 2 && !commanderPairOk(cmdCards[0], cmdCards[1])){
+      const vague = commanderTraits(cmdCards[0]).mentionsTwoCommanders || commanderTraits(cmdCards[1]).mentionsTwoCommanders;
+      issues.push({level: vague ? 'warn' : 'error',
+        title: vague ? 'No he podido confirmar que estos dos comandantes puedan ir juntos. Revisa su habilidad de Partner.'
+                     : 'Estos dos comandantes no pueden ir juntos: hace falta que ambos tengan Partner (o Partner with, Friends forever, Background…).',
+        cards: cmdCards.map(function(c){ return c.name; })});
+    }
+  }
+  // 3) colour identity
+  const identity = {};
+  cmdCards.forEach(function(c){ (c.color_identity || []).forEach(function(k){ identity[k] = true; }); });
+  if(cmdCards.length){
+    const outside = deck.cards.filter(function(c){
+      if(c.commander) return false;
+      const card = rulesFor(c.name); if(!card) return false;
+      return (card.color_identity || []).some(function(k){ return !identity[k]; });
+    }).map(function(c){ return c.name; });
+    if(outside.length){
+      const idTxt = Object.keys(identity).length ? Object.keys(identity).map(manaName).join(', ') : 'incoloro';
+      issues.push({level:'error', title: outside.length+' '+(outside.length===1?'carta está':'cartas están')+' fuera de la identidad de color del comandante ('+idTxt+').', cards: outside});
+      outside.forEach(function(n){ flag(n, 'Fuera de color'); });
+    }
+  }
+  // 4) banned / not legal
+  const banned = [], notLegal = [];
+  deck.cards.forEach(function(c){
+    const card = rulesFor(c.name); if(!card || !card.legalities) return;
+    const l = card.legalities.commander;
+    if(l === 'banned'){ banned.push(c.name); flag(c.name, 'Prohibida'); }
+    else if(l === 'not_legal'){ notLegal.push(c.name); flag(c.name, 'No permitida'); }
+  });
+  if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en Commander.', cards: banned});
+  if(notLegal.length) issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no está permitida':'cartas no están permitidas')+' en Commander (cartas de broma, digitales…).', cards: notLegal});
+  // 5) singleton
+  const dupes = [];
+  deck.cards.forEach(function(c){
+    const card = rulesFor(c.name); if(!card) return;
+    const max = maxCopiesAllowed(card);
+    if(c.qty > max){ dupes.push(c.qty+'× '+c.name); flag(c.name, 'Repetida'); }
+  });
+  if(dupes.length) issues.push({level:'error', title:'Solo se permite 1 copia de cada carta (salvo tierras básicas y cartas que digan lo contrario).', cards: dupes});
+  // 6) couldn't check
+  if(unknown.length) issues.push({level:'warn', title: unknown.length+' '+(unknown.length===1?'carta no se ha encontrado':'cartas no se han encontrado')+' en Scryfall y no se han podido comprobar.', cards: unknown});
+  // info: Game Changers (used by the official Commander brackets)
+  const gc = deck.cards.filter(function(c){ const card = rulesFor(c.name); return card && card.game_changer; }).map(function(c){ return c.name; });
+  if(gc.length) issues.push({level:'info', title: gc.length+' Game Changer'+(gc.length===1?' (cuenta':'s (cuentan')+' para los brackets de Commander; no afecta a la legalidad).', cards: gc});
+
+  const hasError = issues.some(function(i){ return i.level === 'error'; });
+  const hasWarn = issues.some(function(i){ return i.level === 'warn'; });
+  return {status: hasError ? 'illegal' : (hasWarn ? 'warn' : 'legal'), issues: issues, flags: flags, total: total};
+}
+function legalityPanelHTML(deck, result, state_){
+  if(state_ === 'hint'){
+    return '<div class="legality-card hint"><div class="legality-head"><span class="lg-icon">'+icon('crown',14)+'</span>'+
+      '<div>¿Es un mazo de Commander?<div class="legality-sub">Marca el comandante con la corona para comprobar si es legal.</div></div></div></div>';
+  }
+  if(state_ === 'loading'){
+    return '<div class="legality-card loading"><div class="legality-head"><span class="lg-icon">'+icon('search',14)+'</span>'+
+      '<div>Comprobando legalidad en Commander…<div class="legality-sub">Consultando Scryfall</div></div></div></div>';
+  }
+  if(state_ === 'offline'){
+    return '<div class="legality-card warn"><div class="legality-head"><span class="lg-icon">'+icon('alert',14)+'</span>'+
+      '<div>No se ha podido comprobar la legalidad<div class="legality-sub">Hace falta conexión para consultar Scryfall.</div></div>'+
+      '<button class="btn btn-ghost" id="legalityRetryBtn" style="margin-left:auto;">Reintentar</button></div></div>';
+  }
+  const errors = result.issues.filter(function(i){ return i.level === 'error'; }).length;
+  const cls = result.status === 'legal' ? 'ok' : (result.status === 'warn' ? 'warn' : 'bad');
+  const headIcon = result.status === 'legal' ? icon('check',15) : icon('alert',14);
+  const title = result.status === 'legal' ? 'Legal en Commander'
+    : result.status === 'warn' ? 'Parece legal, pero revisa lo siguiente'
+    : 'No es legal en Commander · '+errors+' '+(errors===1?'problema':'problemas');
+  const sub = result.status === 'legal' ? result.total+' cartas · singleton · identidad de color · sin prohibidas' : '';
+  const items = result.issues.map(function(i){
+    const ic = i.level === 'error' ? icon('x',13) : (i.level === 'warn' ? icon('alert',13) : icon('info',13));
+    return '<li class="'+i.level+'"><span class="li-icon">'+ic+'</span><div>'+esc(i.title)+
+      (i.cards && i.cards.length ? '<div class="li-cards">'+esc(listNames(i.cards))+'</div>' : '')+'</div></li>';
+  }).join('');
+  return '<div class="legality-card '+cls+'"><div class="legality-head"><span class="lg-icon">'+headIcon+'</span>'+
+    '<div>'+esc(title)+(sub ? '<div class="legality-sub">'+esc(sub)+'</div>' : '')+'</div></div>'+
+    (items ? '<ul class="legality-issues">'+items+'</ul>' : '')+'</div>';
+}
+/* Renders the panel for the deck detail; fetches missing rules data if needed and
+   re-renders the panel + the card list (for the per-card badges) when it arrives. */
+async function runDeckLegality(deck){
+  const el = document.getElementById('deckLegality');
+  if(!el) return;
+  if(!isCommanderDeck(deck)){
+    const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
+    el.innerHTML = (!deck.format && total >= 90) ? legalityPanelHTML(deck, null, 'hint') : '';
+    delete deckLegalityResults[deck.id];
+    if(deck.legality){ delete deck.legality; await dbPut('decks', deck); }
+    return;
+  }
+  let result = computeCommanderLegality(deck);
+  if(!result){
+    el.innerHTML = legalityPanelHTML(deck, null, 'loading');
+    const ok = await ensureCardRules(deck.cards.map(function(c){ return c.name; }));
+    const el2 = document.getElementById('deckLegality');
+    if(!el2 || el2.dataset.deckId !== deck.id) return; // user navigated away meanwhile
+    result = ok ? computeCommanderLegality(deck) : null;
+    if(!result){
+      el2.innerHTML = legalityPanelHTML(deck, null, 'offline');
+      const retry = document.getElementById('legalityRetryBtn');
+      if(retry) retry.addEventListener('click', function(){ runDeckLegality(deck); });
+      return;
+    }
+  }
+  deckLegalityResults[deck.id] = result;
+  document.getElementById('deckLegality').innerHTML = legalityPanelHTML(deck, result);
+  const list = document.getElementById('deckCardsList');
+  if(list) list.innerHTML = deckCardsListHTML(deck);
+  // remember the verdict for the badge on the deck tile
+  const status = result.status === 'legal' ? 'legal' : (result.status === 'illegal' ? 'illegal' : 'warn');
+  if(deck.legality !== status){ deck.legality = status; await dbPut('decks', deck); }
 }
 
 /* ---------- Text export (decks & wishlist) ----------
@@ -2524,6 +3116,7 @@ function buildBackup(){
     createdAt: new Date().toISOString(),
     counts: { cards: state.cards.length, decks: state.decks.length, binders: state.binders.length, wishlist: state.wishlist.length },
     cards: state.cards, decks: state.decks, binders: state.binders, wishlist: state.wishlist,
+    valueHistory: historyTotalsCache.slice(),
     settings: state.settings,
     scanQueue: state.scanQueue || []
   };
@@ -2551,35 +3144,43 @@ function downloadBackup(){
   toast('Copia descargada: '+backupSummaryText(b), 3400);
 }
 /* Android's share sheet lets the user drop the file straight into Drive, Gmail, WhatsApp…
-   Chrome only shares a fixed list of file types and JSON isn't always on it, so fall back
-   to a .txt file (restore accepts both). */
+   Chromium browsers (Chrome, Brave…) only share a fixed list of file types and .json is NOT
+   on it — yet canShare() still answers "yes" for a .json file and share() then fails with
+   NotAllowedError. .txt / text/plain is on the list, so the shared copy is always a .txt
+   (restore accepts both .json and .txt). */
 function shareableBackupFile(json){
   if(!navigator.canShare || typeof File === 'undefined') return null;
-  const candidates = [
-    { name: backupFileName('json'), type: 'application/json' },
-    { name: backupFileName('txt'),  type: 'text/plain' }
-  ];
-  for(let i=0;i<candidates.length;i++){
-    try{
-      const f = new File([json], candidates[i].name, {type: candidates[i].type});
-      if(navigator.canShare({files:[f]})) return f;
-    }catch(e){}
-  }
-  return null;
+  try{
+    const f = new File([json], backupFileName('txt'), {type: 'text/plain'});
+    return navigator.canShare({files:[f]}) ? f : null;
+  }catch(e){ return null; }
 }
 async function shareBackup(){
   const b = buildBackup();
   const file = shareableBackupFile(JSON.stringify(b));
-  if(!file){ downloadBackup(); return; }
+  if(!file){ backupShareUnavailable(null); return; }
   try{
-    await navigator.share({ files:[file], title:'Copia de seguridad de Ledger' });
+    await navigator.share({ files:[file] });
     markBackupDone();
     toast('Copia enviada: '+backupSummaryText(b), 3400);
   }catch(e){
     if(e && e.name === 'AbortError') return; // user closed the share sheet
-    toast('No se pudo compartir, descargando la copia…');
-    downloadBackup();
+    backupShareUnavailable(e);
   }
+}
+/* Never silently fall back to a download (that made both buttons look identical): say what
+   happened, stop offering "Enviar a…" for this session and explain the manual route. */
+function backupShareUnavailable(err){
+  const btn = document.getElementById('backupShareBtn');
+  if(btn) btn.hidden = true;
+  openModal(
+    '<h3 class="modal-title">'+icon('share',20)+' No se pudo enviar la copia</h3>'+
+    '<p class="section-note">Este navegador no ha dejado pasar el archivo directamente a otra app. Puedes descargarla y subirla tú mismo a Google Drive:</p>'+
+    '<p class="section-note">Abre la app de <strong>Drive</strong> → botón <strong>+</strong> → <strong>Subir</strong> → carpeta <strong>Descargas</strong> → elige <strong>'+esc(backupFileName('json'))+'</strong>.</p>'+
+    (err ? '<p class="about-note" style="padding-top:0;">Detalle: '+esc((err.name||'Error')+(err.message?': '+err.message:''))+'</p>' : '')+
+    '<button class="btn btn-primary btn-block" id="backupFallbackDownloadBtn">'+icon('download',15)+' Descargar copia</button>'
+  );
+  document.getElementById('backupFallbackDownloadBtn').addEventListener('click', function(){ downloadBackup(); closeModal(); });
 }
 function validateBackup(b){
   if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de Ledger');
@@ -2587,6 +3188,7 @@ function validateBackup(b){
   const bad = function(arr){ return arr.some(function(x){ return !x || typeof x !== 'object' || !x.id; }); };
   if(bad(b.cards) || bad(b.decks) || bad(b.binders)) throw new Error('La copia está incompleta o dañada');
   if(b.wishlist !== undefined && (!Array.isArray(b.wishlist) || bad(b.wishlist))) throw new Error('La copia está incompleta o dañada');
+  if(b.valueHistory !== undefined && (!Array.isArray(b.valueHistory) || b.valueHistory.some(function(h){ return !h || typeof h.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(h.date); }))) throw new Error('La copia está incompleta o dañada');
   return b;
 }
 /* Clear + write all three stores in ONE transaction: either the whole backup lands or
@@ -2595,7 +3197,9 @@ async function dbReplaceAll(data){
   const db = await openDB();
   return new Promise(function(res, rej){
     // Backups made before the wishlist existed have no "wishlist": leave the current one alone.
-    const stores = ['cards','decks','binders'].concat(Array.isArray(data.wishlist) ? ['wishlist'] : []);
+    const stores = ['cards','decks','binders']
+      .concat(Array.isArray(data.wishlist) ? ['wishlist'] : [])
+      .concat(Array.isArray(data.valueHistory) ? ['valueHistory'] : []);
     const tx = db.transaction(stores, 'readwrite');
     stores.forEach(function(store){
       const os = tx.objectStore(store);
@@ -2631,6 +3235,7 @@ async function restoreBackupFile(file){
   }
   state.cards = b.cards; state.decks = b.decks; state.binders = b.binders;
   if(Array.isArray(b.wishlist)) state.wishlist = b.wishlist;
+  if(Array.isArray(b.valueHistory)) historyTotalsCache = b.valueHistory.map(stripHistoryItems).sort(function(x,y){ return x.date < y.date ? -1 : 1; });
   if(b.settings && typeof b.settings === 'object'){
     state.settings = Object.assign({}, state.settings, b.settings);
     saveSettings(); applyTheme(); renderSettings();
@@ -2749,6 +3354,8 @@ async function init(){
     const [cards, decks, binders] = await Promise.all([dbGetAll('cards'), dbGetAll('decks'), dbGetAll('binders')]);
     state.cards = cards; state.decks = decks; state.binders = binders;
     state.wishlist = await dbGetAll('wishlist');
+    historyTotalsCache = (await dbGetAll('valueHistory')).map(stripHistoryItems).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+    historyReady = true;
   }catch(e){ toast('Tu navegador no soporta almacenamiento local: los datos no se guardarán.'); }
   renderCollection();
   renderStats();
@@ -2871,6 +3478,7 @@ async function init(){
   });
   renderBackupStatus();
   maybeRemindBackup();
+  setTimeout(autoRefreshPricesDaily, 2500);
 
   document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
   document.getElementById('wishlistExportBtn').addEventListener('click', function(){
