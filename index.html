@@ -16,6 +16,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://cdn.jsdelivr.net/npm/keyrune@3.19.0/css/keyrune.css" rel="stylesheet">
+<!-- Mana symbols font (same author as Keyrune): https://mana.andrewgioia.com -->
+<link id="manaFontCss" href="https://cdn.jsdelivr.net/npm/mana-font@1.18.0/css/mana.min.css" rel="stylesheet">
 <style>
   :root{
     --paper:#f6f2ea; --surface:#ffffff; --surface-2:#ede6d8; --surface-hover:#e4dbc5;
@@ -137,6 +139,49 @@
   .export-actions{display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:.5rem;}
   .segmented.export-mode{margin-bottom:.8rem; display:flex; width:100%;}
   .segmented.export-mode button{flex:1; white-space:nowrap;}
+  /* ---------- Deck cover ---------- */
+  #detailPanel.hero-mode .detail-header{position:absolute; top:0; left:0; right:0; z-index:6; background:transparent; border-bottom-color:transparent; transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;}
+  #detailPanel.hero-mode .detail-header h2{opacity:0; transform:translateY(4px); transition:opacity .2s ease, transform .2s ease;}
+  #detailPanel.hero-mode:not(.header-solid) .detail-header .icon-btn{background:rgba(13,11,18,.38); border-color:rgba(255,255,255,.18); color:#fff; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);}
+  #detailPanel.hero-mode.header-solid .detail-header{background:var(--surface); border-bottom-color:var(--line);}
+  #detailPanel.hero-mode.header-solid .detail-header h2{opacity:1; transform:none;}
+  .deck-hero{position:relative; margin:-1.1rem -1rem 0; height:calc(clamp(260px, 74vw, 340px) + env(safe-area-inset-top)); overflow:hidden; color:#fff; display:flex; align-items:flex-end;
+    background:radial-gradient(ellipse at 30% 20%, #6d55c8, #2a1f55 55%, #120e22);}
+  .deck-hero-art{position:absolute; inset:0; will-change:transform;}
+  .deck-hero .hero-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; animation:heroDrift 18s ease-out both;}
+  .deck-hero .hero-img.full-card{object-position:50% 18%;}
+  @keyframes heroDrift{ from{transform:scale(1.12);} to{transform:scale(1.02);} }
+  .hero-split .hero-img.a{clip-path:polygon(0 0, 58% 0, 42% 100%, 0 100%);}
+  .hero-split .hero-img.b{clip-path:polygon(58% 0, 100% 0, 100% 100%, 42% 100%);}
+  .hero-divider{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+  .hero-divider line{stroke:rgba(246,242,234,.9); stroke-width:3px; vector-effect:non-scaling-stroke; filter:drop-shadow(0 0 3px rgba(0,0,0,.6));}
+  .deck-hero-shade{position:absolute; inset:0; background:linear-gradient(180deg, rgba(13,11,18,.55) 0%, rgba(13,11,18,0) 26%, rgba(13,11,18,.18) 50%, rgba(13,11,18,.88) 100%);}
+  .deck-hero-content{position:relative; z-index:2; width:100%; padding:0 1.05rem 2rem; animation:heroTextIn .5s .08s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes heroTextIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+  .deck-hero-kicker{font-size:.66rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; opacity:.82;}
+  .deck-hero-name{font-family:var(--font-display); font-size:1.8rem; font-weight:600; line-height:1.08; margin:.28rem 0 .3rem; text-shadow:0 2px 14px rgba(0,0,0,.55); text-wrap:balance;}
+  .deck-hero-cmd{display:flex; align-items:center; gap:.35rem; font-size:.8rem; opacity:.9;}
+  .deck-hero-chips{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.75rem;}
+  .hero-chips-dyn{display:contents;}
+  .hero-chip{display:inline-flex; align-items:center; gap:.35rem; padding:.32rem .65rem; border-radius:999px; font-size:.74rem; font-weight:600; white-space:nowrap;
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); animation:fadeIn .3s ease both;}
+  .hero-chip .mana-pips{gap:3px;} .hero-chip .mana-pips .mana-sym{font-size:.8rem;}
+  .hero-chip-warn{background:rgba(224,165,99,.28); border-color:rgba(224,165,99,.5);}
+  .hero-chip-ok{background:rgba(104,200,155,.26); border-color:rgba(104,200,155,.5);}
+  .deck-sheet{position:relative; z-index:3; margin:-1.1rem -1rem 0; padding:1.2rem 1rem 0; background:var(--paper); border-radius:20px 20px 0 0;}
+
+  /* ---------- Image loading: shimmer while it loads, then a soft fade-in ---------- */
+  @keyframes shimmer{ from{background-position:130% 0;} to{background-position:-30% 0;} }
+  @keyframes imgIn{ from{opacity:0; filter:blur(4px);} to{opacity:1; filter:none;} }
+  img.card-thumb, .gimg-wrap img, img.modal-card-image, .print-pick img, .stat-highlight-card img, .partner-layer img, .deck-hero .hero-img{
+    background:linear-gradient(100deg, var(--surface-2) 35%, var(--surface-hover) 50%, var(--surface-2) 65%);
+    background-size:260% 100%; animation:shimmer 1.4s linear infinite;}
+  .deck-hero .hero-img{background:transparent; animation:none; opacity:0;}
+  img.card-thumb.is-loaded, .gimg-wrap img.is-loaded, img.modal-card-image.is-loaded, .print-pick img.is-loaded, .stat-highlight-card img.is-loaded, .partner-layer img.is-loaded{
+    background:none; animation:imgIn .45s ease both;}
+  .deck-hero .hero-img.is-loaded{opacity:1; animation:imgIn .6s ease both, heroDrift 18s ease-out both;}
+  img.is-error{animation:none !important; background:var(--surface-2) !important;}
+
   /* Commander legality */
   .legality-card{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:.75rem .85rem; margin:.2rem 0 1.1rem;}
   .legality-head{display:flex; align-items:center; gap:.55rem; font-weight:600; font-size:.92rem;}
@@ -271,13 +316,22 @@
   .card-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
   .card-name{font-family:var(--font-display); font-weight:500; font-size:.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-meta{display:flex; gap:.4rem; align-items:center; flex-wrap:wrap;}
-  .pip{width:9px; height:9px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,.18); flex-shrink:0;}
-  .pip-W{background:var(--mana-w); border-color:var(--mana-w-ink);}
-  .pip-U{background:var(--mana-u); border-color:var(--mana-u);}
-  .pip-B{background:var(--mana-b); border-color:var(--mana-b-ring);}
-  .pip-R{background:var(--mana-r); border-color:var(--mana-r);}
-  .pip-G{background:var(--mana-g); border-color:var(--mana-g);}
-  .pip-C{background:var(--mana-c); border-color:var(--mana-c);}
+  /* Mana symbols. With the Mana font loaded (html.mana-ready) they are the real printed
+     symbols ({W} {2} {U/P}…); until then — or offline — a coloured disc with the letter. */
+  .mana-sym{display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.74rem; line-height:1; font-style:normal; vertical-align:middle;}
+  html.mana-ready .mana-sym.ms-cost{box-shadow:-.06em .07em 0 rgba(0,0,0,.55);}
+  html:not(.mana-ready) .mana-sym{width:1.3em; height:1.3em; border-radius:50%; background:#cbc2bf; color:#1b1720; box-shadow:-.06em .07em 0 rgba(0,0,0,.45);}
+  html:not(.mana-ready) .mana-sym::before{content:attr(data-sym) !important; font-family:var(--font-body) !important; font-weight:700; font-size:.72em; letter-spacing:-.04em;}
+  html:not(.mana-ready) .mana-sym.sym-w{background:#fffbd5;} html:not(.mana-ready) .mana-sym.sym-u{background:#aae0fa;}
+  html:not(.mana-ready) .mana-sym.sym-b{background:#cbc2bf;} html:not(.mana-ready) .mana-sym.sym-r{background:#f9aa8f;}
+  html:not(.mana-ready) .mana-sym.sym-g{background:#9bd3ae;} html:not(.mana-ready) .mana-sym.sym-multi{background:linear-gradient(135deg,#fffbd5,#aae0fa 30%,#cbc2bf 50%,#f9aa8f 70%,#9bd3ae);}
+  .mana-pips{display:inline-flex; gap:2px; align-items:center;}
+  .mana-pips .mana-sym{font-size:.62rem;}
+  .mana-cost{display:inline-flex; gap:1px; align-items:center; flex:none; font-family:var(--font-body);}
+  .mana-cost .mana-sym{font-size:.66rem;}
+  .mana-cost .cost-sep{font-size:.7rem; color:var(--ink-faint); margin:0 .2rem;}
+  .card-name.with-cost{display:flex; align-items:center; gap:.45rem;}
+  .card-name.with-cost .nm{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .badge{font-family:var(--font-mono); padding:1px 7px; border-radius:999px; font-size:.63rem; background:var(--surface-2); color:var(--ink-soft); white-space:nowrap; display:inline-flex; align-items:center; gap:3px;}
   .badge-foil{background:var(--accent-soft); color:var(--accent-strong);}
   .badge-good{background:var(--good-soft); color:var(--good);}
@@ -704,6 +758,18 @@ const ICONS = {
 };
 function icon(name, size){ size = size||20; return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
 
+/* ---------- Image loading states ----------
+   One capture-phase listener for every <img>: marks it loaded (CSS fades it in and stops
+   the shimmer) or failed (static placeholder). */
+document.addEventListener('load', function(e){
+  const t = e.target;
+  if(t && t.tagName === 'IMG'){ t.classList.remove('is-error'); t.classList.add('is-loaded'); }
+}, true);
+document.addEventListener('error', function(e){
+  const t = e.target;
+  if(t && t.tagName === 'IMG' && !t.dataset.fallback) t.classList.add('is-error');
+}, true);
+
 /* ---------- Utils ---------- */
 function esc(str){ if(str===null||str===undefined) return ''; return String(str).replace(/[&<>"']/g, function(s){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]; }); }
 function uuid(){ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2); }
@@ -712,9 +778,54 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 function fmtMoney(value, currency){ if(value===null||value===undefined||isNaN(value)) return '—'; try{ return new Intl.NumberFormat('es-ES',{style:'currency',currency:currency}).format(value); }catch(e){ return value.toFixed(2)+' '+currency; } }
 function toNum(v){ if(v===null||v===undefined||v==='') return null; const n=parseFloat(v); return isNaN(n)?null:n; }
 function manaName(c){ return {W:'Blanco',U:'Azul',B:'Negro',R:'Rojo',G:'Verde'}[c] || c; }
+/* One mana symbol from its Scryfall code ("W", "2", "W/U", "U/P", "2/G", "X", "C", "S"…).
+   Mana font classes are the code lower-cased without slashes: ms-w, ms-wu, ms-up, ms-2g. */
+function manaSymHTML(code, title){
+  const raw = String(code).toUpperCase();
+  const cls = raw.toLowerCase().replace(/\//g, '');
+  const letters = raw.replace(/[^WUBRG]/g, '');
+  const colorCls = letters.length === 1 ? 'sym-'+letters.toLowerCase() : (letters.length > 1 ? 'sym-multi' : '');
+  const label = raw.length > 2 ? raw.replace(/\//g, '') : raw;
+  return '<i class="mana-sym ms ms-cost ms-'+esc(cls)+(colorCls ? ' '+colorCls : '')+'" data-sym="'+esc(label)+'" title="'+esc(title || '{'+raw+'}')+'" aria-hidden="true"></i>';
+}
+/* "{2}{U}{U}" / "{1}{R} // {2}{G}" -> row of symbols */
+function manaCostHTML(cost){
+  if(!cost) return '';
+  const parts = String(cost).split(' // ');
+  const html = parts.map(function(part){
+    const syms = part.match(/\{[^}]+\}/g) || [];
+    return syms.map(function(t){ return manaSymHTML(t.slice(1, -1)); }).join('');
+  }).filter(Boolean).join('<span class="cost-sep">//</span>');
+  return html ? '<span class="mana-cost" title="'+esc(cost)+'">'+html+'</span>' : '';
+}
 function colorPipsHTML(colors){
-  if(!colors || colors.length===0) return '<span class="pip pip-C" title="Incoloro"></span>';
-  return colors.map(function(c){ return '<span class="pip pip-'+esc(c)+'" title="'+esc(manaName(c))+'"></span>'; }).join('');
+  if(!colors || colors.length===0) return '<span class="mana-pips">'+manaSymHTML('C', 'Incoloro')+'</span>';
+  return '<span class="mana-pips">'+colors.map(function(c){ return manaSymHTML(c, manaName(c)); }).join('')+'</span>';
+}
+function cardManaCost(card){
+  if(!card) return '';
+  if(card.mana_cost) return card.mana_cost;
+  const f = card.card_faces && card.card_faces[0];
+  return (f && f.mana_cost) || '';
+}
+/* Turn on the real symbols once the Mana font has actually loaded (offline or blocked
+   CDN: the coloured-disc fallback stays). Matches the font by name, whatever its exact case. */
+function detectManaFont(){
+  if(!document.fonts || !document.fonts.forEach) return;
+  let done = false;
+  function tryIt(){
+    if(done) return;
+    let face = null;
+    document.fonts.forEach(function(f){ if(/^["']?mana["']?$/i.test(f.family)) face = f; });
+    if(!face) return;
+    done = true;
+    face.load().then(function(){ document.documentElement.classList.add('mana-ready'); }).catch(function(){});
+  }
+  tryIt();
+  const link = document.getElementById('manaFontCss');
+  if(link) link.addEventListener('load', tryIt);
+  if(document.fonts.ready) document.fonts.ready.then(tryIt);
+  setTimeout(tryIt, 3000);
 }
 function toast(msg, ms){
   ms = ms || 2600;
@@ -1045,8 +1156,8 @@ function cardRowHTML(c){
     '<div class="card-row" data-id="'+c.id+'" data-action="edit-card">'+
       thumb+
       '<div class="card-info">'+
-        '<div class="card-name">'+esc(c.name)+'</div>'+
-        '<div class="card-meta">'+colorPipsHTML(c.colors)+
+        '<div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost)+'</div>'+
+        '<div class="card-meta">'+((c.manaCost || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+
           '<span class="badge">'+setIconSpanHTML(c.setCode, c.rarity)+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
           (c.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
           '<span class="badge">'+esc(c.condition)+'</span>'+
@@ -1727,7 +1838,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         quantity: curQty, foil: foilVal, condition: conditionVal, lang: langVal, binderId: binderVal
       });
-      if(!card._pseudo) existingItem.imageBack = faceBackUrl(card);
+      if(!card._pseudo){ existingItem.imageBack = faceBackUrl(card); existingItem.manaCost = cardManaCost(card); }
       await dbPut('cards', existingItem);
     } else {
       const item = {
@@ -1737,7 +1848,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         cmc: card.cmc || 0, typeLine: card.type_line || '', releasedAt: card.released_at || null,
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         foil: foilVal, condition: conditionVal, lang: langVal, quantity: curQty, binderId: binderVal,
-        imageBack: faceBackUrl(card), addedAt: Date.now()
+        imageBack: faceBackUrl(card), manaCost: cardManaCost(card), addedAt: Date.now()
       };
       await dbPut('cards', item);
       state.cards.push(item);
@@ -1893,7 +2004,7 @@ function scanQueueItemHTML(item){
     '<div class="card-row" data-qid="'+item.qid+'" data-action="edit-scan-item">'+
       thumb+
       '<div class="card-info">'+
-        '<div class="card-name">'+esc(c.name)+'</div>'+
+        '<div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(cardManaCost(c))+'</div>'+
         '<div class="card-meta">'+
           '<span class="badge">'+setIconSpanHTML(c.set, c.rarity)+esc((c.set||'').toUpperCase())+' #'+esc(c.collector_number)+'</span>'+
           (item.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
@@ -1971,7 +2082,7 @@ async function addAllScanQueueToCollection(){
         cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at||null,
         imageSmall: face.image, imageNormal: face.imageNormal||face.image, prices: prices,
         foil: item.foil, condition: item.condition, lang: item.lang, quantity: item.quantity, binderId: item.binderId,
-        addedAt: Date.now()
+        imageBack: faceBackUrl(card), manaCost: cardManaCost(card), addedAt: Date.now()
       };
       await dbPut('cards', newItem);
       state.cards.push(newItem);
@@ -2113,7 +2224,7 @@ function deckCardRowHTML(deck, c, big){
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
   return '<div class="card-row'+(big?' commander-row':'')+'" data-name="'+esc(c.name)+'">'+
     (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
-    '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="card-meta">'+colorPipsHTML(c.colors)+badge+'</div></div>'+
+    '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost || cardManaCost(rulesFor(c.name)))+'</div><div class="card-meta">'+((c.manaCost || cardManaCost(rulesFor(c.name)) || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+badge+'</div></div>'+
     '<div class="card-value">'+
       '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>'+
       '<div class="qty-stepper">'+
@@ -2139,6 +2250,87 @@ function deckCardsListHTML(deck){
   });
   return html;
 }
+/* ---------- Deck cover ("hero") ----------
+   The deck opens on a full-width cover: the commander's illustration (both, split on a
+   diagonal, for partners; otherwise the deck's first spell), the deck name, its colours
+   as mana symbols and chips with size / value / what's missing. The header floats over
+   it and turns solid once you scroll past. */
+function heroImgHTML(c, extraCls){
+  const src = c.imageNormal || c.imageSmall || '';
+  const art = artCropUrl(src);
+  return '<img class="hero-img'+(extraCls ? ' '+extraCls : '')+(art ? '' : ' full-card')+'" src="'+esc(art || src)+'" alt=""'+
+    (art ? ' data-fallback="'+esc(src)+'" onerror="this.onerror=null;this.classList.add(\'full-card\');this.src=this.dataset.fallback;"' : '')+'>';
+}
+function deckHeroHTML(deck, s){
+  const cmds = deck.cards.filter(function(c){ return c.commander && (c.imageNormal || c.imageSmall); });
+  let art = '';
+  if(cmds.length >= 2){
+    art = '<div class="hero-split">'+heroImgHTML(cmds[0], 'a')+heroImgHTML(cmds[1], 'b')+
+      '<svg class="hero-divider" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="58" y1="-2" x2="42" y2="102"/></svg></div>';
+  } else {
+    const pick = cmds[0] || deck.cards.filter(function(c){ return (c.imageNormal || c.imageSmall) && !/land/i.test(c.typeLine || ''); })
+      .sort(function(a,b){ return (/creature/i.test(b.typeLine||'') ? 1 : 0) - (/creature/i.test(a.typeLine||'') ? 1 : 0); })[0];
+    if(pick) art = heroImgHTML(pick);
+  }
+  const allCmds = deck.cards.filter(function(c){ return c.commander; });
+  const kicker = [deck.format || (allCmds.length ? 'Commander' : 'Mazo'), s.total+(s.total === 1 ? ' carta' : ' cartas')].join(' · ');
+  const identity = s.colors.length ? s.colors : [];
+  return '<div class="deck-hero'+(art ? '' : ' no-art')+'">'+
+      '<div class="deck-hero-art">'+art+'</div><div class="deck-hero-shade"></div>'+
+      '<div class="deck-hero-content">'+
+        '<div class="deck-hero-kicker">'+esc(kicker)+'</div>'+
+        '<h1 class="deck-hero-name">'+esc(deck.name)+'</h1>'+
+        (allCmds.length ? '<div class="deck-hero-cmd">'+icon('crown',13)+' '+esc(allCmds.map(function(c){ return c.name; }).join(' & '))+'</div>' : '')+
+        '<div class="deck-hero-chips">'+
+          '<span class="hero-chip hero-colors">'+(identity.length ? colorPipsHTML(identity) : colorPipsHTML([]))+'</span>'+
+          '<span class="hero-chip">'+s.unique+' únicas</span>'+
+          '<span id="deckValueChips" class="hero-chips-dyn"></span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+function deckCardPrice(name){
+  const card = rulesFor(name);
+  if(!card || !card.prices) return null;
+  const usd = state.settings.currency === 'USD';
+  const p = toNum(usd ? card.prices.usd : card.prices.eur);
+  return p != null ? p : toNum(usd ? card.prices.usd_foil : card.prices.eur_foil);
+}
+/* Value chips use Scryfall's price for each card's default printing, hence the "≈". */
+function renderDeckValueChips(deck){
+  const el = document.getElementById('deckValueChips');
+  if(!el) return;
+  let total = 0, priced = 0, missQty = 0, missCost = 0;
+  deck.cards.forEach(function(c){
+    const p = deckCardPrice(c.name);
+    const miss = Math.max(0, c.qty - ownedQtyForName(c.name));
+    missQty += miss;
+    if(p != null){ total += p*c.qty; priced++; missCost += p*miss; }
+  });
+  const cur = state.settings.currency;
+  let html = '';
+  if(priced) html += '<span class="hero-chip">≈ '+fmtMoney(total, cur)+'</span>';
+  if(missQty) html += '<span class="hero-chip hero-chip-warn">Te faltan '+missQty+(priced ? ' · ≈ '+fmtMoney(missCost, cur) : '')+'</span>';
+  else if(deck.cards.length) html += '<span class="hero-chip hero-chip-ok">'+icon('check',12)+' Lo tienes todo</span>';
+  el.innerHTML = html;
+}
+function bindDeckHeroScroll(panel){
+  const body = panel.querySelector('.detail-body');
+  const hero = panel.querySelector('.deck-hero');
+  const header = panel.querySelector('.detail-header');
+  if(!body || !hero) return;
+  const art = hero.querySelector('.deck-hero-art');
+  let raf = 0;
+  function update(){
+    raf = 0;
+    const y = body.scrollTop;
+    const limit = hero.offsetHeight - (header ? header.offsetHeight : 56) - 8;
+    panel.classList.toggle('header-solid', y > limit);
+    if(art && !prefersReducedMotion()) art.style.transform = 'translateY('+Math.max(0, y*0.35).toFixed(1)+'px)';
+  }
+  body.addEventListener('scroll', function(){ if(!raf) raf = requestAnimationFrame(update); }, {passive:true});
+  update();
+}
 function openDeckDetail(id){
   const deck = state.decks.find(function(d){ return d.id===id; });
   if(!deck) return;
@@ -2149,8 +2341,8 @@ function openDeckDetail(id){
       '<button class="icon-btn" id="deckExportBtn" title="Exportar mazo" aria-label="Exportar mazo">'+icon('exportOut',16)+'</button>'+
       '<button class="icon-btn" id="deckDeleteBtn" title="Eliminar mazo">'+icon('trash',16)+'</button></div>'+
     '<div class="detail-body">'+
-      '<div class="section-note">'+s.total+' cartas · '+s.unique+' únicas'+(deck.format?(' · '+esc(deck.format)):'')+'</div>'+
-      '<div class="pip-legend">'+s.colors.map(function(c){ return '<span class="item">'+colorPipsHTML([c])+' '+manaName(c)+'</span>'; }).join('')+'</div>'+
+      deckHeroHTML(deck, s)+
+      '<div class="deck-sheet">'+
       '<div id="deckLegality" data-deck-id="'+esc(deck.id)+'"></div>'+
       (deck.cards.length ? curveHTML(deck) : '')+
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Añadir carta al mazo</h2></div>'+
@@ -2161,8 +2353,11 @@ function openDeckDetail(id){
         return miss ? '<div class="deck-tools"><button class="btn btn-secondary" id="deckMissingToWishBtn">'+icon('star',14)+' Añadir las que me faltan a deseos ('+miss+')</button></div>' : '';
       })()+
       '<div id="deckCardsList">'+deckCardsListHTML(deck)+'</div>'+
+      '</div>'+
     '</div>';
   showDetailPanel(panel, 'deck:'+deck.id);
+  bindDeckHeroScroll(panel);
+  renderDeckValueChips(deck);
 
   document.getElementById('deckBackBtn').addEventListener('click', navBack);
   runDeckLegality(deck);
@@ -2198,7 +2393,7 @@ function openDeckDetail(id){
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
       if(existing) existing.qty += 1;
-      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', commander:false});
+      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), commander:false});
       await dbPut('decks', deck);
       openDeckDetail(deck.id);
     }catch(err){ toast(err.message); }
@@ -2309,7 +2504,7 @@ async function importDeckTxtFile(file){
       else deck.cards.push({
         name: card.name, qty: e.qty, cmc: card.cmc||0,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', commander: !!e.commander
+        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), commander: !!e.commander
       });
     }catch(err){ fail++; }
     setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
@@ -2649,7 +2844,13 @@ async function refreshPricesBatch(onProgress){
     if(!card || !card.prices) return;
     const np = {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)};
     const op = item.prices || {};
-    if(np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil){ item.prices = np; changed.push(item); }
+    let dirty = false;
+    if(np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil){ item.prices = np; dirty = true; }
+    // the same response has the mana cost and the back face: fill them in for older cards
+    const cost = cardManaCost(card);
+    if(cost && item.manaCost !== cost){ item.manaCost = cost; dirty = true; }
+    if(item.imageBack === undefined && (card.card_faces || card.image_uris)){ item.imageBack = faceBackUrl(card); dirty = true; }
+    if(dirty) changed.push(item);
   });
   if(changed.length) await dbPutMany('cards', changed);
   try{ localStorage.setItem(PRICE_REFRESH_KEY, String(Date.now())); }catch(e){}
@@ -2974,6 +3175,7 @@ async function importCSVFile(file){
         cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at || null,
         imageSmall: face.image, imageNormal: face.imageNormal || face.image,
         prices: {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)},
+        imageBack: faceBackUrl(card), manaCost: cardManaCost(card)
       };
       if(existing){
         // Same card + foil + condition + language already in the collection: refresh its
@@ -3203,32 +3405,54 @@ function legalityPanelHTML(deck, result, state_){
 }
 /* Renders the panel for the deck detail; fetches missing rules data if needed and
    re-renders the panel + the card list (for the per-card badges) when it arrives. */
+/* Fills in everything that needs Scryfall's full card data (fetched once per session and
+   cached): mana costs on the rows (also saved on the deck, so they show offline next
+   time), the value chips on the cover, and — for Commander decks — the legality panel. */
+function applyRulesToDeck(deck){
+  let changed = false;
+  deck.cards.forEach(function(c){
+    const card = rulesFor(c.name);
+    if(!card) return;
+    const cost = cardManaCost(card);
+    if(cost && c.manaCost !== cost){ c.manaCost = cost; changed = true; }
+  });
+  return changed;
+}
 async function runDeckLegality(deck){
   const el = document.getElementById('deckLegality');
   if(!el) return;
-  if(!isCommanderDeck(deck)){
+  const cmdDeck = isCommanderDeck(deck);
+  const names = deck.cards.map(function(c){ return c.name; });
+  const stillHere = function(){ const e = document.getElementById('deckLegality'); return e && e.dataset.deckId === deck.id; };
+  let ok = true;
+  if(names.some(function(n){ return rulesFor(n) === undefined; })){
+    if(cmdDeck) el.innerHTML = legalityPanelHTML(deck, null, 'loading');
+    ok = await ensureCardRules(names);
+    if(!stillHere()) return; // user navigated away meanwhile
+  }
+  if(ok){
+    if(applyRulesToDeck(deck)) dbPut('decks', deck).catch(function(){});
+    renderDeckValueChips(deck);
+  }
+  const target = document.getElementById('deckLegality');
+  if(!cmdDeck){
     const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
-    el.innerHTML = (!deck.format && total >= 90) ? legalityPanelHTML(deck, null, 'hint') : '';
+    target.innerHTML = (!deck.format && total >= 90) ? legalityPanelHTML(deck, null, 'hint') : '';
     delete deckLegalityResults[deck.id];
+    const list = document.getElementById('deckCardsList');
+    if(list && ok) list.innerHTML = deckCardsListHTML(deck);
     if(deck.legality){ delete deck.legality; await dbPut('decks', deck); }
     return;
   }
-  let result = computeCommanderLegality(deck);
+  const result = ok ? computeCommanderLegality(deck) : null;
   if(!result){
-    el.innerHTML = legalityPanelHTML(deck, null, 'loading');
-    const ok = await ensureCardRules(deck.cards.map(function(c){ return c.name; }));
-    const el2 = document.getElementById('deckLegality');
-    if(!el2 || el2.dataset.deckId !== deck.id) return; // user navigated away meanwhile
-    result = ok ? computeCommanderLegality(deck) : null;
-    if(!result){
-      el2.innerHTML = legalityPanelHTML(deck, null, 'offline');
-      const retry = document.getElementById('legalityRetryBtn');
-      if(retry) retry.addEventListener('click', function(){ runDeckLegality(deck); });
-      return;
-    }
+    target.innerHTML = legalityPanelHTML(deck, null, 'offline');
+    const retry = document.getElementById('legalityRetryBtn');
+    if(retry) retry.addEventListener('click', function(){ runDeckLegality(deck); });
+    return;
   }
   deckLegalityResults[deck.id] = result;
-  document.getElementById('deckLegality').innerHTML = legalityPanelHTML(deck, result);
+  target.innerHTML = legalityPanelHTML(deck, result);
   const list = document.getElementById('deckCardsList');
   if(list) list.innerHTML = deckCardsListHTML(deck);
   // remember the verdict for the badge on the deck tile
@@ -3718,6 +3942,8 @@ function showDetailPanel(panel, key){
   panel.classList.remove('leaving');
   const same = !panel.hidden && !leaving && panel.dataset.key === key;
   panel.dataset.key = key;
+  panel.classList.toggle('hero-mode', !!panel.querySelector('.deck-hero'));
+  if(!same) panel.classList.remove('header-solid');
   panel.hidden = false;
   const body = panel.querySelector('.detail-body');
   if(same){
@@ -3854,6 +4080,7 @@ async function init(){
     b.innerHTML = icon(map[b.dataset.tab],21) + '<span>' + labels[b.dataset.tab] + '</span>';
     b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
   });
+  detectManaFont();
   const tabInd = document.createElement('span');
   tabInd.className = 'tab-indicator';
   document.querySelector('nav.tabbar').prepend(tabInd);
