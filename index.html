@@ -77,6 +77,26 @@
   .card-grid-item:active, .stat-highlight-card:active, .color-swatch:active{ transform:scale(.95); }
   .qty-val.bump{ animation:bumpPulse .28s ease; display:inline-block; }
   .tab-panel:not([hidden]){ animation:fadeIn .2s ease; }
+  /* Tab changes slide in from the side of the tab you tapped; lists cascade in. */
+  @keyframes tabInRight{ from{opacity:0; transform:translateX(28px);} to{opacity:1; transform:none;} }
+  @keyframes tabInLeft{ from{opacity:0; transform:translateX(-28px);} to{opacity:1; transform:none;} }
+  @keyframes itemIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+  .tab-panel.enter-right{ animation:tabInRight .3s cubic-bezier(.2,.8,.2,1); }
+  .tab-panel.enter-left{ animation:tabInLeft .3s cubic-bezier(.2,.8,.2,1); }
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(-n+14){ animation:itemIn .36s cubic-bezier(.2,.8,.2,1) both; }
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(2){animation-delay:28ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(3){animation-delay:56ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(4){animation-delay:84ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(5){animation-delay:112ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(6){animation-delay:140ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(7){animation-delay:168ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(8){animation-delay:196ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(9){animation-delay:224ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(10){animation-delay:252ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(11){animation-delay:280ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(12){animation-delay:308ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(13){animation-delay:336ms;}
+  .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(14){animation-delay:364ms;}
 
   .topbar{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);}
   .topbar-inner{display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem;}
@@ -100,6 +120,11 @@
   .tab-btn{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:.5rem 0 .5rem; background:none; border:none; color:var(--ink-faint); font-size:.65rem; cursor:pointer;}
   .tab-btn svg{width:21px; height:21px;}
   .tab-btn.active{color:var(--accent);}
+  .tab-btn > *{position:relative; z-index:1;}
+  .tab-indicator{position:absolute; top:5px; left:0; width:54px; height:29px; border-radius:999px; background:var(--accent-soft); pointer-events:none; z-index:0;
+    transition:transform .42s cubic-bezier(.3,1.35,.45,1), width .3s; will-change:transform;}
+  @keyframes iconPop{ 0%{transform:scale(1);} 45%{transform:scale(1.22) translateY(-1px);} 100%{transform:scale(1);} }
+  .tab-btn.pop svg{animation:iconPop .38s cubic-bezier(.3,1.4,.5,1);}
   .tab-btn{position:relative;}
   .tab-btn.needs-attention::after{content:''; position:absolute; top:.4rem; left:calc(50% + 8px); width:8px; height:8px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 2px var(--surface);}
   .wish-summary{display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin:.9rem 0 .4rem; font-size:.8rem; color:var(--ink-soft);}
@@ -297,9 +322,55 @@
   .modal-card-image{display:block; width:150px; max-width:55%; aspect-ratio:63/88; object-fit:cover; margin:0 auto .9rem; border-radius:12px; box-shadow:var(--shadow); cursor:zoom-in;}
   .modal-card-image-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint); background:var(--surface-2);}
   #lightboxRoot[hidden]{display:none;}
-  .lightbox-backdrop{position:fixed; inset:0; background:rgba(10,8,14,.92); z-index:70; display:flex; align-items:center; justify-content:center; padding:1.4rem; cursor:zoom-out;}
-  .lightbox-backdrop img{max-width:100%; max-height:100%; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.5);}
-  .lightbox-close{position:absolute; top:calc(1rem + env(safe-area-inset-top)); right:1rem; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  /* ---------- Full-screen card viewer: swipeable carousel + 3D flip ---------- */
+  .viewer{position:fixed; inset:0; z-index:70; overflow:hidden; touch-action:none; color:#fff; user-select:none; -webkit-user-select:none;}
+  .viewer.closing{pointer-events:none;}
+  .viewer-backdrop{position:absolute; inset:0; background:#0d0b12; overflow:hidden;}
+  .viewer-bg{position:absolute; inset:-12%; background-size:cover; background-position:center; filter:blur(40px) saturate(1.35) brightness(.5); transition:opacity .45s ease;}
+  .viewer-bg.b2{opacity:0;}
+  .viewer-shade{position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 45%, rgba(13,11,18,.15), rgba(13,11,18,.82));}
+  .viewer-fade{animation:fadeIn .3s ease;}
+  .viewer.closing .viewer-fade{animation:fadeIn .26s ease reverse both;}
+  .viewer-top{position:absolute; top:0; left:0; right:0; z-index:4; display:flex; align-items:center; justify-content:space-between; padding:calc(.8rem + env(safe-area-inset-top)) 1rem .5rem;}
+  .viewer-count{font-family:var(--font-mono); font-size:.76rem; letter-spacing:.02em; background:rgba(255,255,255,.12); padding:.28rem .65rem; border-radius:999px; backdrop-filter:blur(8px);}
+  .viewer-btn{width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; display:grid; place-items:center; cursor:pointer; backdrop-filter:blur(8px);}
+  .viewer-btn:active{transform:scale(.92);}
+  .viewer-stage{position:absolute; left:0; right:0; top:calc(3.8rem + env(safe-area-inset-top)); bottom:calc(8.6rem + env(safe-area-inset-bottom)); z-index:2;}
+  .viewer-slide{position:absolute; left:50%; top:50%; width:var(--cw); height:calc(var(--cw) * 88 / 63); margin-left:calc(var(--cw) / -2); margin-top:calc(var(--cw) * -44 / 63); will-change:transform, opacity; perspective:1600px;}
+  .viewer-slide.anim{transition:transform .38s cubic-bezier(.2,.8,.2,1), opacity .38s ease;}
+  .viewer-pop{width:100%; height:100%; transform-origin:0 0;}
+  .viewer-tilt{width:100%; height:100%; transform-style:preserve-3d; transition:transform .3s ease-out;}
+  .flip-card{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .75s cubic-bezier(.3,.75,.25,1);}
+  .flip-card.flipped{transform:rotateY(180deg);}
+  .flip-face{position:absolute; inset:0; border-radius:4.6% / 3.3%; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden; background:#16131d; box-shadow:0 22px 55px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.4);}
+  .flip-face img{display:block; width:100%; height:100%; object-fit:cover;}
+  .flip-back{transform:rotateY(180deg);}
+  .flip-face .foil-fx{opacity:.55;}
+  .viewer-glare{position:absolute; inset:0; pointer-events:none; border-radius:inherit; mix-blend-mode:soft-light;
+    background:radial-gradient(circle at var(--gx,50%) var(--gy,25%), rgba(255,255,255,.55), rgba(255,255,255,0) 58%); opacity:var(--go,0); transition:opacity .35s;}
+  .flip-loading{position:absolute; inset:0; display:grid; place-items:center; background:rgba(13,11,18,.55); font-size:.78rem;}
+  /* Our own stand-in back, only shown if Scryfall's card back can't be loaded */
+  .card-back-art{width:100%; height:100%; padding:5.5%; background:#3b2a1d; box-sizing:border-box;}
+  .card-back-art .cb-inner{width:100%; height:100%; border-radius:4% / 3%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6%;
+    background:radial-gradient(ellipse 46% 40% at 50% 50%, #3a2a7a 0 60%, #1f1745 61% 68%, transparent 69%), radial-gradient(ellipse at 50% 50%, #6b4a2c, #2a1c12 75%);}
+  .card-back-art img{width:34%; border-radius:18%; box-shadow:0 0 0 3px rgba(212,175,55,.8);}
+  .card-back-art span{font-family:var(--font-display); font-size:1.4rem; font-weight:700; color:#e9d9a8; letter-spacing:.06em;}
+  .viewer-info{position:absolute; left:0; right:0; bottom:0; z-index:4; text-align:center; padding:.4rem 1.2rem calc(1.1rem + env(safe-area-inset-bottom));}
+  .viewer-name{font-family:var(--font-display); font-size:1.28rem; font-weight:600; line-height:1.25; text-shadow:0 1px 8px rgba(0,0,0,.5);}
+  .viewer-sub{font-family:var(--font-mono); font-size:.74rem; opacity:.78; margin-top:3px; min-height:1.1em;}
+  .viewer-actions{display:flex; justify-content:center; flex-wrap:wrap; gap:.5rem; margin-top:.8rem;}
+  .viewer-chip{display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1rem; border-radius:999px; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:.8rem; font-weight:600; cursor:pointer; backdrop-filter:blur(8px);}
+  .viewer-chip.primary{background:rgba(255,255,255,.94); color:#1c1530;}
+  .viewer-chip:active{transform:scale(.95);}
+  .viewer-tag{display:inline-flex; align-items:center; gap:.3rem; padding:.2rem .55rem; border-radius:999px; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.14);}
+  .viewer-arrow{position:absolute; top:50%; z-index:3; margin-top:-22px; width:44px; height:44px;}
+  .viewer-arrow.prev{left:.8rem;} .viewer-arrow.next{right:.8rem;}
+  .viewer-arrow[disabled]{opacity:.25; cursor:default;}
+  @media (hover:none){ .viewer-arrow{display:none;} }
+  .viewer-hint{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(8.8rem + env(safe-area-inset-bottom)); z-index:4; font-size:.72rem; background:rgba(0,0,0,.45); padding:.3rem .7rem; border-radius:999px; opacity:0; animation:hintInOut 3.2s ease .6s both; pointer-events:none; white-space:nowrap;}
+  .viewer.closing .viewer-hint, .viewer.touched .viewer-hint{display:none;}
+  @keyframes hintInOut{ 0%{opacity:0;} 12%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
+  .card-thumb[data-action], .thumb-wrap[data-action]{cursor:zoom-in;}
   .sort-option{display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .1rem; border-bottom:1px solid var(--line);}
   .sort-option:last-child{border-bottom:none;}
   .sort-option .solabel{font-size:.88rem; font-weight:500; display:flex; align-items:center; gap:.4rem;}
@@ -343,7 +414,14 @@
 
   #detailPanel[hidden]{display:none;}
   #detailPanel{position:fixed; inset:0; z-index:40; background:var(--paper); display:flex; flex-direction:column;}
-  #detailPanel:not([hidden]){ animation:slideInRight .22s ease-out; }
+  /* Push / pop like a native app: the panel slides over while the page underneath
+     drifts left and dims (parallax); going back reverses it. */
+  @keyframes panelIn{ from{transform:translateX(100%);} to{transform:none;} }
+  @keyframes panelOut{ from{transform:none;} to{transform:translateX(100%);} }
+  #detailPanel.entering{ animation:panelIn .34s cubic-bezier(.2,.8,.2,1); box-shadow:-14px 0 36px rgba(0,0,0,.16); }
+  #detailPanel.leaving{ animation:panelOut .26s cubic-bezier(.4,0,.9,.5) forwards; pointer-events:none; box-shadow:-14px 0 36px rgba(0,0,0,.16); }
+  .topbar, main#view{ transition:transform .34s cubic-bezier(.2,.8,.2,1), opacity .34s ease; }
+  body.detail-open .topbar, body.detail-open main#view{ transform:translateX(-16%); opacity:.5; }
   .detail-header{display:flex; align-items:center; gap:.6rem; padding:calc(.7rem + env(safe-area-inset-top)) 1rem .7rem; border-bottom:1px solid var(--line); background:var(--surface);}
   .detail-header h2{font-size:1.05rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .detail-body{flex:1; overflow-y:auto; padding:1.1rem 1rem calc(2rem + env(safe-area-inset-bottom)); max-width:640px; margin:0 auto; width:100%;}
@@ -867,8 +945,7 @@ function openStatsPanel(){
     panel.innerHTML =
       '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
       '<div class="detail-body">'+emptyStateHTML('stats','Todavía no tienes cartas en tu colección.')+'</div>';
-    panel.hidden = false;
-    navPush();
+    showDetailPanel(panel, 'stats');
     document.getElementById('statsBackBtn').addEventListener('click', navBack);
     return;
   }
@@ -952,8 +1029,7 @@ function openStatsPanel(){
         '</div>'
       ) : '')+
     '</div>';
-  panel.hidden = false;
-  navPush();
+  showDetailPanel(panel, 'stats');
   document.getElementById('statsBackBtn').addEventListener('click', navBack);
   renderValueHistorySection();
   const mvEl = document.getElementById('statsMostValuableCard');
@@ -964,7 +1040,7 @@ function openStatsPanel(){
 function cardRowHTML(c){
   const price = itemPrice(c, state.settings.currency);
   const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
-  const thumb = '<div class="thumb-wrap">'+img+(c.foil ? '<div class="foil-fx"></div>' : '')+'</div>';
+  const thumb = '<div class="thumb-wrap" data-action="view-card" data-id="'+c.id+'" title="Ver en grande">'+img+(c.foil ? '<div class="foil-fx"></div>' : '')+'</div>';
   return (
     '<div class="card-row" data-id="'+c.id+'" data-action="edit-card">'+
       thumb+
@@ -1012,7 +1088,9 @@ function cardGridItemHTML(c){
 function emptyStateHTML(iconName, text, ctaHTML){
   return '<div class="empty-state">'+icon(iconName,40)+'<p>'+text+'</p>'+(ctaHTML||'')+'</div>';
 }
+let lastRenderedCardList = [];
 function renderCardsInto(container, items, emptyHTML){
+  lastRenderedCardList = items;
   if(items.length === 0){
     container.className = '';
     container.innerHTML = emptyHTML;
@@ -1062,6 +1140,7 @@ const CONDITION_NAMES = {NM:'Como nueva (NM)', LP:'Levemente jugada (LP)', MP:'M
 const LANGS = ['EN','ES','FR','DE','IT','PT','JA','KO','RU','ZHS','ZHT'];
 
 let modalCloseTimer = null;
+let modalHasEntry = false;
 function openModal(innerHTML){
   if(modalCloseTimer){ clearTimeout(modalCloseTimer); modalCloseTimer = null; }
   const root = document.getElementById('modalRoot');
@@ -1070,7 +1149,7 @@ function openModal(innerHTML){
     '</div></div>';
   root.hidden = false;
   document.getElementById('modalBackdrop').addEventListener('click', function(e){ if(e.target.id === 'modalBackdrop') closeModal(); });
-  navPush();
+  if(!modalHasEntry){ navPush(); modalHasEntry = true; }
 }
 function dismissModal(){
   const root = document.getElementById('modalRoot');
@@ -1099,17 +1178,360 @@ function printFace(card){
   };
 }
 
-/* ---------- Lightbox (bigger card image) ---------- */
-function openLightbox(url, alt){
-  if(!url) return;
-  const root = document.getElementById('lightboxRoot');
-  root.innerHTML = '<div class="lightbox-backdrop" id="lightboxBackdrop"><button class="lightbox-close" aria-label="Cerrar">'+icon('x',18)+'</button><img src="'+esc(url)+'" alt="'+esc(alt||'')+'"></div>';
-  root.hidden = false;
-  document.getElementById('lightboxBackdrop').addEventListener('click', closeLightbox);
-  navPush();
+/* ---------- Full-screen card viewer ----------
+   A swipeable carousel over the list the card came from (collection, folder, deck,
+   wishlist). Tap the card to flip it in 3D: double-faced cards show their other face,
+   everything else shows the classic Magic card back (Scryfall's image; our own stand-in
+   if it can't load). Opens and closes as a "shared element" from the thumbnail you tapped.
+   Items: {name, img, sub, meta, foil, back (url|null|undefined), loadBack: async () => url|null} */
+const CLASSIC_BACK_URL = 'https://backs.scryfall.io/large/0/a/0aeebaf5-8c7d-4636-9e82-8c27447861f7.jpg';
+function largeImageUrl(u){ return u ? u.replace(/(\/\/cards\.scryfall\.io\/)(small|normal)\//, '$1large/') : u; }
+function faceBackUrl(card){
+  const f = card && card.card_faces && card.card_faces[1];
+  return (f && f.image_uris && (f.image_uris.large || f.image_uris.normal)) || null;
 }
-function dismissLightbox(){ const root = document.getElementById('lightboxRoot'); root.hidden = true; root.innerHTML=''; }
+function prefersReducedMotion(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+function viewerItemFromCollection(c){
+  const price = itemPrice(c, state.settings.currency);
+  return {
+    name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil,
+    sub: [(c.setCode||'').toUpperCase()+(c.collectorNumber ? ' #'+c.collectorNumber : ''), c.foil ? 'Foil' : '', c.lang || ''].filter(Boolean).join(' · '),
+    meta: (price != null ? fmtMoney(price, state.settings.currency) : '')+(c.quantity > 1 ? ' · ×'+c.quantity : ''),
+    back: c.imageBack !== undefined ? c.imageBack : (/ \/\/ /.test(c.name) ? undefined : null),
+    loadBack: async function(){
+      const card = await scryById(c.scryfallId);
+      c.imageBack = faceBackUrl(card);
+      dbPut('cards', c).catch(function(){});
+      return c.imageBack;
+    }
+  };
+}
+function viewerItemFromScryCard(card){
+  const face = printFace(card);
+  return { name: card.name, img: face.imageNormal || face.image, sub: ((card.set||'').toUpperCase()+' #'+(card.collector_number||'')), meta: card.set_name || '', back: faceBackUrl(card) };
+}
+function viewerItemByName(c, meta){
+  return {
+    name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
+    back: / \/\/ /.test(c.name) ? undefined : null,
+    loadBack: async function(){ await ensureCardRules([c.name]); return faceBackUrl(rulesFor(c.name)); }
+  };
+}
+let viewer = null;
+function openCardViewer(items, startIndex, sourceEl){
+  items = (items || []).filter(function(it){ return it && it.img; });
+  if(!items.length) return;
+  startIndex = Math.max(0, Math.min(items.length-1, startIndex||0));
+  const root = document.getElementById('lightboxRoot');
+  if(viewer) teardownViewer(true);
+  const many = items.length > 1;
+  root.innerHTML =
+    '<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Carta a pantalla completa">'+
+      '<div class="viewer-backdrop viewer-fade" id="viewerBackdrop"><div class="viewer-bg b1"></div><div class="viewer-bg b2"></div><div class="viewer-shade"></div></div>'+
+      '<div class="viewer-top viewer-fade"><span class="viewer-count" id="viewerCount"'+(many?'':' style="visibility:hidden"')+'></span>'+
+        '<button class="viewer-btn" id="viewerClose" aria-label="Cerrar">'+icon('x',18)+'</button></div>'+
+      '<div class="viewer-stage" id="viewerStage"></div>'+
+      (many ? '<button class="viewer-btn viewer-arrow prev viewer-fade" id="viewerPrev" aria-label="Anterior">'+icon('back',18)+'</button>'+
+              '<button class="viewer-btn viewer-arrow next viewer-fade" id="viewerNext" aria-label="Siguiente">'+icon('chevron',18)+'</button>' : '')+
+      '<div class="viewer-info viewer-fade"><div class="viewer-name" id="viewerName"></div><div class="viewer-sub" id="viewerSub"></div>'+
+        '<div class="viewer-actions"><button class="viewer-chip primary" id="viewerFlip">'+icon('layers',15)+' <span>Ver dorso</span></button></div></div>'+
+      '<div class="viewer-hint">'+(many ? 'Desliza para ver más · toca la carta para girarla' : 'Toca la carta para girarla')+'</div>'+
+    '</div>';
+  root.hidden = false;
+  navPush();
+  viewer = { items: items, index: startIndex, startIndex: startIndex, sourceEl: sourceEl || null, slides: {}, dx: 0, dy: 0, bgFlip: false, tilt: {x:0, y:0}, closing: false };
+  const stage = document.getElementById('viewerStage');
+  sizeViewer();
+  syncSlides(false);
+  updateViewerInfo();
+  setViewerBackground(items[startIndex].img, true);
+  animateViewerOpen();
+  bindViewerEvents(stage);
+}
+function sizeViewer(){
+  const stage = document.getElementById('viewerStage');
+  if(!stage || !viewer) return;
+  const r = stage.getBoundingClientRect();
+  const cw = Math.max(160, Math.min(r.width * 0.8, (r.height - 8) * 63/88, 440));
+  viewer.cw = cw; viewer.step = cw * 0.9 + 14;
+  stage.style.setProperty('--cw', cw+'px');
+}
+function slideHTML(it){
+  const front = largeImageUrl(it.img);
+  return '<div class="viewer-pop"><div class="viewer-tilt"><div class="flip-card">'+
+      '<div class="flip-face flip-front"><img src="'+esc(front)+'" data-fallback="'+esc(it.img)+'" alt="'+esc(it.name)+'" draggable="false" onerror="if(this.dataset.fallback&&this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}">'+
+        (it.foil ? '<div class="foil-fx"></div>' : '')+'<div class="viewer-glare"></div></div>'+
+      '<div class="flip-face flip-back"></div>'+
+    '</div></div></div>';
+}
+function classicBackHTML(){
+  return '<img src="'+CLASSIC_BACK_URL+'" alt="Dorso de Magic" draggable="false" onerror="this.parentNode.innerHTML=\'<div class=&quot;card-back-art&quot;><div class=&quot;cb-inner&quot;><img src=&quot;icons/icon-192.png&quot; alt=&quot;&quot;><span>Ledger</span></div></div>\';">'+
+    '<div class="viewer-glare"></div>';
+}
+/* Fill the back face: other face for double-faced cards, classic back otherwise. */
+function fillSlideBack(i){
+  const it = viewer.items[i], el = viewer.slides[i];
+  if(!el) return;
+  const backEl = el.querySelector('.flip-back');
+  if(backEl.dataset.filled) return;
+  if(it.back){
+    backEl.innerHTML = '<img src="'+esc(it.back)+'" alt="'+esc(it.name)+' (reverso)" draggable="false"><div class="viewer-glare"></div>';
+    backEl.dataset.filled = '1';
+  } else if(it.back === null || !it.loadBack){
+    backEl.innerHTML = classicBackHTML();
+    backEl.dataset.filled = '1';
+  } else {
+    backEl.innerHTML = '<div class="flip-loading">Cargando la otra cara…</div>';
+    if(it._loading) return;
+    it._loading = true;
+    it.loadBack().then(function(url){ it.back = url || null; }).catch(function(){ it.back = null; }).then(function(){
+      it._loading = false;
+      if(!viewer || viewer.items !== undefined && viewer.items[i] !== it) return;
+      const b = viewer.slides[i] && viewer.slides[i].querySelector('.flip-back');
+      if(b){ delete b.dataset.filled; fillSlideBack(i); }
+      if(i === viewer.index) updateViewerInfo();
+    });
+  }
+}
+function syncSlides(animate){
+  const stage = document.getElementById('viewerStage');
+  const want = {};
+  for(let k = viewer.index-1; k <= viewer.index+1; k++){ if(k >= 0 && k < viewer.items.length) want[k] = true; }
+  Object.keys(viewer.slides).forEach(function(k){ if(!want[k]){ viewer.slides[k].remove(); delete viewer.slides[k]; } });
+  Object.keys(want).forEach(function(k){
+    k = +k;
+    if(!viewer.slides[k]){
+      const el = document.createElement('div');
+      el.className = 'viewer-slide';
+      el.dataset.i = k;
+      el.innerHTML = slideHTML(viewer.items[k]);
+      stage.appendChild(el);
+      viewer.slides[k] = el;
+    }
+    fillSlideBack(k);
+  });
+  layoutSlides(animate);
+}
+function layoutSlides(animate){
+  Object.keys(viewer.slides).forEach(function(k){
+    const el = viewer.slides[k];
+    const off = (k - viewer.index) * viewer.step + viewer.dx;
+    const t = Math.min(1, Math.abs(off) / viewer.step);
+    el.classList.toggle('anim', !!animate);
+    el.style.transform = 'translate3d('+off+'px,'+(viewer.dy)+'px,0) scale('+(1 - 0.16*t)+')';
+    el.style.opacity = String(1 - 0.5*t);
+    el.style.zIndex = String(10 - Math.round(t*5));
+  });
+  // dragging down to dismiss fades the backdrop so the screen underneath shows through
+  const bd = document.getElementById('viewerBackdrop');
+  if(bd) bd.style.opacity = String(Math.max(0, 1 - Math.max(0, viewer.dy) / 380));
+}
+function currentFlipCard(){ const el = viewer && viewer.slides[viewer.index]; return el && el.querySelector('.flip-card'); }
+function updateViewerInfo(){
+  const it = viewer.items[viewer.index];
+  document.getElementById('viewerName').textContent = it.name;
+  document.getElementById('viewerSub').textContent = [it.sub, it.meta].filter(Boolean).join('  ·  ');
+  const count = document.getElementById('viewerCount');
+  if(count) count.textContent = (viewer.index+1)+' / '+viewer.items.length;
+  const isDfc = !!it.back || it.back === undefined;
+  const fc = currentFlipCard();
+  const flipped = fc && fc.classList.contains('flipped');
+  document.querySelector('#viewerFlip span').textContent = isDfc ? (flipped ? 'Ver cara frontal' : 'Girar (doble cara)') : (flipped ? 'Ver frente' : 'Ver dorso');
+  const prev = document.getElementById('viewerPrev'), next = document.getElementById('viewerNext');
+  if(prev) prev.disabled = viewer.index === 0;
+  if(next) next.disabled = viewer.index === viewer.items.length-1;
+}
+function setViewerBackground(url, instant){
+  const a = document.querySelector('#viewer .viewer-bg.b1'), b = document.querySelector('#viewer .viewer-bg.b2');
+  if(!a || !b) return;
+  const css = 'url("'+String(url).replace(/"/g,'%22')+'")';
+  if(instant){ a.style.backgroundImage = css; return; }
+  // cross-fade between the two layers
+  const show = viewer.bgFlip ? a : b, hide = viewer.bgFlip ? b : a;
+  show.style.backgroundImage = css; show.style.opacity = '1'; hide.style.opacity = '0';
+  viewer.bgFlip = !viewer.bgFlip;
+}
+function goToSlide(i){
+  if(!viewer) return;
+  i = Math.max(0, Math.min(viewer.items.length-1, i));
+  const changed = i !== viewer.index;
+  const old = currentFlipCard();
+  viewer.index = i; viewer.dx = 0; viewer.dy = 0;
+  resetTilt();
+  syncSlides(true);
+  updateViewerInfo();
+  if(changed){
+    setViewerBackground(viewer.items[i].img, false);
+    // the card you left turns face-up again for next time
+    if(old) setTimeout(function(){ old.classList.remove('flipped'); }, 380);
+  }
+}
+function flipCurrent(){
+  const fc = currentFlipCard();
+  if(!fc) return;
+  fillSlideBack(viewer.index);
+  fc.classList.toggle('flipped');
+  updateViewerInfo();
+}
+function resetTilt(){
+  Object.keys(viewer.slides).forEach(function(k){
+    const t = viewer.slides[k].querySelector('.viewer-tilt');
+    if(t){ t.style.transform = ''; t.style.setProperty('--go','0'); }
+  });
+}
+function applyTilt(nx, ny){ // nx, ny in -1..1
+  const el = viewer && viewer.slides[viewer.index];
+  if(!el || prefersReducedMotion()) return;
+  const t = el.querySelector('.viewer-tilt');
+  t.style.transform = 'rotateX('+(-ny*9).toFixed(2)+'deg) rotateY('+(nx*11).toFixed(2)+'deg)';
+  el.querySelectorAll('.viewer-glare').forEach(function(g){
+    g.style.setProperty('--gx', (50 + nx*45)+'%'); g.style.setProperty('--gy', (35 + ny*45)+'%'); g.style.setProperty('--go', '1');
+  });
+  el.querySelectorAll('.foil-fx').forEach(function(f){ f.style.backgroundPosition = (50 + nx*40)+'% '+(50 + ny*40)+'%'; });
+}
+function bindViewerEvents(stage){
+  const root = document.getElementById('viewer');
+  document.getElementById('viewerClose').addEventListener('click', function(e){ e.stopPropagation(); closeLightbox(); });
+  document.getElementById('viewerFlip').addEventListener('click', function(e){ e.stopPropagation(); flipCurrent(); });
+  const prev = document.getElementById('viewerPrev'), next = document.getElementById('viewerNext');
+  if(prev) prev.addEventListener('click', function(e){ e.stopPropagation(); goToSlide(viewer.index-1); });
+  if(next) next.addEventListener('click', function(e){ e.stopPropagation(); goToSlide(viewer.index+1); });
+
+  let g = null; // gesture
+  root.addEventListener('pointerdown', function(e){
+    if(e.target.closest('button')) return;
+    // remember what was pressed: with pointer capture, later events are retargeted to the root
+    g = {x:e.clientX, y:e.clientY, t:performance.now(), axis:null, id:e.pointerId, lastX:e.clientX, lastT:performance.now(), vx:0, target:e.target};
+    root.classList.add('touched'); // the gesture hint has done its job
+    try{ root.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  root.addEventListener('pointermove', function(e){
+    if(!viewer) return;
+    if(!g){
+      if(e.pointerType === 'mouse'){ // desktop: tilt follows the mouse over the card
+        const el = viewer.slides[viewer.index]; if(!el) return;
+        const r = el.getBoundingClientRect();
+        applyTilt(Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width/2)) / (r.width/2))), Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height/2)) / (r.height/2))));
+      }
+      return;
+    }
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if(!g.axis){
+      if(Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      g.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      resetTilt();
+    }
+    const now = performance.now();
+    g.vx = (e.clientX - g.lastX) / Math.max(1, now - g.lastT); g.lastX = e.clientX; g.lastT = now;
+    if(g.axis === 'x'){
+      let d = dx;
+      if((viewer.index === 0 && d > 0) || (viewer.index === viewer.items.length-1 && d < 0)) d = d * 0.3; // rubber band at the ends
+      viewer.dx = d; layoutSlides(false);
+    } else {
+      viewer.dy = dy > 0 ? dy : dy * 0.25; layoutSlides(false);
+    }
+  });
+  function end(e){
+    if(!g || !viewer) { g = null; return; }
+    const dx = e.clientX - g.x, dy = e.clientY - g.y, dt = performance.now() - g.t;
+    const gg = g; g = null;
+    if(!gg.axis){
+      if(dt > 450) return;
+      // a tap: on the card → flip; on a neighbour → go there; elsewhere → close
+      const tgt = gg.target;
+      const slide = tgt && tgt.closest && tgt.closest('.viewer-slide');
+      if(slide){ const i = +slide.dataset.i; if(i === viewer.index) flipCurrent(); else goToSlide(i); }
+      else if(tgt && tgt.closest && !tgt.closest('.viewer-info') && !tgt.closest('.viewer-top')) closeLightbox();
+      return;
+    }
+    if(gg.axis === 'x'){
+      const w = viewer.step;
+      let target = viewer.index;
+      if(dx < -w*0.22 || gg.vx < -0.45) target++;
+      else if(dx > w*0.22 || gg.vx > 0.45) target--;
+      goToSlide(target);
+    } else {
+      if(dy > 110 || (dy > 40 && dy / Math.max(1, dt) > 0.6)){ closeLightbox(); }
+      else { viewer.dy = 0; layoutSlides(true); }
+    }
+  }
+  root.addEventListener('pointerup', end);
+  root.addEventListener('pointercancel', function(){ if(viewer){ viewer.dx = 0; viewer.dy = 0; layoutSlides(true); } g = null; });
+  root.addEventListener('pointerleave', function(e){ if(e.pointerType === 'mouse' && !g && viewer) resetTilt(); });
+
+  viewer.onKey = function(e){
+    if(e.key === 'ArrowLeft') goToSlide(viewer.index-1);
+    else if(e.key === 'ArrowRight') goToSlide(viewer.index+1);
+    else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flipCurrent(); }
+    else if(e.key === 'Escape') closeLightbox();
+  };
+  document.addEventListener('keydown', viewer.onKey);
+  // phones: tilt the card by tilting the phone (subtle, relative to how you hold it)
+  let base = null, raf = 0;
+  viewer.onOrient = function(e){
+    if(e.beta == null || e.gamma == null || g) return;
+    if(!base) base = {b: e.beta, g: e.gamma};
+    const nx = Math.max(-1, Math.min(1, (e.gamma - base.g) / 22)), ny = Math.max(-1, Math.min(1, (e.beta - base.b) / 22));
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ applyTilt(nx, ny); });
+  };
+  window.addEventListener('deviceorientation', viewer.onOrient);
+  viewer.onResize = function(){ sizeViewer(); layoutSlides(false); };
+  window.addEventListener('resize', viewer.onResize);
+}
+function visibleRect(el){
+  if(!el || !el.isConnected) return null;
+  const r = el.getBoundingClientRect();
+  if(r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > window.innerHeight) return null;
+  return r;
+}
+function popTransformFrom(S, T){
+  return 'translate('+(S.left - T.left)+'px,'+(S.top - T.top)+'px) scale('+(S.width / T.width)+','+(S.height / T.height)+')';
+}
+function animateViewerOpen(){
+  const el = viewer.slides[viewer.index];
+  const pop = el && el.querySelector('.viewer-pop');
+  const S = visibleRect(viewer.sourceEl);
+  if(!pop || prefersReducedMotion() || !pop.animate) return;
+  const T = pop.getBoundingClientRect();
+  if(S){
+    pop.animate([{transform: popTransformFrom(S, T), borderRadius:'6px'}, {transform:'none'}], {duration:420, easing:'cubic-bezier(.2,.8,.2,1)'});
+  } else {
+    pop.animate([{transform:'translateY(24px) scale(.9)', opacity:0}, {transform:'none', opacity:1}], {duration:320, easing:'cubic-bezier(.2,.8,.2,1)'});
+  }
+  Object.keys(viewer.slides).forEach(function(k){
+    if(+k !== viewer.index) viewer.slides[k].animate([{opacity:0}, {opacity: viewer.slides[k].style.opacity || 1}], {duration:380, delay:120, easing:'ease-out', fill:'backwards'});
+  });
+}
+function teardownViewer(immediate){
+  if(!viewer) return;
+  document.removeEventListener('keydown', viewer.onKey);
+  window.removeEventListener('deviceorientation', viewer.onOrient);
+  window.removeEventListener('resize', viewer.onResize);
+  const root = document.getElementById('lightboxRoot');
+  if(immediate){ root.hidden = true; root.innerHTML = ''; }
+  viewer = null;
+}
+function dismissLightbox(){
+  const root = document.getElementById('lightboxRoot');
+  if(!viewer || prefersReducedMotion()){ teardownViewer(true); root.hidden = true; root.innerHTML = ''; return; }
+  const v = viewer;
+  const vroot = document.getElementById('viewer');
+  vroot.classList.add('closing');
+  const el = v.slides[v.index], pop = el && el.querySelector('.viewer-pop');
+  const S = v.index === v.startIndex ? visibleRect(v.sourceEl) : null;
+  Object.keys(v.slides).forEach(function(k){ if(+k !== v.index) v.slides[k].style.opacity = '0'; });
+  if(pop && pop.animate){
+    const fc = pop.querySelector('.flip-card'); if(fc) fc.classList.remove('flipped');
+    const T = pop.getBoundingClientRect();
+    if(S) pop.animate([{transform:'none'}, {transform: popTransformFrom(S, T)}], {duration:320, easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
+    else pop.animate([{transform:'none', opacity:1}, {transform:'translateY(60px) scale(.86)', opacity:0}], {duration:260, easing:'ease-in', fill:'forwards'});
+  }
+  teardownViewer(false);
+  setTimeout(function(){ if(!viewer){ root.hidden = true; root.innerHTML = ''; } }, 320);
+}
 function closeLightbox(){ navBack(); }
+// kept for simple one-image callers
+function openLightbox(url, alt, sourceEl){ openCardViewer([{name: alt || '', img: url, sub:'', meta:'', back:null}], 0, sourceEl); }
 
 /* ---------- Sorting ---------- */
 const SORT_FIELDS = ['added','name','price','quantity','releasedAt'];
@@ -1235,7 +1657,10 @@ function openAddDetailsModal(card, existingItem, overrides, target){
   document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; bumpQtyVal(); } });
   document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; bumpQtyVal(); });
   const modalImg = document.getElementById('modalCardImage');
-  if(modalImg) modalImg.addEventListener('click', function(){ openLightbox(bigImage, card.name); });
+  if(modalImg) modalImg.addEventListener('click', function(){
+    if(existingItem && !isQueueMode) openViewerForCollectionItem(existingItem.id, modalImg);
+    else openCardViewer([viewerItemFromScryCard(card)], 0, modalImg);
+  });
   const addFoilChkEl = document.getElementById('addFoilChk');
   const modalFoilFx = document.getElementById('modalFoilFx');
   if(addFoilChkEl && modalFoilFx){
@@ -1302,6 +1727,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         quantity: curQty, foil: foilVal, condition: conditionVal, lang: langVal, binderId: binderVal
       });
+      if(!card._pseudo) existingItem.imageBack = faceBackUrl(card);
       await dbPut('cards', existingItem);
     } else {
       const item = {
@@ -1311,7 +1737,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         cmc: card.cmc || 0, typeLine: card.type_line || '', releasedAt: card.released_at || null,
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         foil: foilVal, condition: conditionVal, lang: langVal, quantity: curQty, binderId: binderVal,
-        addedAt: Date.now()
+        imageBack: faceBackUrl(card), addedAt: Date.now()
       };
       await dbPut('cards', item);
       state.cards.push(item);
@@ -1320,12 +1746,19 @@ function openAddDetailsModal(card, existingItem, overrides, target){
     toast(isEdit ? 'Cambios guardados' : '"'+card.name+'" añadida a tu colección');
   });
 }
+function openViewerForCollectionItem(id, sourceEl){
+  let list = lastRenderedCardList;
+  let idx = list.findIndex(function(x){ return x.id === id; });
+  if(idx < 0){ const it = state.cards.find(function(x){ return x.id === id; }); if(!it) return; list = [it]; idx = 0; }
+  openCardViewer(list.map(viewerItemFromCollection), idx, sourceEl);
+}
 function openEditCardModal(id){
   const item = state.cards.find(function(c){ return c.id === id; });
   if(!item) return;
   const pseudoCard = {
     id: item.scryfallId, name: item.name, set: item.setCode, set_name: item.setName, collector_number: item.collectorNumber,
     rarity: item.rarity, lang: item.lang, released_at: item.releasedAt,
+    _pseudo: true,
     image_uris: {small: item.imageSmall, normal: item.imageNormal || item.imageSmall},
     prices: {eur: item.prices.eur, eur_foil: item.prices.eurFoil, usd: item.prices.usd, usd_foil: item.prices.usdFoil},
     finishes: item.foil ? ['nonfoil','foil'] : (item.prices.eurFoil||item.prices.usdFoil ? ['nonfoil','foil'] : ['nonfoil'])
@@ -1679,7 +2112,7 @@ function deckCardRowHTML(deck, c, big){
   const img = (big ? c.imageNormal : null) || c.imageSmall;
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
   return '<div class="card-row'+(big?' commander-row':'')+'" data-name="'+esc(c.name)+'">'+
-    (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
+    (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="card-meta">'+colorPipsHTML(c.colors)+badge+'</div></div>'+
     '<div class="card-value">'+
       '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>'+
@@ -1729,8 +2162,7 @@ function openDeckDetail(id){
       })()+
       '<div id="deckCardsList">'+deckCardsListHTML(deck)+'</div>'+
     '</div>';
-  panel.hidden = false;
-  navPush();
+  showDetailPanel(panel, 'deck:'+deck.id);
 
   document.getElementById('deckBackBtn').addEventListener('click', navBack);
   runDeckLegality(deck);
@@ -1745,7 +2177,7 @@ function openDeckDetail(id){
     if(!confirm('¿Eliminar el mazo "'+deck.name+'"?')) return;
     await dbDelete('decks', deck.id);
     state.decks = state.decks.filter(function(d){ return d.id !== deck.id; });
-    panel.hidden = true; renderDecks(); toast('Mazo eliminado');
+    navBack(); toast('Mazo eliminado');
   });
   const searchInput = document.getElementById('deckSearchInput');
   const sugg = document.getElementById('deckSuggestions');
@@ -1772,6 +2204,14 @@ function openDeckDetail(id){
     }catch(err){ toast(err.message); }
   });
   document.getElementById('deckCardsList').addEventListener('click', async function(e){
+    const view = e.target.closest('[data-action="deck-view"]');
+    if(view){
+      const g = groupDeckCards(deck);
+      const ordered = g.commanders.concat.apply(g.commanders, g.sections.map(function(sec){ return sec.cards; }));
+      const items = ordered.map(function(c){ return viewerItemByName(c, (c.commander ? 'Comandante · ' : '')+'×'+c.qty+' · En colección: '+ownedQtyForName(c.name)); });
+      openCardViewer(items, Math.max(0, ordered.findIndex(function(c){ return c.name === view.dataset.name; })), view);
+      return;
+    }
     const crown = e.target.closest('[data-action="toggle-commander"]');
     if(crown){
       const c = deck.cards.find(function(x){ return x.name===crown.dataset.name; });
@@ -1972,8 +2412,7 @@ function openBinderDetail(id){
       '<div class="section-note">'+items.length+' cartas distintas</div>'+
       '<div id="binderCardsList"></div>'+
     '</div>';
-  panel.hidden = false;
-  navPush();
+  showDetailPanel(panel, 'binder:'+id);
   renderCardsInto(document.getElementById('binderCardsList'), items, emptyStateHTML('folder','No hay cartas asignadas a esta carpeta todavía. Edita una carta de tu colección para moverla aquí.'));
   document.getElementById('binderSortBtn').addEventListener('click', openSortModal);
   document.querySelectorAll('#binderViewModeSegmented button').forEach(function(b){
@@ -1996,8 +2435,10 @@ function openBinderDetail(id){
     const inc = e.target.closest('[data-action="inc-qty"]');
     const dec = e.target.closest('[data-action="dec-qty"]');
     const row = e.target.closest('[data-action="edit-card"]');
+    const view = e.target.closest('[data-action="view-card"]');
     if(inc){ e.stopPropagation(); changeQty(inc.dataset.id,1).then(function(){ openBinderDetail(id); }); return; }
     if(dec){ e.stopPropagation(); changeQty(dec.dataset.id,-1).then(function(){ openBinderDetail(id); }); return; }
+    if(view){ openViewerForCollectionItem(view.dataset.id, view); return; }
     if(row){ openEditCardModal(row.dataset.id); }
   });
 }
@@ -2090,7 +2531,7 @@ function openBinderModal(existingBinder){
       const deleted = await deleteBinder(existingBinder);
       if(!deleted) return;
       closeModal(); renderBinders();
-      if(currentOpenBinderId === existingBinder.id){ document.getElementById('detailPanel').hidden = true; currentOpenBinderId = null; }
+      if(currentOpenBinderId === existingBinder.id){ hideDetailPanel(false); currentOpenBinderId = null; }
     });
   }
 
@@ -2959,7 +3400,7 @@ function wishRowHTML(w){
   if(owned >= w.qty) badge = '<span class="badge badge-good">'+icon('check',11)+' Ya la tienes ('+owned+')</span>';
   else if(owned > 0) badge = '<span class="badge badge-warn">Tienes '+owned+'</span>';
   const price = wishPrice(w);
-  const img = w.imageSmall ? '<img class="card-thumb" src="'+esc(w.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
+  const img = w.imageSmall ? '<img class="card-thumb" src="'+esc(w.imageSmall)+'" alt="" loading="lazy" data-action="wish-view" data-wish-id="'+w.id+'" title="Ver en grande">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
   return '<div class="card-row" data-wish-id="'+w.id+'" data-action="wish-open">'+
     img+
     '<div class="card-info">'+
@@ -3268,6 +3709,45 @@ function maybeRemindBackup(){
    once we're back at the empty Colección "home" screen. */
 const HOME_TAB = 'collection';
 let navDepth = 0;
+/* Detail panels (deck, folder, stats): one history entry while open, however many times
+   they re-render; re-renders keep the scroll position; open/close slide like native. */
+let detailHasEntry = false, detailLeaveTimer = null, detailScrollMemo = 0;
+function showDetailPanel(panel, key){
+  clearTimeout(detailLeaveTimer);
+  const leaving = panel.classList.contains('leaving');
+  panel.classList.remove('leaving');
+  const same = !panel.hidden && !leaving && panel.dataset.key === key;
+  panel.dataset.key = key;
+  panel.hidden = false;
+  const body = panel.querySelector('.detail-body');
+  if(same){
+    if(body){
+      const want = detailScrollMemo;
+      body.scrollTop = want;
+      requestAnimationFrame(function(){ if(body.isConnected && Math.abs(body.scrollTop - want) > 1) body.scrollTop = want; });
+    }
+  } else {
+    detailScrollMemo = 0;
+    if(!prefersReducedMotion()){
+      panel.classList.remove('entering'); void panel.offsetWidth; panel.classList.add('entering');
+      panel.addEventListener('animationend', function done(){ panel.classList.remove('entering'); panel.removeEventListener('animationend', done); });
+    }
+  }
+  if(body) body.addEventListener('scroll', function(){ detailScrollMemo = body.scrollTop; }, {passive:true});
+  document.body.classList.add('detail-open');
+  if(!detailHasEntry){ navPush(); detailHasEntry = true; }
+}
+function hideDetailPanel(animated){
+  const panel = document.getElementById('detailPanel');
+  detailHasEntry = false;
+  document.body.classList.remove('detail-open');
+  panel.classList.remove('entering');
+  const finish = function(){ panel.classList.remove('leaving'); panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.key; };
+  if(!animated || prefersReducedMotion()){ finish(); return; }
+  panel.classList.add('leaving');
+  clearTimeout(detailLeaveTimer);
+  detailLeaveTimer = setTimeout(finish, 260);
+}
 function navPush(){
   navDepth++;
   history.pushState({navDepth: navDepth}, '');
@@ -3283,10 +3763,11 @@ function applyTopLayer(){
   const lightboxRoot = document.getElementById('lightboxRoot');
   const modalRoot = document.getElementById('modalRoot');
   const detailPanel = document.getElementById('detailPanel');
-  if(!lightboxRoot.hidden){ dismissLightbox(); return; }
-  if(!modalRoot.hidden){ dismissModal(); return; }
-  if(!detailPanel.hidden){
-    detailPanel.hidden = true; detailPanel.innerHTML = '';
+  if(!lightboxRoot.hidden && viewer){ dismissLightbox(); return; }
+  const backdrop = document.getElementById('modalBackdrop');
+  if(!modalRoot.hidden && backdrop && !backdrop.classList.contains('closing')){ modalHasEntry = false; dismissModal(); return; }
+  if(!detailPanel.hidden && !detailPanel.classList.contains('leaving')){
+    hideDetailPanel(true);
     currentOpenBinderId = null;
     renderBinders(); renderDecks();
     return;
@@ -3312,8 +3793,37 @@ window.addEventListener('popstate', function(e){
 });
 
 /* ---------- Tabs & init ---------- */
+const TAB_ORDER = ['collection','scan','decks','wishlist','binders','settings'];
+// we manage scroll per tab ourselves; the browser's own restore on back/forward fights it
+try{ history.scrollRestoration = 'manual'; }catch(e){}
+const tabScroll = {};
+function moveTabIndicator(tab, animate){
+  const nav = document.querySelector('nav.tabbar');
+  const ind = nav && nav.querySelector('.tab-indicator');
+  const btn = nav && nav.querySelector('.tab-btn[data-tab="'+tab+'"]');
+  if(!ind || !btn) return;
+  const w = Math.min(56, btn.offsetWidth - 8);
+  if(!animate) ind.style.transition = 'none';
+  ind.style.width = w+'px';
+  ind.style.transform = 'translateX('+(btn.offsetLeft + (btn.offsetWidth - w)/2)+'px)';
+  if(!animate){ void ind.offsetWidth; ind.style.transition = ''; }
+}
+function animateTabEnter(tab, prevTab){
+  const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
+  moveTabIndicator(tab, true);
+  if(prefersReducedMotion() || tab === prevTab) return;
+  if(btn){ btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
+  const panel = document.querySelector('.tab-panel[data-tab="'+tab+'"]');
+  if(!panel) return;
+  panel.classList.remove('enter-left','enter-right','stagger'); void panel.offsetWidth;
+  panel.classList.add(TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prevTab) ? 'enter-right' : 'enter-left', 'stagger');
+  clearTimeout(panel._animT);
+  panel._animT = setTimeout(function(){ panel.classList.remove('enter-left','enter-right','stagger'); }, 950);
+}
 function switchTab(tab, fromNav){
   const wasHome = state.tab === HOME_TAB;
+  const prevTab = state.tab;
+  tabScroll[prevTab] = window.scrollY;
   state.tab = tab;
   if(tab === 'settings') renderBackupStatus();
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
@@ -3324,6 +3834,9 @@ function switchTab(tab, fromNav){
   if(tab === 'binders') renderBinders();
   if(tab === 'wishlist'){ renderWishlist(); refreshWishlistPricesIfStale(); }
   if(tab === 'settings') renderSettings();
+  animateTabEnter(tab, prevTab);
+  // each tab keeps its own scroll position
+  if(prevTab !== tab) window.scrollTo(0, tabScroll[tab] || 0);
 
   if(fromNav) return; // reflecting a back-button pop we already consumed — don't touch history again
   if(tab === HOME_TAB){
@@ -3341,6 +3854,11 @@ async function init(){
     b.innerHTML = icon(map[b.dataset.tab],21) + '<span>' + labels[b.dataset.tab] + '</span>';
     b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
   });
+  const tabInd = document.createElement('span');
+  tabInd.className = 'tab-indicator';
+  document.querySelector('nav.tabbar').prepend(tabInd);
+  requestAnimationFrame(function(){ moveTabIndicator(state.tab, false); });
+  window.addEventListener('resize', function(){ moveTabIndicator(state.tab, false); });
   document.getElementById('filterToggleBtn').innerHTML = icon('search',16);
   document.getElementById('sortToggleBtn').innerHTML = icon('sort',15)+' Ordenar';
   document.querySelector('#viewModeSegmented button[data-view="list"]').innerHTML = icon('list',16);
@@ -3400,8 +3918,10 @@ async function init(){
     const inc = e.target.closest('[data-action="inc-qty"]');
     const dec = e.target.closest('[data-action="dec-qty"]');
     const row = e.target.closest('[data-action="edit-card"]');
+    const view = e.target.closest('[data-action="view-card"]');
     if(inc){ e.stopPropagation(); changeQty(inc.dataset.id,1); return; }
     if(dec){ e.stopPropagation(); changeQty(dec.dataset.id,-1); return; }
+    if(view){ openViewerForCollectionItem(view.dataset.id, view); return; }
     if(row){ openEditCardModal(row.dataset.id); }
   });
 
@@ -3504,6 +4024,13 @@ async function init(){
     const inc = e.target.closest('[data-action="wish-inc"]');
     const dec = e.target.closest('[data-action="wish-dec"]');
     if(inc || dec){ e.stopPropagation(); changeWishQty((inc||dec).dataset.wishId, inc ? 1 : -1); return; }
+    const wv = e.target.closest('[data-action="wish-view"]');
+    if(wv){
+      const list = sortedWishlist();
+      openCardViewer(list.map(function(w){ const p = wishPrice(w); return viewerItemByName(w, (p != null ? fmtMoney(p, state.settings.currency) : '')+(w.qty > 1 ? ' · ×'+w.qty : '')); }),
+        Math.max(0, list.findIndex(function(w){ return w.id === wv.dataset.wishId; })), wv);
+      return;
+    }
     // Tapping the card itself = "I got it": open the normal add-to-collection flow
     const row = e.target.closest('[data-action="wish-open"]');
     if(!row) return;
