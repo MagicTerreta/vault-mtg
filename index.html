@@ -182,6 +182,25 @@
   .deck-hero .hero-img.is-loaded{opacity:1; animation:imgIn .6s ease both, heroDrift 18s ease-out both;}
   img.is-error{animation:none !important; background:var(--surface-2) !important;}
 
+  /* Search across decks / wishlist + "used in" */
+  .also-title{margin-top:1.2rem; display:flex; align-items:center; gap:.4rem;}
+  .search-none{display:flex; align-items:center; gap:.45rem; font-size:.82rem; color:var(--ink-soft); padding:.9rem .3rem .2rem;}
+  .also-row{cursor:default; align-items:flex-start;}
+  .also-row[data-go-wishlist]{cursor:pointer; align-items:center;}
+  .deck-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.4rem;}
+  .deck-chip{display:inline-flex; align-items:center; gap:.3rem; max-width:100%; padding:.3rem .6rem; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:.74rem; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .deck-chip svg{flex:none; color:var(--accent);}
+  .deck-chip:active{transform:scale(.96);}
+  .usage-box{border:1px solid var(--line); border-radius:var(--radius-m); padding:.6rem .7rem; margin:0 0 .9rem; background:var(--surface-2);}
+  .usage-box.usage-none{display:flex; align-items:center; justify-content:center; gap:.4rem; font-size:.78rem; color:var(--ink-soft); background:none; border-style:dashed;}
+  .usage-head{display:flex; align-items:center; gap:.4rem; font-size:.8rem; font-weight:600;}
+  .usage-head svg{color:var(--accent);}
+  .usage-box.usage-short{background:var(--warn-soft); border-color:var(--warn);}
+  .usage-warn{display:flex; gap:.35rem; align-items:flex-start; font-size:.76rem; color:var(--warn); margin-top:.35rem; line-height:1.4;}
+  .usage-warn svg{flex:none; margin-top:1px;}
+  @keyframes rowFlash{ 0%,100%{box-shadow:0 0 0 0 transparent;} 20%,65%{box-shadow:0 0 0 3px var(--accent);} }
+  .card-row.flash{animation:rowFlash 1.8s ease;}
+
   /* Commander legality */
   .legality-card{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:.75rem .85rem; margin:.2rem 0 1.1rem;}
   .legality-head{display:flex; align-items:center; gap:.55rem; font-weight:600; font-size:.92rem;}
@@ -576,8 +595,9 @@
         <button data-view="grid" title="Vista de cuadrícula"></button>
       </div>
     </div>
-    <input id="collectionFilterInput" class="text-input" placeholder="Filtrar por nombre o edición…" hidden style="margin-bottom:.8rem;">
+    <input id="collectionFilterInput" class="text-input" placeholder="Busca en tu colección, mazos y deseos…" hidden style="margin-bottom:.8rem;">
     <div id="collectionList"></div>
+    <div id="collectionAlsoIn"></div>
   </section>
 
   <section class="tab-panel" data-tab="scan" hidden>
@@ -1215,6 +1235,111 @@ function renderCardsInto(container, items, emptyHTML){
     container.innerHTML = items.map(cardRowHTML).join('');
   }
 }
+/* ---------- Where else is this card? (decks & wishlist) ----------
+   Decks and the wishlist are name-based lists, separate from the physical collection;
+   these helpers connect them: search across all three, and "used in" for a card. */
+function normName(s){ return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function sameCardName(a, b){
+  a = normName(a); b = normName(b);
+  return a === b || a.split(' // ')[0] === b.split(' // ')[0];
+}
+/* [{deck, card}] for every deck that includes this card */
+function deckUsesOf(name){
+  const out = [];
+  state.decks.forEach(function(d){
+    d.cards.forEach(function(c){ if(sameCardName(c.name, name)) out.push({deck: d, card: c}); });
+  });
+  return out;
+}
+function searchDecksAndWishlist(q){
+  const nq = normName(q);
+  const byName = {};
+  state.decks.forEach(function(d){
+    d.cards.forEach(function(c){
+      if(normName(c.name).indexOf(nq) === -1) return;
+      const k = normName(c.name);
+      (byName[k] = byName[k] || {card: c, uses: []}).uses.push({deck: d, qty: c.qty, commander: !!c.commander});
+    });
+  });
+  const decks = Object.keys(byName).map(function(k){ return byName[k]; }).sort(function(a,b){ return a.card.name.localeCompare(b.card.name); });
+  const wishes = state.wishlist.filter(function(w){ return normName(w.name).indexOf(nq) > -1; });
+  return {decks: decks, wishes: wishes};
+}
+function ownedBadgeHTML(name, need){
+  const owned = ownedQtyForName(name);
+  if(!owned) return '<span class="badge badge-bad">No la tienes</span>';
+  return '<span class="badge '+(owned >= (need||1) ? 'badge-good' : 'badge-warn')+'">Tienes '+owned+'</span>';
+}
+function renderAlsoIn(also){
+  const el = document.getElementById('collectionAlsoIn');
+  if(!el) return;
+  if(!also || (!also.decks.length && !also.wishes.length)){ el.innerHTML = ''; return; }
+  let html = '';
+  if(also.decks.length){
+    html += '<div class="settings-section-title also-title">'+icon('layers',13)+' En tus mazos <span class="count-pill">'+also.decks.length+'</span></div>'+
+      also.decks.map(function(g){
+        const c = g.card, img = c.imageSmall || c.imageNormal;
+        const need = g.uses.reduce(function(a,u){ return a+u.qty; }, 0);
+        return '<div class="card-row also-row">'+
+          (img ? '<img class="card-thumb" src="'+esc(img)+'" alt="" loading="lazy" data-action="also-view" data-name="'+esc(c.name)+'">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>')+
+          '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost)+'</div>'+
+            '<div class="card-meta">'+ownedBadgeHTML(c.name, need)+'</div>'+
+            '<div class="deck-chips">'+g.uses.map(function(u){
+              return '<button class="deck-chip" data-open-deck="'+esc(u.deck.id)+'" data-focus="'+esc(c.name)+'">'+(u.commander ? icon('crown',12) : icon('layers',12))+' '+esc(u.deck.name)+(u.qty > 1 ? ' ×'+u.qty : '')+'</button>';
+            }).join('')+'</div>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+  }
+  if(also.wishes.length){
+    html += '<div class="settings-section-title also-title">'+icon('star',13)+' En tu lista de deseos <span class="count-pill">'+also.wishes.length+'</span></div>'+
+      also.wishes.map(function(w){
+        return '<div class="card-row also-row" data-go-wishlist="1">'+
+          (w.imageSmall ? '<img class="card-thumb" src="'+esc(w.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>')+
+          '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(w.name)+'</span>'+manaCostHTML(w.manaCost)+'</div>'+
+            '<div class="card-meta">'+ownedBadgeHTML(w.name, w.qty)+'<span class="badge">'+icon('star',10)+' Quieres '+w.qty+'</span></div>'+
+          '</div>'+
+          '<div class="card-value"><div class="price">'+fmtMoney(wishPrice(w), state.settings.currency)+'</div></div>'+
+        '</div>';
+      }).join('');
+  }
+  el.innerHTML = html;
+}
+/* "Usada en" block for the card sheet: which decks play this card, and a warning when
+   the decks together need more copies than you own. */
+function deckUsageHTML(name){
+  const uses = deckUsesOf(name);
+  if(!uses.length) return '<div class="usage-box usage-none">'+icon('layers',14)+' No está en ninguno de tus mazos</div>';
+  const need = uses.reduce(function(a,u){ return a + u.card.qty; }, 0);
+  const owned = ownedQtyForName(name);
+  const short = uses.length > 1 && need > owned;
+  return '<div class="usage-box'+(short ? ' usage-short' : '')+'">'+
+    '<div class="usage-head">'+icon('layers',14)+' Usada en '+uses.length+' '+(uses.length === 1 ? 'mazo' : 'mazos')+'</div>'+
+    (short ? '<div class="usage-warn">'+icon('alert',13)+' Tienes '+owned+' '+(owned === 1 ? 'copia' : 'copias')+' y tus mazos piden '+need+': tendrás que moverla de un mazo a otro.</div>' : '')+
+    '<div class="deck-chips">'+uses.map(function(u){
+      return '<button class="deck-chip" data-open-deck="'+esc(u.deck.id)+'" data-focus="'+esc(u.card.name)+'">'+(u.card.commander ? icon('crown',12) : icon('layers',12))+' '+esc(u.deck.name)+(u.card.qty > 1 ? ' ×'+u.card.qty : '')+'</button>';
+    }).join('')+'</div>'+
+  '</div>';
+}
+/* Open a deck and bring one of its cards into view (briefly highlighted). */
+function openDeckAtCard(deckId, cardName){
+  openDeckDetail(deckId);
+  if(!cardName) return;
+  setTimeout(function(){
+    const rows = Array.from(document.querySelectorAll('#deckCardsList .card-row'));
+    const row = rows.find(function(r){ return sameCardName(r.dataset.name, cardName); });
+    if(!row) return;
+    row.scrollIntoView({block:'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth'});
+    row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+  }, 380);
+}
+/* Close the card sheet first (it owns a history entry), then run fn once that's done. */
+function closeModalThen(fn){
+  if(!modalHasEntry){ dismissModal(); fn(); return; }
+  const h = function(){ window.removeEventListener('popstate', h); setTimeout(fn, 0); };
+  window.addEventListener('popstate', h);
+  closeModal();
+}
 function renderCollection(){
   const container = document.getElementById('collectionList');
   const filterVal = document.getElementById('collectionFilterInput').value.trim().toLowerCase();
@@ -1224,9 +1349,13 @@ function renderCollection(){
       return c.name.toLowerCase().indexOf(filterVal) > -1 || (c.setName||'').toLowerCase().indexOf(filterVal) > -1 || (c.setCode||'').toLowerCase().indexOf(filterVal) > -1;
     });
   }
+  const also = filterVal ? searchDecksAndWishlist(filterVal) : null;
+  const alsoCount = also ? also.decks.length + also.wishes.length : 0;
   renderCardsInto(container, items, filterVal
-    ? emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'".')
+    ? (alsoCount ? '<div class="search-none">'+icon('search',15)+' No está en tu colección — pero sí aquí abajo:</div>'
+                 : emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'" ni en tu colección, ni en tus mazos, ni en tus deseos.'))
     : emptyStateHTML('layers','Tu colección está vacía todavía.<br>Busca una carta arriba para añadir la primera.'));
+  renderAlsoIn(also);
   renderStats();
   if(state.tab === 'wishlist') renderWishlist();
 }
@@ -1753,6 +1882,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
     '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(card.name)+'</h3>'+
     '<div class="section-note" style="margin-top:-.6rem; text-align:center;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
     '<button type="button" class="change-printing-btn" id="changePrintingBtn">'+icon('layers',14)+' Cambiar edición</button>'+
+    (isQueueMode ? '' : deckUsageHTML(card.name))+
     '<div class="stepper-lg">'+
       '<button class="qty-btn" id="addQtyDec">'+icon('minus',16)+'</button>'+
       '<span class="qty-val" id="addQtyVal">'+qty+'</span>'+
@@ -1777,6 +1907,9 @@ function openAddDetailsModal(card, existingItem, overrides, target){
   function bumpQtyVal(){ qtyValEl.classList.remove('bump'); void qtyValEl.offsetWidth; qtyValEl.classList.add('bump'); }
   document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; bumpQtyVal(); } });
   document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; bumpQtyVal(); });
+  document.querySelectorAll('#modalRoot .usage-box [data-open-deck]').forEach(function(chip){
+    chip.addEventListener('click', function(){ closeModalThen(function(){ openDeckAtCard(chip.dataset.openDeck, chip.dataset.focus); }); });
+  });
   const modalImg = document.getElementById('modalCardImage');
   if(modalImg) modalImg.addEventListener('click', function(){
     if(existingItem && !isQueueMode) openViewerForCollectionItem(existingItem.id, modalImg);
@@ -4173,6 +4306,19 @@ async function init(){
     if(row){ openEditCardModal(row.dataset.id); }
   });
 
+  document.getElementById('collectionAlsoIn').addEventListener('click', function(e){
+    const chip = e.target.closest('[data-open-deck]');
+    if(chip){ openDeckAtCard(chip.dataset.openDeck, chip.dataset.focus); return; }
+    const v = e.target.closest('[data-action="also-view"]');
+    if(v){
+      const also = searchDecksAndWishlist(document.getElementById('collectionFilterInput').value.trim());
+      const list = also.decks.map(function(g){ return g.card; });
+      openCardViewer(list.map(function(c){ return viewerItemByName(c, deckUsesOf(c.name).map(function(u){ return u.deck.name; }).join(' · ')); }),
+        Math.max(0, list.findIndex(function(c){ return c.name === v.dataset.name; })), v);
+      return;
+    }
+    if(e.target.closest('[data-go-wishlist]')) switchTab('wishlist');
+  });
   renderScanPlaceholder();
   document.getElementById('startCameraBtn').addEventListener('click', startCamera);
   document.getElementById('stopCameraBtn').addEventListener('click', stopCamera);
