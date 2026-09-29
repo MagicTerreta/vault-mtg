@@ -922,7 +922,7 @@ async function fetchNameThumbs(names){
     try{
       const r = await fetch(SCRYFALL+'/cards/collection', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({identifiers: missing.map(function(n){ return {name:n}; })})
+        body: JSON.stringify({identifiers: nameIdentifiers(missing)})
       });
       if(r.ok){
         const j = await r.json();
@@ -1322,10 +1322,20 @@ function viewerItemFromScryCard(card){
   return { name: card.name, img: face.imageNormal || face.image, sub: ((card.set||'').toUpperCase()+' #'+(card.collector_number||'')), meta: card.set_name || '', back: faceBackUrl(card) };
 }
 function viewerItemByName(c, meta){
+  const multi = / \/\/ /.test(c.name);
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
-    back: / \/\/ /.test(c.name) ? undefined : null,
-    loadBack: async function(){ await ensureCardRules([c.name]); return faceBackUrl(rulesFor(c.name)); }
+    back: c.imageBack ? c.imageBack : (multi ? undefined : null),
+    loadBack: async function(){
+      await ensureCardRules([c.name]);
+      let url = faceBackUrl(rulesFor(c.name));
+      if(!url){
+        // second chance: ask for this exact card by its front face
+        try{ url = faceBackUrl(await scryFuzzy(frontFaceName(c.name))); }catch(e){}
+      }
+      if(url) c.imageBack = url; // remembered on the deck / wishlist entry
+      return url;
+    }
   };
 }
 let viewer = null;
@@ -2393,7 +2403,7 @@ function openDeckDetail(id){
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
       if(existing) existing.qty += 1;
-      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), commander:false});
+      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), imageBack:faceBackUrl(card), commander:false});
       await dbPut('decks', deck);
       openDeckDetail(deck.id);
     }catch(err){ toast(err.message); }
@@ -2504,7 +2514,7 @@ async function importDeckTxtFile(file){
       else deck.cards.push({
         name: card.name, qty: e.qty, cmc: card.cmc||0,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), commander: !!e.commander
+        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card), commander: !!e.commander
       });
     }catch(err){ fail++; }
     setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
@@ -3226,7 +3236,7 @@ async function ensureCardRules(names){
     const chunk = missing.slice(i, i+75);
     const r = await fetch(SCRYFALL+'/cards/collection', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({identifiers: chunk.map(function(n){ return {name:n}; })})
+      body: JSON.stringify({identifiers: nameIdentifiers(chunk)})
     }).catch(function(){ return null; });
     if(!r || !r.ok) return false; // offline / Scryfall down: don't cache anything as "unknown"
     reached = true;
@@ -3242,6 +3252,14 @@ async function ensureCardRules(names){
   return reached;
 }
 function rulesFor(name){ const c = cardRulesCache[name.toLowerCase()]; return c === undefined ? undefined : c; }
+/* Double-faced / split cards are stored with their full "Front // Back" name, which Scryfall's
+   /cards/collection doesn't reliably match; the front-face name always does. */
+function frontFaceName(name){ return String(name || '').split(' // ')[0]; }
+function nameIdentifiers(names){
+  const seen = {};
+  return names.map(function(n){ return frontFaceName(n); }).filter(function(n){ const k = n.toLowerCase(); if(seen[k]) return false; seen[k] = true; return true; })
+    .map(function(n){ return {name: n}; });
+}
 function cardOracle(card){
   if(card.card_faces && card.card_faces.length) return card.card_faces.map(function(f){ return f.oracle_text || ''; }).join('\n');
   return card.oracle_text || '';
@@ -3415,6 +3433,8 @@ function applyRulesToDeck(deck){
     if(!card) return;
     const cost = cardManaCost(card);
     if(cost && c.manaCost !== cost){ c.manaCost = cost; changed = true; }
+    const back = faceBackUrl(card);
+    if(back && c.imageBack !== back){ c.imageBack = back; changed = true; }
   });
   return changed;
 }
@@ -3565,7 +3585,7 @@ async function scryCollectionByNames(names, onProgress){
     try{
       const r = await fetch(SCRYFALL+'/cards/collection', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({identifiers: chunk.map(function(n){ return {name:n}; })})
+        body: JSON.stringify({identifiers: nameIdentifiers(chunk)})
       });
       if(r.ok){
         const j = await r.json();
@@ -3587,6 +3607,7 @@ function wishDataFromCard(card){
     name: card.name,
     imageSmall: face.image, imageNormal: face.imageNormal,
     colors: face.colors, typeLine: card.type_line || '', cmc: card.cmc || 0,
+    imageBack: faceBackUrl(card), manaCost: cardManaCost(card),
     prices: {eur: toNum(card.prices && card.prices.eur), usd: toNum(card.prices && card.prices.usd)},
     pricesAt: Date.now()
   };
