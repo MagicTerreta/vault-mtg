@@ -130,6 +130,8 @@
   .tab-btn{position:relative;}
   .tab-btn.needs-attention::after{content:''; position:absolute; top:.4rem; left:calc(50% + 8px); width:8px; height:8px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 2px var(--surface);}
   .wish-summary{display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin:.9rem 0 .4rem; font-size:.8rem; color:var(--ink-soft);}
+  .wish-summary-actions{display:flex; gap:.2rem; flex-wrap:wrap; margin-left:auto;}
+  .wish-summary-actions .btn-ghost{padding:.4rem .5rem; font-size:.8rem;}
   .wish-summary strong{color:var(--ink); font-family:var(--font-mono); font-weight:600;}
   .wish-for{font-size:.68rem; color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-row .card-info{min-width:0;}
@@ -181,6 +183,23 @@
     background:none; animation:imgIn .45s ease both;}
   .deck-hero .hero-img.is-loaded{opacity:1; animation:imgIn .6s ease both, heroDrift 18s ease-out both;}
   img.is-error{animation:none !important; background:var(--surface-2) !important;}
+
+  /* ---------- Wishlist multi-select ---------- */
+  .wish-selbar{position:sticky; top:0; z-index:5; background:var(--paper); padding:.2rem 0 .7rem; margin-bottom:.2rem; border-bottom:1px solid var(--line);}
+  .wsb-row{display:flex; align-items:center; gap:.5rem;}
+  .wsb-count{flex:1; font-weight:700; font-size:.95rem;}
+  .wsb-row .btn{padding:.5rem .8rem; font-size:.82rem;}
+  .wsb-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.6rem;}
+  .wsb-label{font-size:.7rem; color:var(--ink-soft); font-weight:600; align-self:center; margin-right:.1rem;}
+  .card-row.selectable{cursor:pointer; position:relative;}
+  .card-row.selectable .qty-stepper{display:none;}
+  .sel-check{flex:none; width:24px; height:24px; border-radius:50%; border:2px solid var(--line); display:grid; place-items:center; color:transparent; background:var(--surface); transition:background .15s, border-color .15s;}
+  .card-row.is-selected{background:var(--accent-soft);}
+  .card-row.is-selected .sel-check{background:var(--accent); border-color:var(--accent); color:var(--on-accent);}
+  .snackbar{pointer-events:auto; display:flex; align-items:center; gap:.9rem; background:var(--ink); color:var(--paper); padding:.5rem .6rem .5rem 1rem; border-radius:999px; font-size:.82rem; box-shadow:var(--shadow); opacity:0; transform:translateY(8px); transition:opacity .2s, transform .2s; max-width:92vw;}
+  .snackbar.show{opacity:1; transform:none;}
+  .snackbar button{border:none; background:none; color:var(--accent-soft); font-weight:800; font-size:.82rem; letter-spacing:.03em; cursor:pointer; padding:.35rem .6rem; border-radius:999px; text-transform:uppercase;}
+  :root[data-theme="dark"] .snackbar button{color:var(--accent-strong);}
 
   /* ---------- Opening-hand playtest ---------- */
   #playRoot[hidden]{display:none;}
@@ -243,6 +262,21 @@
   .fs-actions{display:flex; gap:.6rem; position:sticky; bottom:calc(-1.3rem - env(safe-area-inset-bottom)); background:var(--surface); padding:.8rem 0 .2rem; margin-top:.4rem;}
   .fs-actions .btn-primary{flex:1;}
   .segmented.fs-seg{display:flex; width:100%;} .segmented.fs-seg button{flex:1;}
+
+  /* "In N decks" badge + decks-with-card sheet */
+  .badge-deck{border:none; cursor:pointer; background:var(--accent-soft); color:var(--accent-strong); font-weight:600;}
+  .badge-deck:active{transform:scale(.95);}
+  .card-grid-item .gdecks{position:absolute; bottom:4px; left:4px; display:inline-flex; align-items:center; gap:2px; background:rgba(90,63,174,.9); color:#fff; font-family:var(--font-mono); font-size:.6rem; line-height:1; padding:3px 6px; border-radius:999px;}
+  .dw-list{display:flex; flex-direction:column; gap:.5rem;}
+  .dw-row{display:flex; align-items:center; gap:.75rem; width:100%; text-align:left; padding:.45rem .6rem .45rem .45rem; border-radius:var(--radius-m); border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;}
+  .dw-row:active{transform:scale(.98);}
+  .dw-row > svg{flex:none; color:var(--ink-faint);}
+  .dw-cover{flex:none; width:64px; height:46px; border-radius:8px; overflow:hidden; background:var(--surface-2);}
+  .dw-cover img{width:100%; height:100%; object-fit:cover; display:block;}
+  .dw-empty{display:grid; place-items:center; color:var(--ink-faint);}
+  .dw-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .dw-name{font-family:var(--font-display); font-weight:600; font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .dw-sub{display:flex; align-items:center; gap:.25rem; font-size:.74rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
   /* Search across decks / wishlist + "used in" */
   .also-title{margin-top:1.2rem; display:flex; align-items:center; gap:.4rem;}
@@ -709,11 +743,12 @@
   </section>
 
   <section class="tab-panel" data-tab="wishlist" hidden>
-    <div class="panel-head">
+    <div class="panel-head" id="wishHead">
       <h2>Lista de deseos</h2>
       <button class="btn btn-secondary" id="wishlistExportBtn"></button>
     </div>
-    <div class="search-box">
+    <div class="wish-selbar" id="wishSelBar" hidden></div>
+    <div class="search-box" id="wishSearchBox">
       <input id="wishSearchInput" class="text-input" placeholder="Añadir carta a la lista de deseos" autocomplete="off">
       <div id="wishSuggestions" class="suggestions" hidden></div>
     </div>
@@ -923,6 +958,21 @@ function toast(msg, ms){
   requestAnimationFrame(function(){ el.classList.add('show'); });
   setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 250); }, ms);
 }
+/* Toast with an action button (e.g. "Deshacer"); the action is available until it hides. */
+function snackbar(msg, actionLabel, onAction, ms){
+  ms = ms || 6000;
+  const el = document.createElement('div');
+  el.className = 'snackbar';
+  const span = document.createElement('span'); span.textContent = msg; el.appendChild(span);
+  const btn = document.createElement('button'); btn.textContent = actionLabel; el.appendChild(btn);
+  document.getElementById('toastRoot').appendChild(el);
+  requestAnimationFrame(function(){ el.classList.add('show'); });
+  let done = false;
+  const hide = function(){ if(done) return; done = true; el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 250); };
+  btn.addEventListener('click', function(){ if(done) return; hide(); onAction(); });
+  setTimeout(hide, ms);
+  return hide;
+}
 function downloadBlob(content, filename, mime){
   const blob = new Blob([content], {type: mime});
   const url = URL.createObjectURL(blob);
@@ -987,6 +1037,7 @@ function openDB(){
 }
 async function dbGetAll(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readonly'); const r=tx.objectStore(store).getAll(); r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); }
 async function dbPut(store, val){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbDeleteMany(store, ids){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); ids.forEach(function(id){ os.delete(id); }); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbDelete(store, id){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbPutMany(store, vals){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbClear(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
@@ -1235,6 +1286,28 @@ function openStatsPanel(){
 }
 
 /* ---------- Collection tab ---------- */
+/* Which decks use each card (by name, front face), rebuilt each time a card list renders. */
+let deckIndex = {};
+function buildDeckIndex(){
+  const idx = {};
+  state.decks.forEach(function(d){
+    d.cards.forEach(function(c){
+      const k = normName(c.name).split(' // ')[0];
+      const list = idx[k] = idx[k] || [];
+      const same = list.find(function(u){ return u.deck === d; });
+      if(same) same.qty += c.qty; else list.push({deck: d, qty: c.qty, commander: !!c.commander});
+    });
+  });
+  deckIndex = idx;
+  return idx;
+}
+function decksUsingName(name){ return deckIndex[normName(name).split(' // ')[0]] || []; }
+function deckBadgeHTML(c){
+  const uses = decksUsingName(c.name);
+  if(!uses.length) return '';
+  return '<button class="badge badge-deck" data-action="show-decks" data-name="'+esc(c.name)+'" title="Ver en qué mazos está">'+icon('layers',11)+' '+
+    (uses.length === 1 ? '1 mazo' : uses.length+' mazos')+'</button>';
+}
 function cardRowHTML(c){
   const price = itemPrice(c, state.settings.currency);
   const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
@@ -1246,6 +1319,7 @@ function cardRowHTML(c){
         '<div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost)+'</div>'+
         '<div class="card-meta">'+((c.manaCost || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+
           '<span class="badge">'+setIconSpanHTML(c.setCode, c.rarity)+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
+          deckBadgeHTML(c)+
           (c.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
           '<span class="badge">'+esc(c.condition)+'</span>'+
           '<span class="badge">'+esc(c.lang)+'</span>'+
@@ -1274,6 +1348,7 @@ function cardGridItemHTML(c){
         (c.foil ? '<div class="foil-fx"></div>' : '')+
         '<span class="gqty">×'+c.quantity+'</span>'+
         (c.foil ? '<span class="gfoil">F</span>' : '')+
+        (function(){ const n = decksUsingName(c.name).length; return n ? '<span class="gdecks" title="En '+n+' '+(n === 1 ? 'mazo' : 'mazos')+'">'+icon('layers',10)+' '+n+'</span>' : ''; })()+
       '</div>'+
       '<div class="gname">'+esc(c.name)+'</div>'+
       '<div class="gsub">'+
@@ -1289,6 +1364,7 @@ function emptyStateHTML(iconName, text, ctaHTML){
 let lastRenderedCardList = [];
 function renderCardsInto(container, items, emptyHTML){
   lastRenderedCardList = items;
+  buildDeckIndex();
   if(items.length === 0){
     container.className = '';
     container.innerHTML = emptyHTML;
@@ -1793,6 +1869,37 @@ function deckUsageHTML(name){
     }).join('')+'</div>'+
   '</div>';
 }
+/* Sheet: "Mazos con <carta>" — every deck that plays it, tap to jump there. */
+function openDecksWithCard(name){
+  buildDeckIndex();
+  const uses = decksUsingName(name);
+  const owned = ownedQtyForName(name);
+  const need = uses.reduce(function(a,u){ return a + u.qty; }, 0);
+  const coverOf = function(d){
+    const c = d.cards.find(function(x){ return x.commander && (x.imageNormal || x.imageSmall); }) ||
+              d.cards.find(function(x){ return (x.imageNormal || x.imageSmall) && !/Land/.test(x.typeLine || ''); });
+    if(!c) return '<div class="dw-cover dw-empty">'+icon('layers',18)+'</div>';
+    const src = c.imageNormal || c.imageSmall, art = artCropUrl(src);
+    return '<div class="dw-cover"><img src="'+esc(art || src)+'" alt=""'+(art ? '' : ' style="object-position:50% 20%"')+'></div>';
+  };
+  openModal(
+    '<h3 class="modal-title">'+icon('layers',20)+' Mazos con '+esc(name)+'</h3>'+
+    '<div class="section-note" style="margin-top:-.5rem;">'+
+      'Tienes '+owned+' '+(owned === 1 ? 'copia' : 'copias')+' en tu colección · '+uses.length+' '+(uses.length === 1 ? 'mazo la usa' : 'mazos la usan')+
+    '</div>'+
+    (uses.length > 1 && need > owned ? '<div class="usage-warn" style="margin:-.3rem 0 .8rem;">'+icon('alert',13)+' Tus mazos piden '+need+' y tienes '+owned+': tendrás que moverla de un mazo a otro.</div>' : '')+
+    '<div class="dw-list">'+uses.map(function(u){
+      const cmds = u.deck.cards.filter(function(x){ return x.commander; }).map(function(x){ return x.name; });
+      return '<button class="dw-row" data-open-deck="'+esc(u.deck.id)+'">'+coverOf(u.deck)+
+        '<span class="dw-info"><span class="dw-name">'+esc(u.deck.name)+'</span>'+
+        '<span class="dw-sub">'+(u.commander ? icon('crown',11)+' Es el comandante' : (cmds.length ? esc(cmds.join(' & ')) : esc(u.deck.format || 'Mazo')))+(u.qty > 1 ? ' · ×'+u.qty : '')+'</span></span>'+
+        icon('chevron',16)+'</button>';
+    }).join('')+'</div>'
+  );
+  document.querySelectorAll('#modalRoot [data-open-deck]').forEach(function(b){
+    b.addEventListener('click', function(){ closeModalThen(function(){ openDeckAtCard(b.dataset.openDeck, name); }); });
+  });
+}
 /* Open a deck and bring one of its cards into view (briefly highlighted). */
 function openDeckAtCard(deckId, cardName){
   openDeckDetail(deckId);
@@ -1824,6 +1931,11 @@ function renderCollection(){
   const nFilters = cfActiveCount();
   items = applyCollectionFilters(items);
   const also = filterVal ? searchDecksAndWishlist(filterVal) : null;
+  if(also){
+    // cards you own already show their decks as a badge on the row; list only the others here
+    const shown = {}; items.forEach(function(c){ shown[normName(c.name).split(' // ')[0]] = true; });
+    also.decks = also.decks.filter(function(g){ return !shown[normName(g.card.name).split(' // ')[0]]; });
+  }
   const alsoCount = also ? also.decks.length + also.wishes.length : 0;
   let emptyHTML;
   if(nFilters && state.cards.length) emptyHTML = emptyStateHTML('sliders', 'Ninguna carta cumple '+(nFilters === 1 ? 'el filtro' : 'los '+nFilters+' filtros')+(filterVal ? ' con esa búsqueda' : '')+'.', '<button class="btn btn-secondary" data-af-clear="1" style="margin-top:.8rem;">Quitar filtros</button>');
@@ -2930,9 +3042,13 @@ function renderDeckValueChips(deck){
   });
   const cur = state.settings.currency;
   let html = '';
-  if(priced) html += '<span class="hero-chip">≈ '+fmtMoney(total, cur)+'</span>';
-  if(missQty) html += '<span class="hero-chip hero-chip-warn">Te faltan '+missQty+(priced ? ' · ≈ '+fmtMoney(missCost, cur) : '')+'</span>';
-  else if(deck.cards.length) html += '<span class="hero-chip hero-chip-ok">'+icon('check',12)+' Lo tienes todo</span>';
+  // "missing" = cards of this deck that aren't in your collection (compared by name)
+  if(priced) html += '<span class="hero-chip" title="Valor aproximado del mazo completo">Valor ≈ '+fmtMoney(total, cur)+'</span>';
+  if(missQty){
+    html += '<span class="hero-chip hero-chip-warn" title="Cartas del mazo que no están en tu colección">'+missQty+' no '+(missQty === 1 ? 'está' : 'están')+' en tu colección</span>';
+    if(priced && missCost > 0) html += '<span class="hero-chip" title="Lo que costaría comprar las que no tienes">Completarlo ≈ '+fmtMoney(missCost, cur)+'</span>';
+  }
+  else if(deck.cards.length) html += '<span class="hero-chip hero-chip-ok">'+icon('check',12)+' Todas en tu colección</span>';
   el.innerHTML = html;
 }
 function bindDeckHeroScroll(panel){
@@ -3257,6 +3373,8 @@ function openBinderDetail(id){
     const dec = e.target.closest('[data-action="dec-qty"]');
     const row = e.target.closest('[data-action="edit-card"]');
     const view = e.target.closest('[data-action="view-card"]');
+    const decksBadge = e.target.closest('[data-action="show-decks"]');
+    if(decksBadge){ e.stopPropagation(); openDecksWithCard(decksBadge.dataset.name); return; }
     if(inc){ e.stopPropagation(); changeQty(inc.dataset.id,1).then(function(){ openBinderDetail(id); }); return; }
     if(dec){ e.stopPropagation(); changeQty(dec.dataset.id,-1).then(function(){ openBinderDetail(id); }); return; }
     if(view){ openViewerForCollectionItem(view.dataset.id, view); return; }
@@ -4279,12 +4397,75 @@ function wishRowHTML(w){
     '</div>'+
   '</div>';
 }
+/* ----- select several wishes at once (select all / by deck) and remove them, with undo ----- */
+let wishSel = null; // Set of ids while in selection mode
+function enterWishSelect(){
+  if(wishSel) return;
+  wishSel = new Set();
+  navPush();
+  renderWishlist();
+}
+function exitWishSelect(fromNav){
+  if(!wishSel) return;
+  wishSel = null;
+  renderWishlist();
+  // drop our history entry without the pop being read as "back" (which would leave the tab)
+  if(!fromNav){ ignoreNextPop = true; navBack(); }
+}
+function wishDeckGroups(){
+  const groups = {}, none = [];
+  state.wishlist.forEach(function(w){
+    if(!w.decks || !w.decks.length){ none.push(w.id); return; }
+    w.decks.forEach(function(d){ (groups[d] = groups[d] || []).push(w.id); });
+  });
+  return {groups: groups, none: none};
+}
+function renderWishSelBar(){
+  const bar = document.getElementById('wishSelBar');
+  if(!wishSel){ bar.hidden = true; bar.innerHTML = ''; return; }
+  const n = wishSel.size, total = state.wishlist.length;
+  const g = wishDeckGroups();
+  const deckNames = Object.keys(g.groups).sort();
+  bar.hidden = false;
+  bar.innerHTML =
+    '<div class="wsb-row">'+
+      '<button class="icon-btn" data-ws="exit" aria-label="Salir de la selección">'+icon('x',16)+'</button>'+
+      '<span class="wsb-count">'+(n ? n+' '+(n === 1 ? 'seleccionada' : 'seleccionadas') : 'Toca para seleccionar')+'</span>'+
+      '<button class="btn btn-secondary" data-ws="all">'+(n === total && total ? 'Ninguna' : 'Todas')+'</button>'+
+      '<button class="btn btn-danger" data-ws="delete"'+(n ? '' : ' disabled')+'>'+icon('trash',14)+' Quitar</button>'+
+    '</div>'+
+    ((deckNames.length || g.none.length) ? '<div class="wsb-chips"><span class="wsb-label">Seleccionar:</span>'+
+      deckNames.map(function(d){ return '<button class="deck-chip" data-ws-deck="'+esc(d)+'">'+icon('layers',12)+' '+esc(d)+' ('+g.groups[d].length+')</button>'; }).join('')+
+      (g.none.length && deckNames.length ? '<button class="deck-chip" data-ws-deck="">'+icon('star',12)+' Sin mazo ('+g.none.length+')</button>' : '')+
+    '</div>' : '');
+}
+async function deleteSelectedWishes(){
+  if(!wishSel || !wishSel.size) return;
+  const ids = Array.from(wishSel);
+  const removed = state.wishlist.filter(function(w){ return wishSel.has(w.id); });
+  await dbDeleteMany('wishlist', ids);
+  state.wishlist = state.wishlist.filter(function(w){ return !wishSel.has(w.id); });
+  exitWishSelect(false);
+  snackbar('Quitadas '+removed.length+' '+(removed.length === 1 ? 'carta' : 'cartas')+' de la lista de deseos', 'Deshacer', async function(){
+    await dbPutMany('wishlist', removed);
+    const have = {}; state.wishlist.forEach(function(w){ have[w.id] = true; });
+    removed.forEach(function(w){ if(!have[w.id]) state.wishlist.push(w); });
+    renderWishlist();
+    toast('Recuperadas '+removed.length);
+  });
+}
 function renderWishlist(){
   const list = document.getElementById('wishlistList');
   const summary = document.getElementById('wishSummary');
   if(!list) return;
   const items = sortedWishlist();
   document.getElementById('wishlistExportBtn').disabled = items.length === 0;
+  document.getElementById('wishSearchBox').hidden = !!wishSel;
+  if(wishSel){ // drop ids that no longer exist
+    const have = {}; items.forEach(function(w){ have[w.id] = true; });
+    Array.from(wishSel).forEach(function(id){ if(!have[id]) wishSel.delete(id); });
+  }
+  renderWishSelBar();
   if(!items.length){
     summary.hidden = true;
     list.innerHTML = emptyStateHTML('star','Tu lista de deseos está vacía.<br>Busca una carta arriba o, desde un mazo, añade de golpe las que te faltan.');
@@ -4297,10 +4478,23 @@ function renderWishlist(){
   summary.hidden = false;
   summary.innerHTML =
     '<span><strong>'+copies+'</strong> '+(copies===1?'carta':'cartas')+' · aprox. <strong>'+fmtMoney(total, state.settings.currency)+'</strong>'+(unpriced?' <span title="Sin precio en Scryfall">(+'+unpriced+' sin precio)</span>':'')+'</span>'+
-    (ownedAll ? '<button class="btn btn-ghost" id="wishRemoveOwnedBtn">'+icon('check',14)+' Quitar las que ya tengo ('+ownedAll+')</button>' : '');
+    '<span class="wish-summary-actions">'+
+      (ownedAll ? '<button class="btn btn-ghost" id="wishRemoveOwnedBtn">'+icon('check',14)+' Quitar las que ya tengo ('+ownedAll+')</button>' : '')+
+      '<button class="btn btn-ghost" id="wishSelectBtn">'+icon('check',14)+' Seleccionar</button>'+
+    '</span>';
   list.innerHTML = items.map(wishRowHTML).join('');
+  if(wishSel){
+    summary.hidden = true;
+    list.querySelectorAll('.card-row[data-wish-id]').forEach(function(row){
+      row.classList.add('selectable');
+      row.classList.toggle('is-selected', wishSel.has(row.dataset.wishId));
+      row.insertAdjacentHTML('afterbegin', '<span class="sel-check">'+icon('check',14)+'</span>');
+    });
+  }
   const rm = document.getElementById('wishRemoveOwnedBtn');
   if(rm) rm.addEventListener('click', removeOwnedFromWishlist);
+  const selBtn = document.getElementById('wishSelectBtn');
+  if(selBtn) selBtn.addEventListener('click', enterWishSelect);
 }
 async function removeOwnedFromWishlist(){
   const owned = state.wishlist.filter(function(w){ return ownedQtyForName(w.name) >= w.qty; });
@@ -4628,6 +4822,7 @@ function applyTopLayer(){
   const detailPanel = document.getElementById('detailPanel');
   if(!lightboxRoot.hidden && viewer){ dismissLightbox(); return; }
   if(playtest){ dismissPlaytest(); return; }
+  if(wishSel && state.tab === 'wishlist'){ exitWishSelect(true); return; }
   const backdrop = document.getElementById('modalBackdrop');
   if(!modalRoot.hidden && backdrop && !backdrop.classList.contains('closing')){ modalHasEntry = false; dismissModal(); return; }
   if(!detailPanel.hidden && !detailPanel.classList.contains('leaving')){
@@ -4645,7 +4840,9 @@ function requestExitConfirm(){
     pushNavGuard(); // restore the buffer so the next back press behaves the same way
   }
 }
+let ignoreNextPop = false;
 window.addEventListener('popstate', function(e){
+  if(ignoreNextPop && e.state && typeof e.state.navDepth === 'number'){ ignoreNextPop = false; navDepth = e.state.navDepth; return; }
   if(e.state && typeof e.state.navDepth === 'number'){
     navDepth = e.state.navDepth;
     applyTopLayer();
@@ -4688,6 +4885,9 @@ function switchTab(tab, fromNav){
   const wasHome = state.tab === HOME_TAB;
   const prevTab = state.tab;
   tabScroll[prevTab] = window.scrollY;
+  // leaving Deseos while selecting: drop the selection and its history entry too
+  let extraPop = 0;
+  if(prevTab === 'wishlist' && tab !== 'wishlist' && wishSel && !fromNav){ wishSel = null; extraPop = 1; }
   state.tab = tab;
   if(tab === 'settings') renderBackupStatus();
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
@@ -4704,9 +4904,11 @@ function switchTab(tab, fromNav){
 
   if(fromNav) return; // reflecting a back-button pop we already consumed — don't touch history again
   if(tab === HOME_TAB){
-    if(!wasHome) navBack();
+    if(!wasHome){ if(extraPop && navDepth >= 2) history.go(-2); else navBack(); }
   } else if(wasHome){
     navPush();
+  } else if(extraPop){
+    ignoreNextPop = true; navBack();
   }
   // switching between two non-home tabs: no history change — back still goes straight home
 }
@@ -4790,6 +4992,8 @@ async function init(){
     const dec = e.target.closest('[data-action="dec-qty"]');
     const row = e.target.closest('[data-action="edit-card"]');
     const view = e.target.closest('[data-action="view-card"]');
+    const decksBadge = e.target.closest('[data-action="show-decks"]');
+    if(decksBadge){ e.stopPropagation(); openDecksWithCard(decksBadge.dataset.name); return; }
     if(inc){ e.stopPropagation(); changeQty(inc.dataset.id,1); return; }
     if(dec){ e.stopPropagation(); changeQty(dec.dataset.id,-1); return; }
     if(view){ openViewerForCollectionItem(view.dataset.id, view); return; }
@@ -4904,7 +5108,35 @@ async function init(){
     addNameToWishlist(item.dataset.name);
   });
   document.addEventListener('click', function(e){ if(!e.target.closest('.search-box')) wishSugg.hidden = true; });
+  document.getElementById('wishSelBar').addEventListener('click', function(e){
+    const b = e.target.closest('[data-ws]');
+    if(b){
+      if(b.dataset.ws === 'exit') exitWishSelect(false);
+      else if(b.dataset.ws === 'all'){
+        if(wishSel.size === state.wishlist.length) wishSel.clear(); else state.wishlist.forEach(function(w){ wishSel.add(w.id); });
+        renderWishlist();
+      } else if(b.dataset.ws === 'delete') deleteSelectedWishes();
+      return;
+    }
+    const dc = e.target.closest('[data-ws-deck]');
+    if(dc){
+      const g = wishDeckGroups();
+      const ids = dc.dataset.wsDeck ? (g.groups[dc.dataset.wsDeck] || []) : g.none;
+      const allIn = ids.every(function(id){ return wishSel.has(id); });
+      ids.forEach(function(id){ if(allIn) wishSel.delete(id); else wishSel.add(id); });
+      renderWishlist();
+    }
+  });
   document.getElementById('wishlistList').addEventListener('click', function(e){
+    if(wishSel){
+      const row = e.target.closest('.card-row[data-wish-id]');
+      if(!row) return;
+      const id = row.dataset.wishId;
+      if(wishSel.has(id)) wishSel.delete(id); else wishSel.add(id);
+      row.classList.toggle('is-selected', wishSel.has(id));
+      renderWishSelBar();
+      return;
+    }
     const inc = e.target.closest('[data-action="wish-inc"]');
     const dec = e.target.closest('[data-action="wish-dec"]');
     if(inc || dec){ e.stopPropagation(); changeWishQty((inc||dec).dataset.wishId, inc ? 1 : -1); return; }
