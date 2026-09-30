@@ -43,7 +43,7 @@
     --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     --mt-stone-top:#d4c19b; --mt-stone-bot:#b0966a; --mt-bevel:rgba(80,55,20,.30); --mt-orbline:rgba(60,40,10,.30);
     --mt-glow:rgba(255,214,150,.38); --mt-shadow:rgba(60,40,10,.18); --mt-ink:#231d2f; --mt-ink2:#9a5b1e; --mt-stars:none;
-    --mt-dim-b:1.1; --mt-dim-s:0; --mt-dim-c:.62; --mt-peak-b:1.05; --mt-peak-s:1.25;
+    --mt-dim-top:#dcd9d3; --mt-dim-bot:#c4c0b8;
     --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #fffdf8 0%, #f6f2ea 55%, #e9dfcb 100%);
     color-scheme: light;
   }
@@ -57,7 +57,7 @@
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
       --mt-stone-top:#f1e8d6; --mt-stone-bot:#d3c3a2; --mt-bevel:rgba(90,70,40,.28); --mt-orbline:rgba(255,255,255,.28);
       --mt-glow:rgba(255,232,190,.24); --mt-shadow:rgba(0,0,0,.35); --mt-ink:#f5eddc; --mt-ink2:#e7c98f; --mt-stars:block;
-      --mt-dim-b:.5; --mt-dim-s:.45; --mt-dim-c:1; --mt-peak-b:1.14; --mt-peak-s:1.08;
+      --mt-dim-top:#78746c; --mt-dim-bot:#5d5850;
       --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #2c2344 0%, #17141f 58%, #0f0c15 100%);
       color-scheme: dark;
     }
@@ -71,7 +71,7 @@
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
     --mt-stone-top:#f1e8d6; --mt-stone-bot:#d3c3a2; --mt-bevel:rgba(90,70,40,.28); --mt-orbline:rgba(255,255,255,.28);
     --mt-glow:rgba(255,232,190,.24); --mt-shadow:rgba(0,0,0,.35); --mt-ink:#f5eddc; --mt-ink2:#e7c98f; --mt-stars:block;
-      --mt-dim-b:.5; --mt-dim-s:.45; --mt-dim-c:1; --mt-peak-b:1.14; --mt-peak-s:1.08;
+      --mt-dim-top:#78746c; --mt-dim-bot:#5d5850;
     --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #2c2344 0%, #17141f 58%, #0f0c15 100%);
     color-scheme: dark;
   }
@@ -121,14 +121,14 @@
   .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(13){animation-delay:336ms;}
   .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(14){animation-delay:364ms;}
 
-  .topbar{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);}
+  .topbar{position:relative; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);}
   .topbar-inner{display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem;}
   .wordmark{display:flex; align-items:center; gap:.55rem;}
   .wordmark .app-icon{width:28px; height:28px; border-radius:8px; display:block;}
   .wordmark .mark{font-family:var(--font-body); font-weight:400; font-size:1.2rem; letter-spacing:-.02em; color:var(--mt-ink2); white-space:nowrap;}
   .wordmark .mark b{font-weight:800; color:var(--mt-ink);}
   .wordmark .app-emblem{height:36px; width:auto; display:block; flex:none; overflow:visible; margin:-2px 0;}
-  .mt-s0{stop-color:var(--mt-stone-top);} .mt-s1{stop-color:var(--mt-stone-bot);} .mt-g{stop-color:var(--mt-glow);} .mt-sh{stop-color:var(--mt-shadow);}
+  .mt-s0{stop-color:var(--mt-stone-top);} .mt-s1{stop-color:var(--mt-stone-bot);} .mt-d0{stop-color:var(--mt-dim-top);} .mt-d1{stop-color:var(--mt-dim-bot);} .mt-g{stop-color:var(--mt-glow);} .mt-sh{stop-color:var(--mt-shadow);}
   .mt-bev{fill:var(--mt-bevel);} .mt-ol{stroke:var(--mt-orbline);}
   .stats-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line); cursor:pointer;}
   .stats-strip:active{opacity:.85;}
@@ -200,14 +200,79 @@
   /* ---------- Image loading: shimmer while it loads, then a soft fade-in ---------- */
   @keyframes shimmer{ from{background-position:130% 0;} to{background-position:-30% 0;} }
   @keyframes imgIn{ from{opacity:0; filter:blur(4px);} to{opacity:1; filter:none;} }
-  img.card-thumb, .gimg-wrap img, img.modal-card-image, .print-pick img, .stat-highlight-card img, .partner-layer img, .deck-hero .hero-img{
+  img.card-thumb, .gimg-wrap img, img.modal-card-image, .print-pick img, .add-tile .at-img img, .stat-highlight-card img, .partner-layer img, .deck-hero .hero-img{
     background:linear-gradient(100deg, var(--surface-2) 35%, var(--surface-hover) 50%, var(--surface-2) 65%);
     background-size:260% 100%; animation:shimmer 1.4s linear infinite;}
   .deck-hero .hero-img{background:transparent; animation:none; opacity:0;}
-  img.card-thumb.is-loaded, .gimg-wrap img.is-loaded, img.modal-card-image.is-loaded, .print-pick img.is-loaded, .stat-highlight-card img.is-loaded, .partner-layer img.is-loaded{
+  img.card-thumb.is-loaded, .gimg-wrap img.is-loaded, img.modal-card-image.is-loaded, .print-pick img.is-loaded, .add-tile .at-img img.is-loaded, .stat-highlight-card img.is-loaded, .partner-layer img.is-loaded{
     background:none; animation:imgIn .45s ease both;}
   .deck-hero .hero-img.is-loaded{opacity:1; animation:imgIn .6s ease both, heroDrift 18s ease-out both;}
   img.is-error{animation:none !important; background:var(--surface-2) !important;}
+
+
+  /* ---------- Collection summary (scrolls with the page; tap → statistics) ---------- */
+  .coll-summary{position:relative; display:flex; flex-direction:column; align-items:center; gap:.12rem; width:100%;
+    padding:1.2rem 1rem .85rem; margin:0 0 1.4rem; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-l);
+    box-shadow:var(--shadow); cursor:pointer; text-align:center; overflow:hidden; -webkit-tap-highlight-color:transparent; transition:transform .12s ease;}
+  .coll-summary:active{transform:scale(.985);}
+  .coll-summary::before{content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,#e0442e 0%,#23a05b 25%,#d9c88f 50%,#2586dc 75%,#6b4f8a 100%);}
+  .cs-label{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); font-weight:600;}
+  .cs-value{font-family:var(--font-body); font-weight:800; font-size:clamp(1.9rem,9.5vw,2.5rem); letter-spacing:-.02em; line-height:1.12;
+    font-variant-numeric:tabular-nums; color:var(--ink);}
+  .cs-change{display:inline-flex; align-items:center; gap:.3rem; font-size:.82rem; font-weight:600; font-variant-numeric:tabular-nums;}
+  .cs-change.up{color:var(--good);} .cs-change.down{color:var(--danger);}
+  .cs-change .per{color:var(--ink-soft); font-weight:400;}
+  .cs-meta{font-size:.88rem; color:var(--ink-soft); margin-top:.25rem;}
+  .cs-meta b{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums;}
+  .cs-more{display:inline-flex; align-items:center; gap:.15rem; margin-top:.6rem; font-size:.76rem; font-weight:600; color:var(--accent);}
+
+  /* ---------- Floating "+" (Colección only) ---------- */
+  .fab{position:fixed; right:max(1rem, calc((100vw - 640px) / 2 + 1rem)); bottom:calc(4.5rem + env(safe-area-inset-bottom)); z-index:29;
+    width:58px; height:58px; border-radius:18px; border:none; background:var(--accent); color:var(--on-accent); display:none; place-items:center;
+    box-shadow:0 6px 18px rgba(40,20,90,.35), 0 2px 4px rgba(0,0,0,.2); cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .15s ease;}
+  body.on-collection .fab{display:grid; animation:fabIn .3s cubic-bezier(.2,.8,.2,1) both;}
+  .fab:active{transform:scale(.92);}
+  @keyframes fabIn{from{transform:scale(.4); opacity:0;}}
+  body.on-collection main#view{padding-bottom:calc(9.5rem + env(safe-area-inset-bottom));}
+
+  /* ---------- "Añadir carta" page ---------- */
+  .detail-body.add-page{padding-top:0;}
+  .add-searchbar{position:sticky; top:0; z-index:3; margin:0 -1rem .9rem; padding:.85rem 1rem .8rem; background:var(--paper);}
+  .add-searchbar .sb{display:flex; align-items:center; gap:.55rem; background:var(--surface); border:1.5px solid var(--line); border-radius:16px;
+    padding:0 .45rem 0 .9rem; height:54px; box-shadow:var(--shadow); color:var(--ink-soft);}
+  .add-searchbar .sb:focus-within{border-color:var(--accent);}
+  .add-searchbar input{flex:1; min-width:0; height:100%; border:none; background:none; outline:none; font:inherit; font-size:1.05rem; color:var(--ink);}
+  .add-searchbar input::-webkit-search-cancel-button{display:none;}
+  .add-clear{flex:none; width:34px; height:34px; border-radius:50%; border:none; background:var(--surface-2); color:var(--ink-soft); display:grid; place-items:center; cursor:pointer;}
+  .add-hint{color:var(--ink-soft); font-size:.88rem; line-height:1.55; margin:.4rem .1rem;}
+  .add-sec-title{font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; margin:1.3rem .1rem .7rem;}
+  .add-scan-btn{width:100%; justify-content:center; gap:.5rem;}
+  .add-results .suggestion-item{display:flex; align-items:center; gap:.9rem; padding:.5rem .3rem; border-bottom:1px solid var(--line); font-size:1rem; cursor:pointer;}
+  .add-results .suggestion-item:active{background:var(--surface-2);}
+  .add-results .sugg-thumb{width:52px; height:72px; border-radius:4px;}
+  .add-results .sugg-name{font-weight:600;}
+  .add-prints-head{margin:.1rem .1rem .9rem;}
+  .add-prints-head .apn{font-family:var(--font-display); font-size:1.25rem; font-weight:600; line-height:1.2;}
+  .add-prints-head .aps{font-size:.8rem; color:var(--ink-soft); margin-top:.2rem;}
+  .add-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem .6rem;}
+  .add-tile{display:flex; flex-direction:column; gap:.22rem; min-width:0; padding:0; border:none; background:none; font:inherit; color:inherit; text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  .add-tile .at-img{position:relative; display:block; aspect-ratio:488/680; border-radius:4.75% / 3.4%; overflow:hidden; background:var(--surface-2);
+    box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .12s ease;}
+  .add-tile:active .at-img{transform:scale(.95);}
+  .add-tile .at-img img{display:block; width:100%; height:100%; object-fit:cover;}
+  .add-tile .at-own{position:absolute; top:6px; left:6px; background:rgba(20,16,30,.8); color:#fff; font-size:.66rem; font-weight:700; padding:2px 7px; border-radius:999px;}
+  .add-tile .at-set{display:flex; align-items:center; gap:.3rem; font-size:.7rem; font-family:var(--font-mono); color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:.15rem;}
+  .add-tile .at-sname, .add-tile .at-name{font-size:.74rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .add-tile .at-name{font-weight:600; font-size:.78rem; margin-top:.15rem;}
+  .add-tile .at-price{font-family:var(--font-mono); font-size:.8rem; font-weight:700; color:var(--good);}
+  .add-tile .at-price.none{color:var(--ink-faint); font-weight:500;}
+  .add-skel{aspect-ratio:488/680; border-radius:4.75% / 3.4%; background:linear-gradient(100deg, var(--surface-2) 35%, var(--surface-hover) 50%, var(--surface-2) 65%); background-size:260% 100%; animation:shimmer 1.4s linear infinite;}
+
+  /* statistics page extras */
+  .top-price{flex:none; text-align:right; font-family:var(--font-mono); font-size:.82rem; font-weight:700; color:var(--good); display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
+  .top-price small{font-weight:500; color:var(--ink-soft); font-size:.68rem;}
+  .top-rank{flex:none; width:1.3rem; text-align:center; font-family:var(--font-mono); font-size:.75rem; color:var(--ink-faint);}
 
   /* ---------- Wishlist multi-select ---------- */
   .wish-selbar{position:sticky; top:0; z-index:5; background:var(--paper); padding:.2rem 0 .7rem; margin-bottom:.2rem; border-bottom:1px solid var(--line);}
@@ -698,11 +763,14 @@
 
   ::-webkit-scrollbar{width:0; height:0;}
   /* ---------- Intro: MagicTerreta (Arco de Cabanes + the five colours) ----------
-     Timeline (s): arch in 0–.6 (dim) · orbs fly in .3→1.65, one every .2 with a burst on landing ·
-     the arch rim fills with colour .8–1.75 · arch lights up 1.62 · title 1.85 · exit 2.75 (tap skips). */
+     Built for smoothness on phones: every moving piece is its own HTML layer animated ONLY with
+     transform/opacity, which the GPU compositor runs by itself even while the app is busy loading.
+     Timeline (s): unlit arch in 0–.6 · orbs fly in .3→1.65 (one every .2) with a burst on landing and
+     their piece of the rim lighting up · lit arch cross-fades in at 1.62 · title 1.85 · exit 2.75. */
   #splash{position:fixed; inset:0; z-index:9999; display:grid; place-items:center; background:var(--mt-sp-bg); overflow:hidden;
-    cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; touch-action:none;}
+    cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; touch-action:none; contain:strict;}
   .no-splash #splash:not(.sp-replay){display:none;}
+  html.sp-on body > :not(#splash){visibility:hidden;}   /* nothing under the intro gets painted while it plays */
   #splash.sp-out{animation:spOut .42s cubic-bezier(.4,0,.8,.4) forwards;}
   #splash.sp-out.sp-skip{animation-duration:.26s;}
   .sp-stage{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:clamp(4px,1.6vh,16px); margin-top:-5vh;}
@@ -711,25 +779,30 @@
   .sp-magic{font-weight:800; color:var(--mt-ink); animation-delay:1.85s;}
   .sp-terreta{font-weight:400; color:var(--mt-ink2); animation-delay:1.98s;}
   .sp-art{position:relative; width:min(78vw,46vh,340px); aspect-ratio:304/319;}
-  .sp-art svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
-  .sp-glow{animation:spFade .8s ease-out 1.6s both;}
-  .sp-arch{animation:spArchIn .6s ease-out .05s both, spLight .7s ease-out 1.62s both;}
-  .sp-rim{stroke-dasharray:100 100; animation:spRim .95s cubic-bezier(.45,0,.55,1) .8s both;}
-  .sp-orbit{animation:spFade .6s ease-out .3s both;}
-  .sp-fx-x{animation:spX .55s cubic-bezier(.2,.75,.35,1) var(--d) both;}
-  .sp-fx-y{animation:spY .55s cubic-bezier(.55,.1,.6,1) var(--d) both;}
-  .sp-orb{animation:spOrbIn .55s ease-out var(--d) both;}
-  .sp-halo{animation:spHalo .7s ease-out 1.65s both;}
-  .sp-burst{opacity:0; animation:spBurst .55s ease-out calc(var(--d) + .5s) both;}
+  .sp-layer,.sp-archwrap{position:absolute; inset:0; width:100%; height:100%;}
+  .sp-glow{animation:spGlow .9s ease-out 1.55s both;}
+  .sp-archwrap{animation:spArchIn .6s ease-out .05s both;}
+  .sp-lit{animation:spFade .5s ease-out 1.62s both;}
+  .sp-rimseg{position:absolute; overflow:visible; animation:spFade .32s ease-out calc(.82s + var(--i) * .2s) both;}
+  .sp-o{position:absolute; aspect-ratio:1; transform:translate(-50%,-50%);}
+  .sp-o > *, .sp-fx-y, .sp-pop, .sp-ball{position:absolute; inset:0;}
+  .sp-fx-x{animation:spX .55s cubic-bezier(.2,.75,.35,1) calc(.3s + var(--i) * .2s) both;}
+  .sp-fx-y{animation:spY .55s cubic-bezier(.55,.1,.6,1) calc(.3s + var(--i) * .2s) both;}
+  .sp-pop{animation:spOrbIn .55s ease-out calc(.3s + var(--i) * .2s) both;}
+  .sp-ball{border-radius:50%; background:radial-gradient(78% 78% at 36% 32%, var(--hi) 0%, var(--base) 50%, var(--rim) 100%);
+    box-shadow:inset 0 0 0 1.1px var(--mt-orbline);}
+  .sp-ball::after{content:''; position:absolute; left:16%; top:19%; width:34%; height:20%; border-radius:50%; background:rgba(255,255,255,.7); transform:rotate(-30deg);}
+  .sp-halo{position:absolute; inset:-65%; border-radius:50%; background:radial-gradient(closest-side, var(--glow) 35%, var(--glow0) 100%);
+    animation:spHalo .7s ease-out 1.65s both;}
+  .sp-burst{border-radius:50%; background:radial-gradient(closest-side, transparent 78%, var(--ring) 83%, var(--ring) 94%, transparent 100%);
+    opacity:0; animation:spBurst .55s ease-out calc(.8s + var(--i) * .2s) both;}
   .sp-stars{display:var(--mt-stars); position:absolute; left:0; top:0; width:2px; height:2px; border-radius:50%;
     box-shadow:45.3vw 54.7vh 0 1px rgba(255,255,255,0.50), 84.8vw 19.2vh 0 1px rgba(255,255,255,0.60), 78.7vw 10.0vh 0 0.5px rgba(255,255,255,0.33), 53.8vw 86.5vh 0 0 rgba(255,255,255,0.58), 39.8vw 44.5vh 0 0 rgba(255,255,255,0.59), 82.5vw 7.1vh 0 0 rgba(255,255,255,0.35), 24.7vw 3.9vh 0 1px rgba(255,255,255,0.43), 58.9vw 19.8vh 0 0 rgba(255,255,255,0.60), 50.0vw 64.6vh 0 1px rgba(255,255,255,0.61), 40.9vw 53.9vh 0 0 rgba(255,255,255,0.64), 31.9vw 23.0vh 0 0.5px rgba(255,255,255,0.27), 56.2vw 11.4vh 0 0 rgba(255,255,255,0.72), 38.9vw 93.0vh 0 0 rgba(255,255,255,0.37), 91.9vw 6.0vh 0 1px rgba(255,255,255,0.79), 39.9vw 8.0vh 0 0 rgba(255,255,255,0.68), 27.4vw 9.4vh 0 0.5px rgba(255,255,255,0.26), 41.2vw 89.6vh 0 0 rgba(255,255,255,0.39), 10.9vw 6.7vh 0 1px rgba(255,255,255,0.35), 55.8vw 44.0vh 0 0 rgba(255,255,255,0.79), 76.4vw 41.2vh 0 1px rgba(255,255,255,0.31), 42.2vw 21.4vh 0 0.5px rgba(255,255,255,0.73), 96.5vw 57.9vh 0 0 rgba(255,255,255,0.37), 39.6vw 83.0vh 0 0 rgba(255,255,255,0.27), 15.3vw 43.4vh 0 0 rgba(255,255,255,0.67), 33.2vw 29.4vh 0 0 rgba(255,255,255,0.29), 21.5vw 62.1vh 0 0 rgba(255,255,255,0.58), 37.4vw 44.5vh 0 1px rgba(255,255,255,0.71), 14.3vw 38.1vh 0 0 rgba(255,255,255,0.42), 23.4vw 59.6vh 0 0 rgba(255,255,255,0.34), 62.6vw 54.2vh 0 1px rgba(255,255,255,0.74), 60.1vw 41.5vh 0 0 rgba(255,255,255,0.31), 51.2vw 25.5vh 0 1px rgba(255,255,255,0.39), 81.7vw 58.3vh 0 0.5px rgba(255,255,255,0.54), 92.1vw 94.8vh 0 0 rgba(255,255,255,0.38), 55.8vw 82.8vh 0 0 rgba(255,255,255,0.40), 90.9vw 20.6vh 0 0 rgba(255,255,255,0.29), 41.3vw 24.9vh 0 0 rgba(255,255,255,0.35), 37.1vw 55.9vh 0 0 rgba(255,255,255,0.30), 14.6vw 44.2vh 0 0.5px rgba(255,255,255,0.61), 68.7vw 57.1vh 0 0 rgba(255,255,255,0.57), 91.5vw 46.6vh 0 0.5px rgba(255,255,255,0.64), 95.4vw 3.0vh 0 0 rgba(255,255,255,0.52), 72.6vw 31.6vh 0 0 rgba(255,255,255,0.29), 54.5vw 71.8vh 0 0 rgba(255,255,255,0.69), 90.7vw 34.8vh 0 1px rgba(255,255,255,0.75), 86.4vw 41.0vh 0 0 rgba(255,255,255,0.72); animation:spStars 2.6s ease-in-out .15s both;}
   @keyframes spOut{to{opacity:0; transform:scale(1.05);}}
-  @keyframes spTitle{from{opacity:0; transform:translateY(14px); filter:blur(5px);} to{opacity:1; transform:none; filter:blur(0);}}
+  @keyframes spTitle{from{opacity:0; transform:translateY(14px) scale(.96);} to{opacity:1; transform:none;}}
   @keyframes spFade{from{opacity:0;} to{opacity:1;}}
+  @keyframes spGlow{0%{opacity:0; transform:scale(.8);} 45%{opacity:1; transform:scale(1.06);} 100%{opacity:.9; transform:scale(1);}}
   @keyframes spArchIn{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
-  /* same filter list in every step so it interpolates; per-theme values: night = dark unlit stone, day = pale uncoloured sketch */
-  @keyframes spLight{0%{filter:brightness(var(--mt-dim-b)) saturate(var(--mt-dim-s)) contrast(var(--mt-dim-c));} 55%{filter:brightness(var(--mt-peak-b)) saturate(var(--mt-peak-s)) contrast(1);} 100%{filter:brightness(1) saturate(1) contrast(1);}}
-  @keyframes spRim{from{stroke-dashoffset:100;} to{stroke-dashoffset:0;}}
   @keyframes spX{from{transform:translateX(var(--dx));} to{transform:translateX(0);}}
   @keyframes spY{from{transform:translateY(var(--dy));} to{transform:translateY(0);}}
   @keyframes spOrbIn{0%{opacity:0; transform:scale(.3);} 25%{opacity:1;} 82%{transform:scale(1.14);} 100%{opacity:1; transform:scale(1);}}
@@ -744,27 +817,39 @@
 </style>
 </head>
 <body>
-<div id="splash" aria-hidden="true"><div class="sp-stars"></div><div class="sp-stage"><div class="sp-title"><span class="sp-magic">Magic</span><span class="sp-terreta">Terreta</span></div><div class="sp-art"><svg class="sp-glow" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="sp-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="sp-glow"><stop offset="0" class="mt-g"/><stop offset="0.45" class="mt-g" stop-opacity="0.45"/><stop offset="1" class="mt-g" stop-opacity="0"/></radialGradient><radialGradient id="sp-shadow" cx="0" cy="156" r="160" gradientTransform="translate(0 156) scale(1 0.09) translate(0 -156)" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-sh"/><stop offset="1" class="mt-sh" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="sp-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="sp-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="sp-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="sp-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="sp-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="-30" rx="138" ry="112" fill="url(#sp-glow)"/></svg><svg class="sp-arch" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><ellipse cx="0" cy="156" rx="160" ry="14" fill="url(#sp-shadow)"/><g fill="url(#sp-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g></svg><svg class="sp-fx" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><path class="sp-rim" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#sp-rim)" stroke-width="7" stroke-linecap="round" opacity="0.2"/><path class="sp-rim" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><path class="sp-orbit mt-ol" d="M-118.24 -37.9 A123 123 0 0 1 118.24 -37.9" fill="none" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/><g transform="translate(-110.55 -57.92)" style="--d:0.30s"><circle class="sp-burst sp-bR" r="13" fill="none" stroke="#ff6a4a" stroke-width="2.4"/><g class="sp-fx-x sp-oR" style="--dx:-230px"><g class="sp-fx-y sp-oR" style="--dy:150px"><g class="sp-orb sp-oR"><circle class="sp-halo" r="29.9" fill="url(#sp-haloR)"/><circle r="13" fill="url(#sp-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(-65.18 -108.31)" style="--d:0.50s"><circle class="sp-burst sp-bG" r="13" fill="none" stroke="#4fd688" stroke-width="2.4"/><g class="sp-fx-x sp-oG" style="--dx:-210px"><g class="sp-fx-y sp-oG" style="--dy:-175px"><g class="sp-orb sp-oG"><circle class="sp-halo" r="29.9" fill="url(#sp-haloG)"/><circle r="13" fill="url(#sp-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(0 -127)" style="--d:0.70s"><circle class="sp-burst sp-bW" r="13" fill="none" stroke="#fff1bf" stroke-width="2.4"/><g class="sp-fx-x sp-oW" style="--dx:0px"><g class="sp-fx-y sp-oW" style="--dy:-240px"><g class="sp-orb sp-oW"><circle class="sp-halo" r="29.9" fill="url(#sp-haloW)"/><circle r="13" fill="url(#sp-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(65.18 -108.31)" style="--d:0.90s"><circle class="sp-burst sp-bU" r="13" fill="none" stroke="#52aeff" stroke-width="2.4"/><g class="sp-fx-x sp-oU" style="--dx:210px"><g class="sp-fx-y sp-oU" style="--dy:-175px"><g class="sp-orb sp-oU"><circle class="sp-halo" r="29.9" fill="url(#sp-haloU)"/><circle r="13" fill="url(#sp-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(110.55 -57.92)" style="--d:1.10s"><circle class="sp-burst sp-bB" r="13" fill="none" stroke="#a884d0" stroke-width="2.4"/><g class="sp-fx-x sp-oB" style="--dx:230px"><g class="sp-fx-y sp-oB" style="--dy:150px"><g class="sp-orb sp-oB"><circle class="sp-halo" r="29.9" fill="url(#sp-haloB)"/><circle r="13" fill="url(#sp-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g></svg></div></div></div>
+<div id="splash" aria-hidden="true"><div class="sp-stars"></div><div class="sp-stage"><div class="sp-title"><span class="sp-magic">Magic</span><span class="sp-terreta">Terreta</span></div><div class="sp-art"><svg class="sp-layer sp-glow" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><radialGradient id="sp-glowg"><stop offset="0" class="mt-g"/><stop offset="0.45" class="mt-g" stop-opacity="0.45"/><stop offset="1" class="mt-g" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="-30" rx="138" ry="112" fill="url(#sp-glowg)"/></svg><div class="sp-archwrap"><svg class="sp-layer sp-dim" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><linearGradient id="sp-dimstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-d0"/><stop offset="1" class="mt-d1"/></linearGradient><radialGradient id="sp-shadow" cx="0" cy="156" r="160" gradientTransform="translate(0 156) scale(1 0.09) translate(0 -156)" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-sh"/><stop offset="1" class="mt-sh" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="156" rx="160" ry="14" fill="url(#sp-shadow)"/><g fill="url(#sp-dimstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g><path class="mt-ol" d="M-118.24 -37.9 A123 123 0 0 1 118.24 -37.9" fill="none" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/></svg><svg class="sp-layer sp-lit" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-litstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient></defs><g fill="url(#sp-litstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g></svg></div><svg class="sp-rimseg" style="left:17.303%;top:27.074%;width:8.841%;height:21.091%;--i:0" viewBox="-99.4 -64.56 26.88 67.26" aria-hidden="true"><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="-95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="-95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:23.187%;top:16.308%;width:18.673%;height:13.653%;--i:1" viewBox="-81.51 -98.89 56.77 43.54" aria-hidden="true"><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:38.785%;top:14.895%;width:22.429%;height:4.144%;--i:2" viewBox="-34.09 -103.4 68.18 13.21" aria-hidden="true"><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:58.139%;top:16.308%;width:18.673%;height:13.653%;--i:3" viewBox="24.74 -98.89 56.77 43.54" aria-hidden="true"><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:73.857%;top:27.074%;width:8.841%;height:21.091%;--i:4" viewBox="72.52 -64.56 26.88 67.26" aria-hidden="true"><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><div class="sp-o sp-oR" style="left:13.634%;top:29.157%;width:8.553%;--dx:-884.6%;--dy:576.9%;--i:0;--hi:#ffb59c;--base:#e0442e;--rim:#861a0f;--glow:rgba(255,106,74,0.55);--glow0:rgba(255,106,74,0);--ring:#ff6a4a"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oG" style="left:28.559%;top:13.355%;width:8.553%;--dx:-807.7%;--dy:-673.1%;--i:1;--hi:#a6ecbf;--base:#23a05b;--rim:#0b5a2e;--glow:rgba(79,214,136,0.55);--glow0:rgba(79,214,136,0);--ring:#4fd688"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oW" style="left:50.000%;top:7.495%;width:8.553%;--dx:0.0%;--dy:-923.1%;--i:2;--hi:#fffdf2;--base:#f1e4b4;--rim:#b9a669;--glow:rgba(255,241,191,0.55);--glow0:rgba(255,241,191,0);--ring:#fff1bf"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oU" style="left:71.441%;top:13.355%;width:8.553%;--dx:807.7%;--dy:-673.1%;--i:3;--hi:#a9d9ff;--base:#2586dc;--rim:#0b4c8c;--glow:rgba(82,174,255,0.55);--glow0:rgba(82,174,255,0);--ring:#52aeff"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oB" style="left:86.366%;top:29.157%;width:8.553%;--dx:884.6%;--dy:576.9%;--i:4;--hi:#9a88a8;--base:#2e2436;--rim:#0b070e;--glow:rgba(168,132,208,0.55);--glow0:rgba(168,132,208,0);--ring:#a884d0"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div></div></div></div>
 <script>
 /* Intro runner. Skips itself under automation (navigator.webdriver) and when turned off in Ajustes.
-   The markup is kept so "Ver ahora" in Ajustes can replay it. */
-window.runSplash = function(el){
+   While it plays the app underneath stays hidden (html.sp-on) so the phone only has to animate the
+   intro; the app is revealed just before the fade-out. window.__splashDone resolves when it's gone. */
+window.__splashDone = new Promise(function(res){ window.__splashResolve = res; });
+window.runSplash = function(el, opts){
+  opts = opts || {};
+  var root = document.documentElement;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var done = false;
+  if(opts.hideApp) root.classList.add('sp-on');
+  function reveal(){ root.classList.remove('sp-on'); }
   function out(skip){
-    if(done) return; done = true; clearTimeout(timer);
+    if(done) return; done = true; clearTimeout(timer); clearTimeout(revealTimer);
+    reveal();
     if(skip === true) el.classList.add('sp-skip');
     el.classList.add('sp-out');
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, skip === true ? 280 : 440);
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); if(window.__splashResolve) window.__splashResolve(); }, skip === true ? 280 : 440);
   }
-  var timer = setTimeout(out, reduce ? 900 : 2750);
+  var total = reduce ? 900 : 2750;
+  var revealTimer = setTimeout(reveal, total - 300);
+  var timer = setTimeout(out, total);
   el.addEventListener('pointerdown', function(){ out(true); });
 };
 (function(){
-  var el = document.getElementById('splash'); if(!el) return;
+  var el = document.getElementById('splash');
+  if(!el){ window.__splashResolve(); return; }
   window.__splashTpl = el.outerHTML;
-  if(document.documentElement.classList.contains('no-splash') || navigator.webdriver){ el.parentNode.removeChild(el); return; }
-  window.runSplash(el);
+  if(document.documentElement.classList.contains('no-splash') || navigator.webdriver){
+    el.parentNode.removeChild(el); window.__splashResolve(); return;
+  }
+  window.runSplash(el, {hideApp:true});
 })();
 </script>
 
@@ -772,22 +857,19 @@ window.runSplash = function(el){
   <div class="topbar-inner">
     <div class="wordmark" role="img" aria-label="MagicTerreta"><svg class="app-emblem" viewBox="-146 -144 292 304" aria-hidden="true"><defs><linearGradient id="hdr-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="hdr-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="hdr-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="hdr-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="hdr-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="hdr-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="hdr-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="hdr-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><g fill="url(#hdr-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><path class="" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#hdr-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><g transform="translate(-110.55 -57.92)"><circle r="13" fill="url(#hdr-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(-65.18 -108.31)"><circle r="13" fill="url(#hdr-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(0 -127)"><circle r="13" fill="url(#hdr-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(65.18 -108.31)"><circle r="13" fill="url(#hdr-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(110.55 -57.92)"><circle r="13" fill="url(#hdr-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></svg><span class="mark"><b>Magic</b>Terreta</span></div>
   </div>
-  <div class="stats-strip" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección" title="Ver estadísticas">
-    <div class="stat-tile"><div class="value" id="statTotal">0</div><div class="label">Cartas</div></div>
-    <div class="stat-tile"><div class="value" id="statUnique">0</div><div class="label">Únicas</div></div>
-    <div class="stat-tile"><div class="value" id="statValue">—</div><div class="label">Valor total</div></div>
-  </div>
 </header>
 
 <main id="view">
 
   <section class="tab-panel" data-tab="collection">
-    <div class="panel-head"><h2>Añadir carta</h2></div>
-    <div class="search-box">
-      <input id="addSearchInput" class="text-input" placeholder="Nombre de la carta (ej. Relámpago, Lightning Bolt…)" autocomplete="off">
-      <div id="addSuggestions" class="suggestions" hidden></div>
+    <div class="coll-summary" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección">
+      <span class="cs-label">Valor de tu colección</span>
+      <span class="cs-value" id="statValue">—</span>
+      <span class="cs-change" id="statChange" hidden></span>
+      <span class="cs-meta"><b id="statTotal">0</b> cartas · <b id="statUnique">0</b> únicas</span>
+      <span class="cs-more" id="statMore">Ver estadísticas</span>
     </div>
-    <div class="panel-head" style="margin-top:1.5rem;">
+    <div class="panel-head">
       <h2>Tu colección <span class="count-pill" id="collectionCount">0</span></h2>
       <button class="icon-btn" id="filterToggleBtn" aria-label="Filtrar colección" title="Filtrar"></button>
     </div>
@@ -935,6 +1017,8 @@ window.runSplash = function(el){
   </section>
 
 </main>
+
+<button class="fab" id="addCardFab" type="button" aria-label="Añadir carta" title="Añadir carta"></button>
 
 <nav class="tabbar">
   <button class="tab-btn active" data-tab="collection"></button>
@@ -1294,6 +1378,29 @@ function renderStats(){
   document.getElementById('statUnique').textContent = unique;
   document.getElementById('statValue').textContent = fmtMoney(valor, currency);
   document.getElementById('collectionCount').textContent = unique;
+  renderSummaryChange(currency);
+}
+/* "+12,40 € (+0,3 %) en 1 mes" under the total, from the value history (hidden without history). */
+function renderSummaryChange(currency){
+  const el = document.getElementById('statChange');
+  if(!el) return;
+  let html = '', dir = '';
+  try{
+    if(historyReady && historyTotalsCache.length && state.cards.length){
+      const all = historySeries(historyTotalsCache, currency);
+      const pts = seriesForRange(all, '1M');
+      const base = pts[0], last = all[all.length-1];
+      if(all.length > 1 && base !== last && base.v > 0 && Math.abs(last.v - base.v) >= 0.01){
+        const d = last.v - base.v, pct = d / base.v * 100;
+        dir = d > 0 ? 'up' : 'down';
+        const age = Math.round((dateFromKey(localDateKey()).getTime() - base.t) / DAY_MS);
+        const per = (age >= 30 && age <= 32) ? 'en 1 mes' : (age === 1 ? 'desde ayer' : 'desde el '+fmtShortDate(new Date(base.t)));
+        html = icon(dir === 'up' ? 'trendUp' : 'trendDown', 14)+'<span>'+signedMoney(d, currency)+' ('+(d > 0 ? '+' : '−')+Math.abs(pct).toFixed(1).replace('.', ',')+' %)</span> <span class="per">'+esc(per)+'</span>';
+      }
+    }
+  }catch(e){ html = ''; }
+  el.className = 'cs-change' + (dir ? ' '+dir : '');
+  el.innerHTML = html; el.hidden = !html;
 }
 function openStatsPanel(){
   const panel = document.getElementById('detailPanel');
@@ -1351,24 +1458,45 @@ function openStatsPanel(){
   pricedItems.forEach(function(c){ const p=itemPrice(c,currency); if(!mostValuable || p > itemPrice(mostValuable,currency)) mostValuable = c; });
   const foilQty = cards.filter(function(c){ return c.foil; }).reduce(function(a,c){ return a+c.quantity; }, 0);
   const uniqueSets = allSets.length;
+  const topValuable = pricedItems.slice().sort(function(a,b){ return itemPrice(b,currency) - itemPrice(a,currency); }).slice(0, 10);
+  const binderAgg = {};
+  cards.forEach(function(c){
+    const k = c.binderId && state.binders.some(function(b){ return b.id === c.binderId; }) ? c.binderId : '';
+    const p = itemPrice(c, currency);
+    binderAgg[k] = (binderAgg[k] || 0) + (p != null ? p*c.quantity : 0);
+  });
+  const binderRows = state.binders.map(function(b){ return {id:b.id, name:b.name, value:binderAgg[b.id]||0}; })
+    .concat(binderAgg[''] ? [{id:'', name:'Sin carpeta', value:binderAgg['']}] : [])
+    .sort(function(a,b){ return b.value - a.value; });
+  const binderMax = Math.max.apply(null, binderRows.map(function(r){ return r.value; }).concat([0.01]));
 
   panel.innerHTML =
     '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
     '<div class="detail-body">'+
       '<div class="stat-section"><h3>Evolución del valor</h3><div id="valueHistorySection"></div></div>'+
       '<div class="stat-section"><div class="stat-grid-tiles">'+
+        '<div class="stat-tile"><div class="value">'+totalQty+'</div><div class="label">Cartas</div></div>'+
+        '<div class="stat-tile"><div class="value">'+cards.length+'</div><div class="label">Únicas</div></div>'+
         '<div class="stat-tile"><div class="value">'+fmtMoney(avgPrice, currency)+'</div><div class="label">Precio medio</div></div>'+
         '<div class="stat-tile"><div class="value">'+uniqueSets+'</div><div class="label">Ediciones distintas</div></div>'+
         '<div class="stat-tile"><div class="value">'+foilQty+'</div><div class="label">Cartas foil</div></div>'+
         '<div class="stat-tile"><div class="value">'+(totalQty ? Math.round((foilQty/totalQty)*100) : 0)+'%</div><div class="label">De tu colección es foil</div></div>'+
       '</div></div>'+
-      (mostValuable ? (
-        '<div class="stat-section"><h3>Carta más valiosa</h3>'+
-        '<div class="stat-highlight-card" id="statsMostValuableCard" data-id="'+mostValuable.id+'">'+
-          (mostValuable.imageSmall ? '<img class="card-thumb" src="'+esc(mostValuable.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>')+
-          '<div class="card-info"><div class="card-name">'+esc(mostValuable.name)+'</div><div class="card-meta">'+setIconSpanHTML(mostValuable.setCode, mostValuable.rarity)+' <span class="badge">'+esc((mostValuable.setCode||'').toUpperCase())+'</span></div></div>'+
-          '<div class="price">'+fmtMoney(itemPrice(mostValuable,currency), currency)+'</div>'+
-        '</div></div>'
+      (topValuable.length ? (
+        '<div class="stat-section"><h3>Las más valiosas</h3>'+
+        topValuable.map(function(c, i){
+          const unit = itemPrice(c, currency);
+          const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',14)+'</div>';
+          return '<div class="mover-row top-row" data-id="'+esc(c.id)+'"><span class="top-rank">'+(i+1)+'</span>'+img+
+            '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="mover-prices">'+setIconSpanHTML(c.setCode, c.rarity)+' '+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'')+'</div></div>'+
+            '<div class="top-price">'+fmtMoney(unit, currency)+(c.quantity > 1 ? '<small>×'+c.quantity+' = '+fmtMoney(unit*c.quantity, currency)+'</small>' : '')+'</div></div>';
+        }).join('')+'</div>'
+      ) : '')+
+      (binderRows.length > 1 ? (
+        '<div class="stat-section"><h3>Valor por carpeta</h3>'+
+        binderRows.map(function(r){
+          return '<div class="stat-bar-row"><div class="lbl" style="width:auto; flex:0 0 34%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">'+esc(r.name)+'</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.max(3,Math.round(r.value/binderMax*100))+'%; background:'+(r.id ? 'var(--accent)' : 'var(--ink-faint)')+';"></div></div><div class="amt" style="min-width:5.2rem;">'+fmtMoney(r.value, currency)+'</div></div>';
+        }).join('')+'</div>'
       ) : '')+
       '<div class="stat-section"><h3>Por rareza</h3>'+
         rarityRows.map(function(r){
@@ -1392,8 +1520,7 @@ function openStatsPanel(){
   showDetailPanel(panel, 'stats');
   document.getElementById('statsBackBtn').addEventListener('click', navBack);
   renderValueHistorySection();
-  const mvEl = document.getElementById('statsMostValuableCard');
-  if(mvEl) mvEl.addEventListener('click', function(){ openEditCardModal(mvEl.dataset.id); });
+  panel.querySelectorAll('.top-row').forEach(function(row){ row.addEventListener('click', function(){ openEditCardModal(row.dataset.id); }); });
 }
 
 /* ---------- Collection tab ---------- */
@@ -2052,7 +2179,7 @@ function renderCollection(){
   if(nFilters && state.cards.length) emptyHTML = emptyStateHTML('sliders', 'Ninguna carta cumple '+(nFilters === 1 ? 'el filtro' : 'los '+nFilters+' filtros')+(filterVal ? ' con esa búsqueda' : '')+'.', '<button class="btn btn-secondary" data-af-clear="1" style="margin-top:.8rem;">Quitar filtros</button>');
   else if(filterVal) emptyHTML = alsoCount ? '<div class="search-none">'+icon('search',15)+' No está en tu colección — pero sí aquí abajo:</div>'
                  : emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'" ni en tu colección, ni en tus mazos, ni en tus deseos.');
-  else emptyHTML = emptyStateHTML('layers','Tu colección está vacía todavía.<br>Busca una carta arriba para añadir la primera.');
+  else emptyHTML = emptyStateHTML('layers','Tu colección está vacía todavía.<br>Pulsa el botón + para añadir la primera.');
   renderCardsInto(container, items, emptyHTML);
   renderAlsoIn(also);
   renderActiveFilters();
@@ -2746,8 +2873,152 @@ function openAddDetailsModal(card, existingItem, overrides, target){
       state.cards.push(item);
     }
     closeModal(); renderCollection();
+    if(addPage.prints && document.getElementById('addPageBody')) renderAddPrints();
     toast(isEdit ? 'Cambios guardados' : '"'+card.name+'" añadida a tu colección');
   });
+}
+
+/* ---------- "Añadir carta" page ----------
+   Opened from the floating + in Colección. A full-screen page with a big search box; results
+   show large thumbnails, and picking a card lists all its printings as a grid of images with
+   price and how many you already own. Tapping one opens the usual sheet (foil, quantity,
+   folder…). The page stays open so you can add several cards in a row. Back from the
+   printings returns to the results; back again closes the page. */
+const addPage = {prints:null, printsEntry:false, lastQ:'', token:0};
+let detailAfterClose = null;
+function closeDetailThen(fn){ detailAfterClose = fn; navBack(); }
+function openAddPage(){
+  const panel = document.getElementById('detailPanel');
+  addPage.prints = null; addPage.printsEntry = false; addPage.lastQ = ''; addPage.token++;
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="addPageBack" aria-label="Volver">'+icon('back',18)+'</button><h2>Añadir carta</h2></div>'+
+    '<div class="detail-body add-page">'+
+      '<div class="add-searchbar"><label class="sb">'+icon('search',19)+
+        '<input id="addPageInput" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Nombre de la carta (ej. Lightning Bolt)">'+
+        '<button type="button" class="add-clear" id="addPageClear" aria-label="Borrar búsqueda" hidden>'+icon('x',15)+'</button></label></div>'+
+      '<div id="addPageBody"></div>'+
+    '</div>';
+  showDetailPanel(panel, 'add');
+  const input = document.getElementById('addPageInput');
+  const clear = document.getElementById('addPageClear');
+  document.getElementById('addPageBack').addEventListener('click', navBack);
+  input.addEventListener('input', function(){
+    clear.hidden = !input.value;
+    leaveAddPrints();
+    addPageSearch();
+  });
+  input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addPageSubmit(); } });
+  clear.addEventListener('click', function(){
+    input.value = ''; clear.hidden = true; leaveAddPrints(); addPage.lastQ = ''; renderAddIdle(); input.focus();
+  });
+  document.getElementById('addPageBody').addEventListener('click', onAddPageClick);
+  renderAddIdle();
+  setTimeout(function(){ if(input.isConnected && !addPage.prints) input.focus({preventScroll:true}); }, 320);
+}
+/* typing again while the printings are shown: drop their history entry quietly */
+function leaveAddPrints(){
+  if(addPage.printsEntry){ addPage.printsEntry = false; ignoreNextPop = true; navBack(); }
+  addPage.prints = null;
+}
+function renderAddIdle(){
+  const body = document.getElementById('addPageBody'); if(!body) return;
+  addPage.token++;
+  const seen = {};
+  const recent = state.cards.slice().sort(function(a,b){ return (b.addedAt||0) - (a.addedAt||0); })
+    .filter(function(c){ const k = (c.name||'').toLowerCase(); if(seen[k]) return false; seen[k] = true; return true; }).slice(0, 9);
+  body.innerHTML =
+    '<button type="button" class="btn btn-secondary add-scan-btn" data-add-scan>'+icon('camera',17)+' Escanear con la cámara</button>'+
+    (recent.length
+      ? '<div class="add-sec-title">Añadidas hace poco</div><div class="add-grid">'+recent.map(function(c){
+          const img = c.imageNormal || c.imageSmall;
+          return '<button type="button" class="add-tile" data-recent="'+esc(c.name)+'"><span class="at-img">'+(img ? '<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">' : '')+'</span>'+
+            '<span class="at-name">'+esc(c.name)+'</span></button>';
+        }).join('')+'</div><p class="add-hint" style="margin-top:.8rem;">Toca una para añadir otra copia o elegir otra edición.</p>'
+      : '<p class="add-hint" style="margin-top:1rem;">Escribe el nombre de la carta (en inglés, o una parte) y elígela: verás todas sus ediciones con imagen y precio.</p>');
+}
+const addPageSearch = debounce(async function(){
+  const input = document.getElementById('addPageInput'); if(!input) return;
+  const q = input.value.trim();
+  const token = ++addPage.token;
+  if(q.length < 2){ renderAddIdle(); return; }
+  const body = document.getElementById('addPageBody');
+  if(!document.getElementById('addResults')) body.innerHTML = '<div class="add-results" id="addResults"><p class="add-hint">Buscando…</p></div>';
+  let names = null;
+  try{ names = await scryAutocomplete(q); }catch(e){ names = null; }
+  const box = document.getElementById('addResults');
+  if(token !== addPage.token || !box) return;
+  addPage.lastQ = q;
+  if(names === null){ box.innerHTML = '<p class="add-hint">No se puede conectar con Scryfall. Revisa tu conexión e inténtalo otra vez.</p>'; return; }
+  if(!names.length){ box.innerHTML = '<p class="add-hint">Ninguna carta empieza por «'+esc(q)+'». Pulsa <b>Buscar</b> en el teclado para una búsqueda aproximada.</p>'; return; }
+  showNameSuggestions(box, names);
+}, 250);
+async function addPageSubmit(){
+  const input = document.getElementById('addPageInput'); if(!input) return;
+  const q = input.value.trim(); if(q.length < 2) return;
+  const first = document.querySelector('#addResults .suggestion-item[data-name]');
+  if(first){ addShowPrints(first.dataset.name); return; }
+  try{ const c = await scryFuzzy(q); addShowPrints(c.name); }catch(e){ toast(e.message || 'No se encontró la carta'); }
+}
+async function addShowPrints(name){
+  const body = document.getElementById('addPageBody'); if(!body) return;
+  const input = document.getElementById('addPageInput');
+  const token = ++addPage.token;
+  if(input){ input.value = name; input.blur(); document.getElementById('addPageClear').hidden = false; }
+  if(!addPage.printsEntry){ navPush(); addPage.printsEntry = true; }
+  body.innerHTML = '<div class="add-prints-head"><div class="apn">'+esc(name)+'</div><div class="aps">Buscando ediciones…</div></div>'+
+    '<div class="add-grid">'+'<div class="add-skel"></div>'.repeat(6)+'</div>';
+  const scroller = document.querySelector('#detailPanel .detail-body'); if(scroller) scroller.scrollTop = 0;
+  let prints;
+  try{ prints = await scryPrintsByName(name); }
+  catch(e){ if(token === addPage.token) body.innerHTML = '<p class="add-hint">'+esc(e.message || 'No se pudo consultar Scryfall')+'</p>'; return; }
+  if(token !== addPage.token || !document.getElementById('addPageBody')) return;
+  if(!prints.length){ body.innerHTML = '<p class="add-hint">No se han encontrado ediciones de «'+esc(name)+'».</p>'; return; }
+  addPage.prints = prints;
+  renderAddPrints();
+}
+function renderAddPrints(){
+  const body = document.getElementById('addPageBody');
+  if(!body || !addPage.prints) return;
+  const prints = addPage.prints;
+  const cur = state.settings.currency, usd = cur === 'USD';
+  const owned = {};
+  state.cards.forEach(function(c){ if(c.scryfallId) owned[c.scryfallId] = (owned[c.scryfallId]||0) + (c.quantity||0); });
+  const front = function(n){ return String(n||'').split(' // ')[0].toLowerCase(); };
+  const target = front(prints[0].name);
+  const haveTotal = state.cards.filter(function(c){ return front(c.name) === target; }).reduce(function(a,c){ return a + (c.quantity||0); }, 0);
+  body.innerHTML =
+    '<div class="add-prints-head"><div class="apn">'+esc(prints[0].name)+'</div>'+
+      '<div class="aps">'+prints.length+(prints.length === 1 ? ' edición' : ' ediciones')+' · toca la tuya'+(haveTotal ? ' · ya tienes '+haveTotal : '')+'</div></div>'+
+    '<div class="add-grid">'+prints.map(function(p, i){
+      const face = printFace(p);
+      const img = face.imageNormal || face.image;
+      const pr = p.prices || {};
+      const normal = toNum(usd ? pr.usd : pr.eur), foil = toNum(usd ? pr.usd_foil : pr.eur_foil);
+      const price = normal != null ? fmtMoney(normal, cur) : (foil != null ? fmtMoney(foil, cur)+' foil' : 'Sin precio');
+      const own = owned[p.id];
+      return '<button type="button" class="add-tile" data-pi="'+i+'"><span class="at-img">'+
+          (img ? '<img src="'+esc(img)+'" alt="'+esc(p.name+' — '+p.set_name)+'" loading="lazy" decoding="async">' : '')+
+          (own ? '<span class="at-own">Tienes ×'+own+'</span>' : '')+'</span>'+
+        '<span class="at-set">'+setIconSpanHTML(p.set, p.rarity)+esc(String(p.set||'').toUpperCase())+' #'+esc(p.collector_number)+'</span>'+
+        '<span class="at-sname">'+esc(p.set_name||'')+'</span>'+
+        '<span class="at-price'+(normal == null && foil == null ? ' none' : '')+'">'+price+'</span></button>';
+    }).join('')+'</div>';
+}
+/* back from the printings (history pop) → the results for what you had typed, or the start */
+function addBackToResults(){
+  addPage.prints = null; addPage.token++;
+  const input = document.getElementById('addPageInput'); if(!input) return;
+  input.value = addPage.lastQ || '';
+  document.getElementById('addPageClear').hidden = !input.value;
+  if(input.value.trim().length >= 2){ document.getElementById('addPageBody').innerHTML = ''; addPageSearch(); }
+  else renderAddIdle();
+}
+function onAddPageClick(e){
+  const sugg = e.target.closest('.suggestion-item[data-name]'); if(sugg){ addShowPrints(sugg.dataset.name); return; }
+  const rec = e.target.closest('[data-recent]'); if(rec){ addPage.lastQ = ''; addShowPrints(rec.dataset.recent); return; }
+  const tile = e.target.closest('[data-pi]');
+  if(tile){ const p = addPage.prints && addPage.prints[+tile.dataset.pi]; if(p) openAddDetailsModal(p, null); return; }
+  if(e.target.closest('[data-add-scan]')) closeDetailThen(function(){ switchTab('scan'); });
 }
 function openViewerForCollectionItem(id, sourceEl){
   let list = lastRenderedCardList;
@@ -4967,6 +5238,7 @@ function showDetailPanel(panel, key){
 function hideDetailPanel(animated){
   const panel = document.getElementById('detailPanel');
   detailHasEntry = false;
+  addPage.printsEntry = false; addPage.prints = null;
   document.body.classList.remove('detail-open');
   panel.classList.remove('entering');
   const finish = function(){ panel.classList.remove('leaving'); panel.hidden = true; panel.innerHTML = ''; delete panel.dataset.key; };
@@ -4995,10 +5267,12 @@ function applyTopLayer(){
   if(wishSel && state.tab === 'wishlist'){ exitWishSelect(true); return; }
   const backdrop = document.getElementById('modalBackdrop');
   if(!modalRoot.hidden && backdrop && !backdrop.classList.contains('closing')){ modalHasEntry = false; dismissModal(); return; }
+  if(addPage.printsEntry && !detailPanel.hidden && detailPanel.dataset.key === 'add'){ addPage.printsEntry = false; addBackToResults(); return; }
   if(!detailPanel.hidden && !detailPanel.classList.contains('leaving')){
     hideDetailPanel(true);
     currentOpenBinderId = null;
     renderBinders(); renderDecks();
+    if(detailAfterClose){ const fn = detailAfterClose; detailAfterClose = null; setTimeout(fn, 0); }
     return;
   }
   if(state.tab !== HOME_TAB){ switchTab(HOME_TAB, true); }
@@ -5059,6 +5333,7 @@ function switchTab(tab, fromNav){
   let extraPop = 0;
   if(prevTab === 'wishlist' && tab !== 'wishlist' && wishSel && !fromNav){ wishSel = null; extraPop = 1; }
   state.tab = tab;
+  document.body.classList.toggle('on-collection', tab === 'collection');
   if(tab === 'settings') renderBackupStatus();
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
@@ -5115,24 +5390,11 @@ async function init(){
   renderCollection();
   renderStats();
 
-  const addInput = document.getElementById('addSearchInput');
-  const addSugg = document.getElementById('addSuggestions');
-  addInput.addEventListener('input', debounce(async function(){
-    const q = addInput.value.trim();
-    if(q.length<2){ addSugg.hidden=true; return; }
-    const names = await scryAutocomplete(q);
-    if(!names.length){ addSugg.hidden=true; return; }
-    showNameSuggestions(addSugg, names);
-  }, 250));
-  addSugg.addEventListener('click', function(e){
-    const item = e.target.closest('.suggestion-item');
-    if(!item) return;
-    addSugg.hidden = true; addInput.value = '';
-    startAddFlow(item.dataset.name);
-  });
-  document.addEventListener('click', function(e){
-    if(!e.target.closest('.search-box')) { addSugg.hidden = true; }
-  });
+  const fab = document.getElementById('addCardFab');
+  fab.innerHTML = icon('plus', 28);
+  fab.addEventListener('click', openAddPage);
+  document.body.classList.toggle('on-collection', state.tab === 'collection');
+  document.getElementById('statMore').insertAdjacentHTML('beforeend', icon('chevron', 14));
 
   document.getElementById('filterToggleBtn').addEventListener('click', function(){
     const inp = document.getElementById('collectionFilterInput');
@@ -5261,8 +5523,12 @@ async function init(){
     const f = e.target.files[0]; if(f) restoreBackupFile(f); e.target.value='';
   });
   renderBackupStatus();
-  maybeRemindBackup();
-  setTimeout(autoRefreshPricesDaily, 2500);
+  /* backup reminder and the daily price refresh wait until the intro has finished, so they don't
+     compete with it for the phone's CPU (immediate when there is no intro) */
+  (window.__splashDone || Promise.resolve()).then(function(){
+    maybeRemindBackup();
+    setTimeout(autoRefreshPricesDaily, 2500);
+  });
 
   document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
   document.getElementById('wishlistExportBtn').addEventListener('click', function(){
