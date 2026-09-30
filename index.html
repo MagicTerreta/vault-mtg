@@ -424,6 +424,13 @@
   }
   @keyframes foilShimmer{ from{background-position:10% 40%;} to{background-position:90% 60%;} }
   .modal-card-image-wrap{position:relative; width:82%; max-width:320px; margin:0 auto .9rem;}
+  .sheet-set{display:flex; justify-content:center; align-items:center; gap:.4rem; flex-wrap:wrap; margin:-.55rem 0 0; font-size:.8rem; color:var(--ink-soft); text-align:center;}
+  .sheet-set .set-icon{font-size:1.3rem;}
+  .sheet-price{display:flex; flex-direction:column; align-items:center; gap:2px; margin:.55rem 0 .3rem;}
+  .sheet-price .sp-main{display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.35rem; font-weight:700; color:var(--ink);}
+  .sheet-price .sp-none{font-family:var(--font-body); font-size:.85rem; font-weight:600; color:var(--ink-faint);}
+  .sheet-price .sp-tag{font-family:var(--font-body); font-size:.62rem; font-weight:700; letter-spacing:.04em; padding:2px 6px; border-radius:999px; background:var(--accent); color:var(--on-accent);}
+  .sheet-price .sp-sub{font-size:.74rem; color:var(--ink-soft);}
   .change-printing-btn{display:flex; align-items:center; justify-content:center; gap:.3rem; margin:0 auto .9rem; background:none; border:none; color:var(--accent); font-size:.78rem; font-weight:600; cursor:pointer; padding:.3rem .5rem;}
   .change-printing-btn:hover{text-decoration:underline;}
   .modal-card-image-wrap .modal-card-image{width:100%; max-width:none; margin:0;}
@@ -504,7 +511,7 @@
   .viewer-count{font-family:var(--font-mono); font-size:.76rem; letter-spacing:.02em; background:rgba(255,255,255,.12); padding:.28rem .65rem; border-radius:999px; backdrop-filter:blur(8px);}
   .viewer-btn{width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; display:grid; place-items:center; cursor:pointer; backdrop-filter:blur(8px);}
   .viewer-btn:active{transform:scale(.92);}
-  .viewer-stage{position:absolute; left:0; right:0; top:calc(3.8rem + env(safe-area-inset-top)); bottom:calc(8.6rem + env(safe-area-inset-bottom)); z-index:2;}
+  .viewer-stage{position:absolute; left:0; right:0; top:calc(3.8rem + env(safe-area-inset-top)); bottom:calc(10.4rem + env(safe-area-inset-bottom)); z-index:2;}
   .viewer-slide{position:absolute; left:50%; top:50%; width:var(--cw); height:calc(var(--cw) * 88 / 63); margin-left:calc(var(--cw) / -2); margin-top:calc(var(--cw) * -44 / 63); will-change:transform, opacity; perspective:1600px;}
   .viewer-slide.anim{transition:transform .38s cubic-bezier(.2,.8,.2,1), opacity .38s ease;}
   .viewer-pop{width:100%; height:100%; transform-origin:0 0;}
@@ -526,7 +533,15 @@
   .card-back-art span{font-family:var(--font-display); font-size:1.4rem; font-weight:700; color:#e9d9a8; letter-spacing:.06em;}
   .viewer-info{position:absolute; left:0; right:0; bottom:0; z-index:4; text-align:center; padding:.4rem 1.2rem calc(1.1rem + env(safe-area-inset-bottom));}
   .viewer-name{font-family:var(--font-display); font-size:1.28rem; font-weight:600; line-height:1.25; text-shadow:0 1px 8px rgba(0,0,0,.5);}
-  .viewer-sub{font-family:var(--font-mono); font-size:.74rem; opacity:.78; margin-top:3px; min-height:1.1em;}
+  .viewer-sub{font-family:var(--font-mono); font-size:.72rem; opacity:.72; margin-top:4px;}
+  .viewer-sub:empty, .viewer-set:empty, .viewer-price:empty{display:none;}
+  .viewer-set{display:flex; align-items:center; justify-content:center; gap:.4rem; flex-wrap:wrap; font-size:.8rem; opacity:.88; margin-top:4px;}
+  .viewer-set .set-icon{font-size:1.2rem;}
+  .viewer .set-icon.ss-common{color:#f1eef7;}
+  .viewer-price{display:flex; align-items:center; justify-content:center; gap:.45rem; flex-wrap:wrap; margin-top:.35rem;}
+  .viewer-price .vp-main{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.25rem; font-weight:700;}
+  .viewer-price .vp-tag{font-size:.62rem; font-weight:700; letter-spacing:.04em; padding:2px 7px; border-radius:999px; background:rgba(255,255,255,.9); color:#1c1530;}
+  .viewer-price .vp-sub{font-size:.74rem; opacity:.75;}
   .viewer-actions{display:flex; justify-content:center; flex-wrap:wrap; gap:.5rem; margin-top:.8rem;}
   .viewer-chip{display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1rem; border-radius:999px; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:.8rem; font-weight:600; cursor:pointer; backdrop-filter:blur(8px);}
   .viewer-chip.primary{background:rgba(255,255,255,.94); color:#1c1530;}
@@ -536,7 +551,7 @@
   .viewer-arrow.prev{left:.8rem;} .viewer-arrow.next{right:.8rem;}
   .viewer-arrow[disabled]{opacity:.25; cursor:default;}
   @media (hover:none){ .viewer-arrow{display:none;} }
-  .viewer-hint{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(8.8rem + env(safe-area-inset-bottom)); z-index:4; font-size:.72rem; background:rgba(0,0,0,.45); padding:.3rem .7rem; border-radius:999px; opacity:0; animation:hintInOut 3.2s ease .6s both; pointer-events:none; white-space:nowrap;}
+  .viewer-hint{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(10.6rem + env(safe-area-inset-bottom)); z-index:4; font-size:.72rem; background:rgba(0,0,0,.45); padding:.3rem .7rem; border-radius:999px; opacity:0; animation:hintInOut 3.2s ease .6s both; pointer-events:none; white-space:nowrap;}
   .viewer.closing .viewer-hint, .viewer.touched .viewer-hint{display:none;}
   @keyframes hintInOut{ 0%{opacity:0;} 12%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
   .card-thumb[data-action], .thumb-wrap[data-action]{cursor:zoom-in;}
@@ -2021,12 +2036,24 @@ function faceBackUrl(card){
   return (f && f.image_uris && (f.image_uris.large || f.image_uris.normal)) || null;
 }
 function prefersReducedMotion(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+/* Price info for the viewer: unit price for the finish you have + the other finish as a hint. */
+function viewerPrice(normal, foilP, isFoil, qty){
+  const cur = state.settings.currency;
+  const unit = isFoil ? (foilP != null ? foilP : normal) : (normal != null ? normal : foilP);
+  if(unit == null) return null;
+  const sub = [];
+  if(isFoil && normal != null) sub.push('Normal: '+fmtMoney(normal, cur));
+  if(!isFoil && foilP != null) sub.push('Foil: '+fmtMoney(foilP, cur));
+  if(qty > 1) sub.push('×'+qty+' = '+fmtMoney(unit*qty, cur));
+  return {main: fmtMoney(unit, cur), foil: !!isFoil, sub: sub.join(' · ')};
+}
 function viewerItemFromCollection(c){
-  const price = itemPrice(c, state.settings.currency);
+  const p = c.prices || {}, usd = state.settings.currency === 'USD';
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil,
-    sub: [(c.setCode||'').toUpperCase()+(c.collectorNumber ? ' #'+c.collectorNumber : ''), c.foil ? 'Foil' : '', c.lang || ''].filter(Boolean).join(' · '),
-    meta: (price != null ? fmtMoney(price, state.settings.currency) : '')+(c.quantity > 1 ? ' · ×'+c.quantity : ''),
+    set: {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang},
+    price: viewerPrice(usd ? p.usd : p.eur, usd ? p.usdFoil : p.eurFoil, c.foil, c.quantity),
+    sub: '', meta: '',
     back: c.imageBack !== undefined ? c.imageBack : (/ \/\/ /.test(c.name) ? undefined : null),
     loadBack: async function(){
       const card = await scryById(c.scryfallId);
@@ -2038,12 +2065,21 @@ function viewerItemFromCollection(c){
 }
 function viewerItemFromScryCard(card){
   const face = printFace(card);
-  return { name: card.name, img: face.imageNormal || face.image, sub: ((card.set||'').toUpperCase()+' #'+(card.collector_number||'')), meta: card.set_name || '', back: faceBackUrl(card) };
+  const p = card.prices || {}, usd = state.settings.currency === 'USD';
+  return { name: card.name, img: face.imageNormal || face.image, back: faceBackUrl(card),
+    set: {code: card.set, name: card.set_name, rarity: card.rarity, number: card.collector_number, lang: (card.lang || '').toUpperCase()},
+    price: viewerPrice(toNum(usd ? p.usd : p.eur), toNum(usd ? p.usd_foil : p.eur_foil), false, 1), sub: '', meta: '' };
 }
 function viewerItemByName(c, meta){
   const multi = / \/\/ /.test(c.name);
+  const usd = state.settings.currency === 'USD';
+  // wishlist entries carry their own price; deck cards use Scryfall's (session cache)
+  const own = c.prices ? toNum(usd ? c.prices.usd : c.prices.eur) : null;
+  const unit = own != null ? own : deckCardPrice(c.name);
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
+    set: c.setCode ? {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber} : null,
+    price: unit != null ? {main: fmtMoney(unit, state.settings.currency), foil: false, sub: ''} : null,
     back: c.imageBack ? c.imageBack : (multi ? undefined : null),
     loadBack: async function(){
       await ensureCardRules([c.name]);
@@ -2073,7 +2109,7 @@ function openCardViewer(items, startIndex, sourceEl){
       '<div class="viewer-stage" id="viewerStage"></div>'+
       (many ? '<button class="viewer-btn viewer-arrow prev viewer-fade" id="viewerPrev" aria-label="Anterior">'+icon('back',18)+'</button>'+
               '<button class="viewer-btn viewer-arrow next viewer-fade" id="viewerNext" aria-label="Siguiente">'+icon('chevron',18)+'</button>' : '')+
-      '<div class="viewer-info viewer-fade"><div class="viewer-name" id="viewerName"></div><div class="viewer-sub" id="viewerSub"></div>'+
+      '<div class="viewer-info viewer-fade"><div class="viewer-name" id="viewerName"></div><div class="viewer-set" id="viewerSet"></div><div class="viewer-price" id="viewerPrice"></div><div class="viewer-sub" id="viewerSub"></div>'+
         '<div class="viewer-actions"><button class="viewer-chip primary" id="viewerFlip">'+icon('layers',15)+' <span>Ver dorso</span></button></div></div>'+
       '<div class="viewer-hint">'+(many ? 'Desliza para ver más · toca la carta para girarla' : 'Toca la carta para girarla')+'</div>'+
     '</div>';
@@ -2170,6 +2206,12 @@ function currentFlipCard(){ const el = viewer && viewer.slides[viewer.index]; re
 function updateViewerInfo(){
   const it = viewer.items[viewer.index];
   document.getElementById('viewerName').textContent = it.name;
+  const st = it.set;
+  document.getElementById('viewerSet').innerHTML = st && (st.name || st.code)
+    ? setIconSpanHTML(st.code, st.rarity)+'<span>'+esc(st.name || (st.code||'').toUpperCase())+(st.number ? ' · #'+esc(st.number) : '')+(st.lang ? ' · '+esc(st.lang) : '')+'</span>' : '';
+  const pr = it.price;
+  document.getElementById('viewerPrice').innerHTML = pr
+    ? '<span class="vp-main">'+esc(pr.main)+'</span>'+(pr.foil ? '<span class="vp-tag">Foil</span>' : '')+(pr.sub ? '<span class="vp-sub">'+esc(pr.sub)+'</span>' : '') : '';
   document.getElementById('viewerSub').textContent = [it.sub, it.meta].filter(Boolean).join('  ·  ');
   const count = document.getElementById('viewerCount');
   if(count) count.textContent = (viewer.index+1)+' / '+viewer.items.length;
@@ -2445,6 +2487,21 @@ function openPrintingPicker(prints, onPickExtra){
   });
 }
 
+/* Price block of the card sheet: the unit price for the chosen finish (foil or not), the
+   other finish's price as a hint, and the total when you have more than one copy. */
+function sheetPriceHTML(card, foil, qty){
+  const cur = state.settings.currency, usd = cur === 'USD';
+  const p = card.prices || {};
+  const normal = toNum(usd ? p.usd : p.eur), foilP = toNum(usd ? p.usd_foil : p.eur_foil);
+  const unit = foil ? (foilP != null ? foilP : normal) : (normal != null ? normal : foilP);
+  if(unit == null) return '<span class="sp-main sp-none">Sin precio</span>';
+  const sub = [];
+  if(foil && normal != null) sub.push('Normal: '+fmtMoney(normal, cur));
+  if(!foil && foilP != null) sub.push('Foil: '+fmtMoney(foilP, cur));
+  if(qty > 1) sub.push('×'+qty+' = '+fmtMoney(unit * qty, cur));
+  return '<span class="sp-main">'+fmtMoney(unit, cur)+(foil ? ' <span class="sp-tag">Foil</span>' : '')+'</span>'+
+    (sub.length ? '<span class="sp-sub">'+esc(sub.join(' · '))+'</span>' : '');
+}
 function openAddDetailsModal(card, existingItem, overrides, target){
   const isEdit = !!existingItem;
   const isQueueMode = !!(target && target.queue);
@@ -2470,7 +2527,8 @@ function openAddDetailsModal(card, existingItem, overrides, target){
       '<div class="foil-fx" id="modalFoilFx" '+(foil?'':'hidden')+'></div>'+
     '</div>'+
     '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(card.name)+'</h3>'+
-    '<div class="section-note" style="margin-top:-.6rem; text-align:center;">'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</div>'+
+    '<div class="sheet-set">'+setIconSpanHTML(card.set, card.rarity)+'<span>'+esc(card.set_name||'')+' · #'+esc(card.collector_number||'')+'</span></div>'+
+    '<div class="sheet-price" id="sheetPrice">'+sheetPriceHTML(card, foil, qty)+'</div>'+
     '<button type="button" class="change-printing-btn" id="changePrintingBtn">'+icon('layers',14)+' Cambiar edición</button>'+
     (isQueueMode ? '' : deckUsageHTML(card.name))+
     '<div class="stepper-lg">'+
@@ -2495,8 +2553,13 @@ function openAddDetailsModal(card, existingItem, overrides, target){
   let curQty = qty;
   const qtyValEl = document.getElementById('addQtyVal');
   function bumpQtyVal(){ qtyValEl.classList.remove('bump'); void qtyValEl.offsetWidth; qtyValEl.classList.add('bump'); }
-  document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; bumpQtyVal(); } });
-  document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; bumpQtyVal(); });
+  function refreshSheetPrice(){
+    const chk = document.getElementById('addFoilChk');
+    const el = document.getElementById('sheetPrice');
+    if(el) el.innerHTML = sheetPriceHTML(card, chk ? chk.checked : false, curQty);
+  }
+  document.getElementById('addQtyDec').addEventListener('click', function(){ if(curQty>1){ curQty--; qtyValEl.textContent=curQty; bumpQtyVal(); refreshSheetPrice(); } });
+  document.getElementById('addQtyInc').addEventListener('click', function(){ curQty++; qtyValEl.textContent=curQty; bumpQtyVal(); refreshSheetPrice(); });
   document.querySelectorAll('#modalRoot .usage-box [data-open-deck]').forEach(function(chip){
     chip.addEventListener('click', function(){ closeModalThen(function(){ openDeckAtCard(chip.dataset.openDeck, chip.dataset.focus); }); });
   });
@@ -2508,7 +2571,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
   const addFoilChkEl = document.getElementById('addFoilChk');
   const modalFoilFx = document.getElementById('modalFoilFx');
   if(addFoilChkEl && modalFoilFx){
-    addFoilChkEl.addEventListener('change', function(){ modalFoilFx.hidden = !addFoilChkEl.checked; });
+    addFoilChkEl.addEventListener('change', function(){ modalFoilFx.hidden = !addFoilChkEl.checked; refreshSheetPrice(); });
   }
   document.getElementById('changePrintingBtn').addEventListener('click', async function(){
     const overridesNow = {
@@ -3135,7 +3198,7 @@ function openDeckDetail(id){
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
       if(existing) existing.qty += 1;
-      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), imageBack:faceBackUrl(card), commander:false});
+      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), imageBack:faceBackUrl(card), setCode:card.set, setName:card.set_name, rarity:card.rarity, collectorNumber:card.collector_number, commander:false});
       await dbPut('decks', deck);
       openDeckDetail(deck.id);
     }catch(err){ toast(err.message); }
@@ -3246,7 +3309,8 @@ async function importDeckTxtFile(file){
       else deck.cards.push({
         name: card.name, qty: e.qty, cmc: card.cmc||0,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card), commander: !!e.commander
+        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card),
+        setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander
       });
     }catch(err){ fail++; }
     setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
@@ -4342,6 +4406,7 @@ function wishDataFromCard(card){
     imageSmall: face.image, imageNormal: face.imageNormal,
     colors: face.colors, typeLine: card.type_line || '', cmc: card.cmc || 0,
     imageBack: faceBackUrl(card), manaCost: cardManaCost(card),
+    setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number,
     prices: {eur: toNum(card.prices && card.prices.eur), usd: toNum(card.prices && card.prices.usd)},
     pricesAt: Date.now()
   };
