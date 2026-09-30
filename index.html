@@ -3,17 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ledger — Colección Magic</title>
+<title>MagicTerreta — Colección Magic</title>
 <meta name="description" content="Lleva el control de tu colección de cartas de Magic: The Gathering, tus mazos y tus carpetas.">
 <meta name="theme-color" content="#5a3fae">
 <link rel="manifest" href="./manifest.json">
+<script>
+/* Before first paint: apply the saved theme (so the intro and the app don't flash the wrong one)
+   and honour "Animación de inicio" off. */
+(function(){ try{
+  var s = JSON.parse(localStorage.getItem('mtgLedgerSettings') || '{}');
+  if(s.theme === 'light' || s.theme === 'dark') document.documentElement.setAttribute('data-theme', s.theme);
+  if(s.splash === false) document.documentElement.classList.add('no-splash');
+}catch(e){} })();
+</script>
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://cdn.jsdelivr.net/npm/keyrune@3.19.0/css/keyrune.css" rel="stylesheet">
 <!-- Mana symbols font (same author as Keyrune): https://mana.andrewgioia.com -->
@@ -32,6 +41,10 @@
     --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
     --font-body:'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --mt-stone-top:#d4c19b; --mt-stone-bot:#b0966a; --mt-bevel:rgba(80,55,20,.30); --mt-orbline:rgba(60,40,10,.30);
+    --mt-glow:rgba(255,214,150,.38); --mt-shadow:rgba(60,40,10,.18); --mt-ink:#231d2f; --mt-ink2:#9a5b1e; --mt-stars:none;
+    --mt-dim-b:1.1; --mt-dim-s:0; --mt-dim-c:.62; --mt-peak-b:1.05; --mt-peak-s:1.25;
+    --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #fffdf8 0%, #f6f2ea 55%, #e9dfcb 100%);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -42,6 +55,10 @@
       --good:#68c89b; --good-soft:#1c3a2d; --warn:#e0a563; --warn-soft:#3a2c18;
       --danger:#e59683; --danger-soft:#402420; --mana-b-ring:#4a4260;
       --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+      --mt-stone-top:#f1e8d6; --mt-stone-bot:#d3c3a2; --mt-bevel:rgba(90,70,40,.28); --mt-orbline:rgba(255,255,255,.28);
+      --mt-glow:rgba(255,232,190,.24); --mt-shadow:rgba(0,0,0,.35); --mt-ink:#f5eddc; --mt-ink2:#e7c98f; --mt-stars:block;
+      --mt-dim-b:.5; --mt-dim-s:.45; --mt-dim-c:1; --mt-peak-b:1.14; --mt-peak-s:1.08;
+      --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #2c2344 0%, #17141f 58%, #0f0c15 100%);
       color-scheme: dark;
     }
   }
@@ -52,6 +69,10 @@
     --good:#68c89b; --good-soft:#1c3a2d; --warn:#e0a563; --warn-soft:#3a2c18;
     --danger:#e59683; --danger-soft:#402420; --mana-b-ring:#4a4260;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+    --mt-stone-top:#f1e8d6; --mt-stone-bot:#d3c3a2; --mt-bevel:rgba(90,70,40,.28); --mt-orbline:rgba(255,255,255,.28);
+    --mt-glow:rgba(255,232,190,.24); --mt-shadow:rgba(0,0,0,.35); --mt-ink:#f5eddc; --mt-ink2:#e7c98f; --mt-stars:block;
+      --mt-dim-b:.5; --mt-dim-s:.45; --mt-dim-c:1; --mt-peak-b:1.14; --mt-peak-s:1.08;
+    --mt-sp-bg:radial-gradient(120% 75% at 50% 38%, #2c2344 0%, #17141f 58%, #0f0c15 100%);
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
@@ -104,7 +125,11 @@
   .topbar-inner{display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem;}
   .wordmark{display:flex; align-items:center; gap:.55rem;}
   .wordmark .app-icon{width:28px; height:28px; border-radius:8px; display:block;}
-  .wordmark .mark{font-family:var(--font-display); font-weight:600; font-size:1.2rem; letter-spacing:.01em;}
+  .wordmark .mark{font-family:var(--font-body); font-weight:400; font-size:1.2rem; letter-spacing:-.02em; color:var(--mt-ink2); white-space:nowrap;}
+  .wordmark .mark b{font-weight:800; color:var(--mt-ink);}
+  .wordmark .app-emblem{height:36px; width:auto; display:block; flex:none; overflow:visible; margin:-2px 0;}
+  .mt-s0{stop-color:var(--mt-stone-top);} .mt-s1{stop-color:var(--mt-stone-bot);} .mt-g{stop-color:var(--mt-glow);} .mt-sh{stop-color:var(--mt-shadow);}
+  .mt-bev{fill:var(--mt-bevel);} .mt-ol{stroke:var(--mt-orbline);}
   .stats-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border-top:1px solid var(--line); cursor:pointer;}
   .stats-strip:active{opacity:.85;}
   .stat-tile{background:var(--surface); padding:.5rem .75rem .6rem;}
@@ -427,7 +452,7 @@
   .sheet-set{display:flex; justify-content:center; align-items:center; gap:.4rem; flex-wrap:wrap; margin:-.55rem 0 0; font-size:.8rem; color:var(--ink-soft); text-align:center;}
   .sheet-set .set-icon{font-size:1.3rem;}
   .sheet-price{display:flex; flex-direction:column; align-items:center; gap:2px; margin:.55rem 0 .3rem;}
-  .sheet-price .sp-main{display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.35rem; font-weight:700; color:var(--ink);}
+  .sheet-price .sp-main{display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.35rem; font-weight:700; color:var(--good);}
   .sheet-price .sp-none{font-family:var(--font-body); font-size:.85rem; font-weight:600; color:var(--ink-faint);}
   .sheet-price .sp-tag{font-family:var(--font-body); font-size:.62rem; font-weight:700; letter-spacing:.04em; padding:2px 6px; border-radius:999px; background:var(--accent); color:var(--on-accent);}
   .sheet-price .sp-sub{font-size:.74rem; color:var(--ink-soft);}
@@ -539,7 +564,7 @@
   .viewer-set .set-icon{font-size:1.2rem;}
   .viewer .set-icon.ss-common{color:#f1eef7;}
   .viewer-price{display:flex; align-items:center; justify-content:center; gap:.45rem; flex-wrap:wrap; margin-top:.35rem;}
-  .viewer-price .vp-main{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.25rem; font-weight:700;}
+  .viewer-price .vp-main{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:1.25rem; font-weight:700; color:#6fd3a3; text-shadow:0 1px 6px rgba(0,0,0,.45);}
   .viewer-price .vp-tag{font-size:.62rem; font-weight:700; letter-spacing:.04em; padding:2px 7px; border-radius:999px; background:rgba(255,255,255,.9); color:#1c1530;}
   .viewer-price .vp-sub{font-size:.74rem; opacity:.75;}
   .viewer-actions{display:flex; justify-content:center; flex-wrap:wrap; gap:.5rem; margin-top:.8rem;}
@@ -672,13 +697,80 @@
   .about-note{font-size:.76rem; color:var(--ink-faint); line-height:1.6; padding:1rem .2rem 0;}
 
   ::-webkit-scrollbar{width:0; height:0;}
+  /* ---------- Intro: MagicTerreta (Arco de Cabanes + the five colours) ----------
+     Timeline (s): arch in 0–.6 (dim) · orbs fly in .3→1.65, one every .2 with a burst on landing ·
+     the arch rim fills with colour .8–1.75 · arch lights up 1.62 · title 1.85 · exit 2.75 (tap skips). */
+  #splash{position:fixed; inset:0; z-index:9999; display:grid; place-items:center; background:var(--mt-sp-bg); overflow:hidden;
+    cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; touch-action:none;}
+  .no-splash #splash:not(.sp-replay){display:none;}
+  #splash.sp-out{animation:spOut .42s cubic-bezier(.4,0,.8,.4) forwards;}
+  #splash.sp-out.sp-skip{animation-duration:.26s;}
+  .sp-stage{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:clamp(4px,1.6vh,16px); margin-top:-5vh;}
+  .sp-title{font-family:var(--font-body); font-size:clamp(30px,9.6vw,48px); letter-spacing:-.02em; line-height:1.15; white-space:nowrap;}
+  .sp-magic,.sp-terreta{display:inline-block; animation:spTitle .55s cubic-bezier(.2,.7,.2,1) both;}
+  .sp-magic{font-weight:800; color:var(--mt-ink); animation-delay:1.85s;}
+  .sp-terreta{font-weight:400; color:var(--mt-ink2); animation-delay:1.98s;}
+  .sp-art{position:relative; width:min(78vw,46vh,340px); aspect-ratio:304/319;}
+  .sp-art svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .sp-glow{animation:spFade .8s ease-out 1.6s both;}
+  .sp-arch{animation:spArchIn .6s ease-out .05s both, spLight .7s ease-out 1.62s both;}
+  .sp-rim{stroke-dasharray:100 100; animation:spRim .95s cubic-bezier(.45,0,.55,1) .8s both;}
+  .sp-orbit{animation:spFade .6s ease-out .3s both;}
+  .sp-fx-x{animation:spX .55s cubic-bezier(.2,.75,.35,1) var(--d) both;}
+  .sp-fx-y{animation:spY .55s cubic-bezier(.55,.1,.6,1) var(--d) both;}
+  .sp-orb{animation:spOrbIn .55s ease-out var(--d) both;}
+  .sp-halo{animation:spHalo .7s ease-out 1.65s both;}
+  .sp-burst{opacity:0; animation:spBurst .55s ease-out calc(var(--d) + .5s) both;}
+  .sp-stars{display:var(--mt-stars); position:absolute; left:0; top:0; width:2px; height:2px; border-radius:50%;
+    box-shadow:45.3vw 54.7vh 0 1px rgba(255,255,255,0.50), 84.8vw 19.2vh 0 1px rgba(255,255,255,0.60), 78.7vw 10.0vh 0 0.5px rgba(255,255,255,0.33), 53.8vw 86.5vh 0 0 rgba(255,255,255,0.58), 39.8vw 44.5vh 0 0 rgba(255,255,255,0.59), 82.5vw 7.1vh 0 0 rgba(255,255,255,0.35), 24.7vw 3.9vh 0 1px rgba(255,255,255,0.43), 58.9vw 19.8vh 0 0 rgba(255,255,255,0.60), 50.0vw 64.6vh 0 1px rgba(255,255,255,0.61), 40.9vw 53.9vh 0 0 rgba(255,255,255,0.64), 31.9vw 23.0vh 0 0.5px rgba(255,255,255,0.27), 56.2vw 11.4vh 0 0 rgba(255,255,255,0.72), 38.9vw 93.0vh 0 0 rgba(255,255,255,0.37), 91.9vw 6.0vh 0 1px rgba(255,255,255,0.79), 39.9vw 8.0vh 0 0 rgba(255,255,255,0.68), 27.4vw 9.4vh 0 0.5px rgba(255,255,255,0.26), 41.2vw 89.6vh 0 0 rgba(255,255,255,0.39), 10.9vw 6.7vh 0 1px rgba(255,255,255,0.35), 55.8vw 44.0vh 0 0 rgba(255,255,255,0.79), 76.4vw 41.2vh 0 1px rgba(255,255,255,0.31), 42.2vw 21.4vh 0 0.5px rgba(255,255,255,0.73), 96.5vw 57.9vh 0 0 rgba(255,255,255,0.37), 39.6vw 83.0vh 0 0 rgba(255,255,255,0.27), 15.3vw 43.4vh 0 0 rgba(255,255,255,0.67), 33.2vw 29.4vh 0 0 rgba(255,255,255,0.29), 21.5vw 62.1vh 0 0 rgba(255,255,255,0.58), 37.4vw 44.5vh 0 1px rgba(255,255,255,0.71), 14.3vw 38.1vh 0 0 rgba(255,255,255,0.42), 23.4vw 59.6vh 0 0 rgba(255,255,255,0.34), 62.6vw 54.2vh 0 1px rgba(255,255,255,0.74), 60.1vw 41.5vh 0 0 rgba(255,255,255,0.31), 51.2vw 25.5vh 0 1px rgba(255,255,255,0.39), 81.7vw 58.3vh 0 0.5px rgba(255,255,255,0.54), 92.1vw 94.8vh 0 0 rgba(255,255,255,0.38), 55.8vw 82.8vh 0 0 rgba(255,255,255,0.40), 90.9vw 20.6vh 0 0 rgba(255,255,255,0.29), 41.3vw 24.9vh 0 0 rgba(255,255,255,0.35), 37.1vw 55.9vh 0 0 rgba(255,255,255,0.30), 14.6vw 44.2vh 0 0.5px rgba(255,255,255,0.61), 68.7vw 57.1vh 0 0 rgba(255,255,255,0.57), 91.5vw 46.6vh 0 0.5px rgba(255,255,255,0.64), 95.4vw 3.0vh 0 0 rgba(255,255,255,0.52), 72.6vw 31.6vh 0 0 rgba(255,255,255,0.29), 54.5vw 71.8vh 0 0 rgba(255,255,255,0.69), 90.7vw 34.8vh 0 1px rgba(255,255,255,0.75), 86.4vw 41.0vh 0 0 rgba(255,255,255,0.72); animation:spStars 2.6s ease-in-out .15s both;}
+  @keyframes spOut{to{opacity:0; transform:scale(1.05);}}
+  @keyframes spTitle{from{opacity:0; transform:translateY(14px); filter:blur(5px);} to{opacity:1; transform:none; filter:blur(0);}}
+  @keyframes spFade{from{opacity:0;} to{opacity:1;}}
+  @keyframes spArchIn{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
+  /* same filter list in every step so it interpolates; per-theme values: night = dark unlit stone, day = pale uncoloured sketch */
+  @keyframes spLight{0%{filter:brightness(var(--mt-dim-b)) saturate(var(--mt-dim-s)) contrast(var(--mt-dim-c));} 55%{filter:brightness(var(--mt-peak-b)) saturate(var(--mt-peak-s)) contrast(1);} 100%{filter:brightness(1) saturate(1) contrast(1);}}
+  @keyframes spRim{from{stroke-dashoffset:100;} to{stroke-dashoffset:0;}}
+  @keyframes spX{from{transform:translateX(var(--dx));} to{transform:translateX(0);}}
+  @keyframes spY{from{transform:translateY(var(--dy));} to{transform:translateY(0);}}
+  @keyframes spOrbIn{0%{opacity:0; transform:scale(.3);} 25%{opacity:1;} 82%{transform:scale(1.14);} 100%{opacity:1; transform:scale(1);}}
+  @keyframes spHalo{0%{transform:scale(1);} 40%{transform:scale(1.55);} 100%{transform:scale(1);}}
+  @keyframes spBurst{0%{opacity:0; transform:scale(.7);} 15%{opacity:.95;} 100%{opacity:0; transform:scale(2.9);}}
+  @keyframes spStars{0%{opacity:0;} 45%{opacity:.9;} 70%{opacity:.55;} 100%{opacity:.8;}}
+  @media (prefers-reduced-motion: reduce){
+    #splash *{animation:none !important;}
+    #splash.sp-out{animation:spFade .3s reverse forwards;}
+  }
+  .settings-row .inline-link{border:none; background:none; padding:0; font:inherit; color:var(--accent); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><div class="sp-stars"></div><div class="sp-stage"><div class="sp-title"><span class="sp-magic">Magic</span><span class="sp-terreta">Terreta</span></div><div class="sp-art"><svg class="sp-glow" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="sp-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="sp-glow"><stop offset="0" class="mt-g"/><stop offset="0.45" class="mt-g" stop-opacity="0.45"/><stop offset="1" class="mt-g" stop-opacity="0"/></radialGradient><radialGradient id="sp-shadow" cx="0" cy="156" r="160" gradientTransform="translate(0 156) scale(1 0.09) translate(0 -156)" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-sh"/><stop offset="1" class="mt-sh" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="sp-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="sp-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="sp-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="sp-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="sp-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="sp-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="-30" rx="138" ry="112" fill="url(#sp-glow)"/></svg><svg class="sp-arch" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><ellipse cx="0" cy="156" rx="160" ry="14" fill="url(#sp-shadow)"/><g fill="url(#sp-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g></svg><svg class="sp-fx" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><path class="sp-rim" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#sp-rim)" stroke-width="7" stroke-linecap="round" opacity="0.2"/><path class="sp-rim" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><path class="sp-orbit mt-ol" d="M-118.24 -37.9 A123 123 0 0 1 118.24 -37.9" fill="none" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/><g transform="translate(-110.55 -57.92)" style="--d:0.30s"><circle class="sp-burst sp-bR" r="13" fill="none" stroke="#ff6a4a" stroke-width="2.4"/><g class="sp-fx-x sp-oR" style="--dx:-230px"><g class="sp-fx-y sp-oR" style="--dy:150px"><g class="sp-orb sp-oR"><circle class="sp-halo" r="29.9" fill="url(#sp-haloR)"/><circle r="13" fill="url(#sp-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(-65.18 -108.31)" style="--d:0.50s"><circle class="sp-burst sp-bG" r="13" fill="none" stroke="#4fd688" stroke-width="2.4"/><g class="sp-fx-x sp-oG" style="--dx:-210px"><g class="sp-fx-y sp-oG" style="--dy:-175px"><g class="sp-orb sp-oG"><circle class="sp-halo" r="29.9" fill="url(#sp-haloG)"/><circle r="13" fill="url(#sp-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(0 -127)" style="--d:0.70s"><circle class="sp-burst sp-bW" r="13" fill="none" stroke="#fff1bf" stroke-width="2.4"/><g class="sp-fx-x sp-oW" style="--dx:0px"><g class="sp-fx-y sp-oW" style="--dy:-240px"><g class="sp-orb sp-oW"><circle class="sp-halo" r="29.9" fill="url(#sp-haloW)"/><circle r="13" fill="url(#sp-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(65.18 -108.31)" style="--d:0.90s"><circle class="sp-burst sp-bU" r="13" fill="none" stroke="#52aeff" stroke-width="2.4"/><g class="sp-fx-x sp-oU" style="--dx:210px"><g class="sp-fx-y sp-oU" style="--dy:-175px"><g class="sp-orb sp-oU"><circle class="sp-halo" r="29.9" fill="url(#sp-haloU)"/><circle r="13" fill="url(#sp-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g><g transform="translate(110.55 -57.92)" style="--d:1.10s"><circle class="sp-burst sp-bB" r="13" fill="none" stroke="#a884d0" stroke-width="2.4"/><g class="sp-fx-x sp-oB" style="--dx:230px"><g class="sp-fx-y sp-oB" style="--dy:150px"><g class="sp-orb sp-oB"><circle class="sp-halo" r="29.9" fill="url(#sp-haloB)"/><circle r="13" fill="url(#sp-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></g></g></g></svg></div></div></div>
+<script>
+/* Intro runner. Skips itself under automation (navigator.webdriver) and when turned off in Ajustes.
+   The markup is kept so "Ver ahora" in Ajustes can replay it. */
+window.runSplash = function(el){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var done = false;
+  function out(skip){
+    if(done) return; done = true; clearTimeout(timer);
+    if(skip === true) el.classList.add('sp-skip');
+    el.classList.add('sp-out');
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, skip === true ? 280 : 440);
+  }
+  var timer = setTimeout(out, reduce ? 900 : 2750);
+  el.addEventListener('pointerdown', function(){ out(true); });
+};
+(function(){
+  var el = document.getElementById('splash'); if(!el) return;
+  window.__splashTpl = el.outerHTML;
+  if(document.documentElement.classList.contains('no-splash') || navigator.webdriver){ el.parentNode.removeChild(el); return; }
+  window.runSplash(el);
+})();
+</script>
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="wordmark"><img class="app-icon" src="icons/icon-192.png" alt=""><span class="mark">Ledger</span></div>
+    <div class="wordmark" role="img" aria-label="MagicTerreta"><svg class="app-emblem" viewBox="-146 -144 292 304" aria-hidden="true"><defs><linearGradient id="hdr-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="hdr-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="hdr-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="hdr-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="hdr-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="hdr-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="hdr-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="hdr-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><g fill="url(#hdr-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><path class="" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#hdr-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><g transform="translate(-110.55 -57.92)"><circle r="13" fill="url(#hdr-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(-65.18 -108.31)"><circle r="13" fill="url(#hdr-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(0 -127)"><circle r="13" fill="url(#hdr-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(65.18 -108.31)"><circle r="13" fill="url(#hdr-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(110.55 -57.92)"><circle r="13" fill="url(#hdr-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></svg><span class="mark"><b>Magic</b>Terreta</span></div>
   </div>
   <div class="stats-strip" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección" title="Ver estadísticas">
     <div class="stat-tile"><div class="value" id="statTotal">0</div><div class="label">Cartas</div></div>
@@ -809,6 +901,10 @@
         <div class="segmented" id="currencySegmented" role="group" aria-label="Moneda">
           <button data-currency="EUR">EUR</button><button data-currency="USD">USD</button>
         </div>
+      </div>
+      <div class="settings-row">
+        <div><div class="srlabel">Animación de inicio</div><div class="srsub">El arco de Cabanes al abrir la app · <button type="button" class="inline-link" id="splashReplayBtn">Ver ahora</button></div></div>
+        <label class="switch" aria-label="Animación de inicio"><input type="checkbox" id="splashToggle"><span class="track"></span><span class="thumb"></span></label>
       </div>
     </div>
 
@@ -1045,7 +1141,7 @@ function openDB(){
       db.onversionchange = function(){ db.close(); location.reload(); };
       resolve(db);
     };
-    req.onblocked = function(){ toast('Cierra las otras ventanas de Ledger para terminar de actualizar la app.', 5000); };
+    req.onblocked = function(){ toast('Cierra las otras ventanas de MagicTerreta para terminar de actualizar la app.', 5000); };
     req.onerror = function(){ reject(req.error); };
   });
   return dbPromise;
@@ -1155,7 +1251,7 @@ const state = {
   ocrLoading: false
 };
 function loadSettings(){
-  const defaults = {theme:'auto', currency:'EUR', viewMode:'list', sort:{field:'added', dir:'desc'}};
+  const defaults = {theme:'auto', currency:'EUR', viewMode:'list', sort:{field:'added', dir:'desc'}, splash:true};
   try{ const raw = localStorage.getItem('mtgLedgerSettings'); if(raw) return Object.assign({}, defaults, JSON.parse(raw)); }catch(e){}
   return defaults;
 }
@@ -2141,7 +2237,7 @@ function slideHTML(it){
     '</div></div></div>';
 }
 function classicBackHTML(){
-  return '<img src="'+CLASSIC_BACK_URL+'" alt="Dorso de Magic" draggable="false" onerror="this.parentNode.innerHTML=\'<div class=&quot;card-back-art&quot;><div class=&quot;cb-inner&quot;><img src=&quot;icons/icon-192.png&quot; alt=&quot;&quot;><span>Ledger</span></div></div>\';">'+
+  return '<img src="'+CLASSIC_BACK_URL+'" alt="Dorso de Magic" draggable="false" onerror="this.parentNode.innerHTML=\'<div class=&quot;card-back-art&quot;><div class=&quot;cb-inner&quot;><img src=&quot;icons/icon-192.png&quot; alt=&quot;&quot;><span>MagicTerreta</span></div></div>\';">'+
     '<div class="viewer-glare"></div>';
 }
 /* Fill the back face: other face for double-faced cards, classic back otherwise. */
@@ -3563,6 +3659,15 @@ function openBinderModal(existingBinder){
 function renderSettings(){
   document.querySelectorAll('#themeSegmented button').forEach(function(b){ b.classList.toggle('active', b.dataset.theme===state.settings.theme); });
   document.querySelectorAll('#currencySegmented button').forEach(function(b){ b.classList.toggle('active', b.dataset.currency===state.settings.currency); });
+  const sp = document.getElementById('splashToggle'); if(sp) sp.checked = state.settings.splash !== false;
+}
+/* Replays the intro from Ajustes (works even when it's switched off for app start). */
+function replaySplash(){
+  if(document.getElementById('splash') || !window.__splashTpl || !window.runSplash) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = window.__splashTpl;
+  const el = tmp.firstElementChild; el.classList.add('sp-replay');
+  document.body.insertBefore(el, document.body.firstChild);
+  window.runSplash(el);
 }
 function setSettingsProgress(pct, show){
   const wrap = document.getElementById('settingsProgress');
@@ -3796,7 +3901,7 @@ async function renderValueHistorySection(){
   let html =
     '<div class="vh-hero"><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+deltaHTML+breakdownHTML+'</div>';
   if(all.length < 2){
-    html += '<div class="vh-empty">El registro empieza hoy. Ledger guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
+    html += '<div class="vh-empty">El registro empieza hoy. MagicTerreta guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
     box.innerHTML = html;
     return;
   }
@@ -4685,7 +4790,7 @@ function buildBackup(){
 function backupFileName(ext){
   const d = new Date();
   const p = function(n){ return String(n).padStart(2,'0'); };
-  return 'ledger-copia-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.'+ext;
+  return 'magicterreta-copia-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.'+ext;
 }
 function markBackupDone(){
   const m = loadBackupMeta(); m.lastBackupAt = Date.now(); saveBackupMeta(m);
@@ -4744,7 +4849,7 @@ function backupShareUnavailable(err){
   document.getElementById('backupFallbackDownloadBtn').addEventListener('click', function(){ downloadBackup(); closeModal(); });
 }
 function validateBackup(b){
-  if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de Ledger');
+  if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de MagicTerreta');
   if(!Array.isArray(b.cards) || !Array.isArray(b.decks) || !Array.isArray(b.binders)) throw new Error('La copia está incompleta o dañada');
   const bad = function(arr){ return arr.some(function(x){ return !x || typeof x !== 'object' || !x.id; }); };
   if(bad(b.cards) || bad(b.decks) || bad(b.binders)) throw new Error('La copia está incompleta o dañada');
@@ -4777,7 +4882,7 @@ async function restoreBackupFile(file){
   try{
     b = validateBackup(JSON.parse(await file.text()));
   }catch(e){
-    toast(e instanceof SyntaxError ? 'Este archivo no es una copia de seguridad de Ledger' : e.message, 3400);
+    toast(e instanceof SyntaxError ? 'Este archivo no es una copia de seguridad de MagicTerreta' : e.message, 3400);
     return;
   }
   const when = b.createdAt ? new Date(b.createdAt).toLocaleString('es-ES', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'fecha desconocida';
@@ -4899,7 +5004,7 @@ function applyTopLayer(){
   if(state.tab !== HOME_TAB){ switchTab(HOME_TAB, true); }
 }
 function requestExitConfirm(){
-  if(confirm('¿Seguro que quieres salir de Ledger?')){
+  if(confirm('¿Seguro que quieres salir de MagicTerreta?')){
     history.back(); // nothing of ours left pushed: this lets the app actually close
   } else {
     pushNavGuard(); // restore the buffer so the next back press behaves the same way
@@ -5129,6 +5234,12 @@ async function init(){
     const b = e.target.closest('button'); if(!b) return;
     state.settings.theme = b.dataset.theme; saveSettings(); applyTheme(); renderSettings();
   });
+  document.getElementById('splashToggle').addEventListener('change', function(e){
+    state.settings.splash = e.target.checked; saveSettings();
+    document.documentElement.classList.toggle('no-splash', !e.target.checked);
+    toast(e.target.checked ? 'La animación saldrá al abrir la app' : 'La app se abrirá sin animación');
+  });
+  document.getElementById('splashReplayBtn').addEventListener('click', replaySplash);
   document.getElementById('currencySegmented').addEventListener('click', function(e){
     const b = e.target.closest('button'); if(!b) return;
     state.settings.currency = b.dataset.currency; saveSettings(); renderSettings(); renderCollection(); renderStats(); renderWishlist();

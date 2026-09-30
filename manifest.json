@@ -1,6 +1,6 @@
 {
-  "name": "Ledger — Colección Magic",
-  "short_name": "Ledger MTG",
+  "name": "MagicTerreta — Colección Magic",
+  "short_name": "MagicTerreta",
   "description": "Lleva el control de tu colección de cartas de Magic: The Gathering, tus mazos y tus carpetas.",
   "start_url": "./index.html",
   "scope": "./",
@@ -10,8 +10,23 @@
   "orientation": "portrait-primary",
   "lang": "es",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
