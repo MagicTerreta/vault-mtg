@@ -1,7 +1,8 @@
 // v2: network-first for the HTML shell, so updates show up immediately instead of
 // being stuck behind a stale cached copy. Only truly static assets (icons, manifest)
 // are cache-first, since those rarely change and are safe to serve instantly.
-const CACHE = 'mtg-ledger-shell-v2';
+// v3: MagicTerreta rename — new name clears the old cached icons/manifest on activate.
+const CACHE = 'magicterreta-shell-v3';
 const STATIC_ASSETS = ['./manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
