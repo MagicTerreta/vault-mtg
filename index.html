@@ -278,6 +278,8 @@
   /* statistics page extras */
   .top-price{flex:none; text-align:right; font-family:var(--font-mono); font-size:.82rem; font-weight:700; color:var(--good); display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
   .top-price small{font-weight:500; color:var(--ink-soft); font-size:.68rem;}
+  .deck-print{display:inline-flex; align-items:center; gap:3px; font-family:var(--font-mono); font-size:.63rem; color:var(--ink-soft);}
+  select.text-input.dcs-select{width:auto; flex:0 0 auto; min-width:6.5rem; padding:.45rem .6rem;}
   .badge-proxy{background:transparent; color:var(--accent); border:1px dashed var(--accent); font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:.58rem; padding:0 6px;}
   .card-row.is-proxy .card-thumb{filter:grayscale(.6); opacity:.75;}
   .hero-chip-proxy{border-style:dashed !important;}
@@ -2392,13 +2394,19 @@ function viewerItemFromScryCard(card){
 function viewerItemByName(c, meta){
   const multi = / \/\/ /.test(c.name);
   const usd = state.settings.currency === 'USD';
-  // wishlist entries carry their own price; deck cards use Scryfall's (session cache)
-  const own = c.prices ? toNum(usd ? c.prices.usd : c.prices.eur) : null;
+  // wishlist entries and deck cards carry their own price (deck cards: for their finish)
+  let own = null;
+  if(c.prices){
+    const n = toNum(usd ? c.prices.usd : c.prices.eur);
+    const f = toNum(usd ? (c.prices.usdFoil != null ? c.prices.usdFoil : c.prices.usd_foil) : (c.prices.eurFoil != null ? c.prices.eurFoil : c.prices.eur_foil));
+    own = c.foil ? (f != null ? f : n) : (n != null ? n : f);
+  }
   const unit = own != null ? own : deckCardPrice(c.name);
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
-    set: c.setCode ? {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber} : null,
-    price: unit != null ? {main: fmtMoney(unit, state.settings.currency), foil: false, sub: ''} : null,
+    set: c.setCode ? {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang && c.lang !== 'EN' ? c.lang : ''} : null,
+    foil: !!c.foil,
+    price: unit != null ? {main: fmtMoney(unit, state.settings.currency), foil: !!c.foil, sub: ''} : null,
     back: c.imageBack ? c.imageBack : (multi ? undefined : null),
     loadBack: async function(){
       await ensureCardRules([c.name]);
@@ -3482,6 +3490,10 @@ function deckCardRowHTML(deck, c, big){
   badge = problems.map(function(p){ return '<span class="badge badge-bad">'+icon('alert',10)+' '+esc(p)+'</span>'; }).join('') + badge;
   const px = proxyCount(c);
   if(px) badge = '<span class="badge badge-proxy">'+(px === c.qty ? 'Proxy' : px+' proxy')+'</span>' + badge;
+  const printInfo = (c.setCode ? '<span class="deck-print">'+setIconSpanHTML(c.setCode, c.rarity)+'<span>'+esc(String(c.setCode).toUpperCase())+'</span></span>' : '')+
+    (c.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
+    (c.lang && c.lang !== 'EN' ? '<span class="badge">'+esc(c.lang)+'</span>' : '');
+  badge = printInfo + badge;
   const img = (big ? c.imageNormal : null) || c.imageSmall;
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
   return '<div class="card-row'+(big?' commander-row':'')+(px && px === c.qty ? ' is-proxy' : '')+'" data-name="'+esc(c.name)+'" data-action="deck-card-menu">'+
@@ -3560,6 +3572,7 @@ function storedDeckPrice(c, currency){
   const pr = c && c.prices; if(!pr) return null;
   const usd = currency === 'USD';
   const p = usd ? pr.usd : pr.eur, f = usd ? pr.usdFoil : pr.eurFoil;
+  if(c.foil) return f != null ? f : (p != null ? p : null);
   return p != null ? p : (f != null ? f : null);
 }
 function deckCardPrice(c){
@@ -3850,49 +3863,132 @@ function openDeckCardViewer(deck, name, sourceEl){
 }
 /* Card menu inside a deck (tap the card's row): proxy, commander, view, remove.
    Proxies stay in the deck (playtest, legality, curve…) but don't count towards any value. */
+/* Takes a Scryfall printing for a deck card (from "Cambiar edición"). */
+function applyDeckPrinting(c, p){
+  const face = printFace(p);
+  Object.assign(c, {
+    scryfallId: p.id, setCode: p.set, setName: p.set_name, collectorNumber: p.collector_number, rarity: p.rarity,
+    imageSmall: face.image, imageNormal: face.imageNormal || face.image, imageBack: faceBackUrl(p),
+    prices: deckPricesFrom(p), finishes: p.finishes || null
+  });
+  const fin = p.finishes || [];
+  const canFoil = fin.indexOf('foil') > -1 || fin.indexOf('etched') > -1;
+  if(fin.length && !canFoil) c.foil = false;                          // no foil version of this printing
+  else if(fin.length && fin.indexOf('nonfoil') < 0) c.foil = true;   // foil-only printing
+}
+/* Card sheet inside a deck (tap the card's row), laid out like the collection's: picture,
+   edition, price, "Cambiar edición", quantity, foil, language, proxy, commander.
+   Every change is saved straight away. */
 function openDeckCardSheet(deck, name){
   const c = deck.cards.find(function(x){ return x.name === name; });
   if(!c) return;
   const cur = state.settings.currency;
-  const unit = deckCardPrice(c);
   const img = c.imageNormal || c.imageSmall;
-  const multi = c.qty > 1;
-  const sw = function(id, on, label){ return '<label class="switch" aria-label="'+label+'"><input type="checkbox" id="'+id+'"'+(on ? ' checked' : '')+'><span class="track"></span><span class="thumb"></span></label>'; };
+  const fin = c.finishes;
+  const canFoil = !fin || fin.indexOf('foil') > -1 || fin.indexOf('etched') > -1;
+  const foilOnly = !!(fin && canFoil && fin.indexOf('nonfoil') < 0);
+  const lang = c.lang || 'EN';
+  const sw = function(id, on, label, disabled){ return '<label class="switch" aria-label="'+label+'"><input type="checkbox" id="'+id+'"'+(on ? ' checked' : '')+(disabled ? ' disabled' : '')+'><span class="track"></span><span class="thumb"></span></label>'; };
   openModal(
-    '<div class="dcs-head">'+
-      (img ? '<img class="card-thumb dcs-img" src="'+esc(img)+'" alt="" id="dcsImg" title="Ver en grande">' : '<div class="card-thumb card-thumb-empty dcs-img">'+icon('image',18)+'</div>')+
-      '<div class="dcs-info"><div class="dcs-name">'+esc(c.name)+'</div>'+
-        (c.setCode ? '<div class="dcs-sub">'+setIconSpanHTML(c.setCode, c.rarity)+esc(String(c.setCode).toUpperCase())+(c.collectorNumber ? ' #'+esc(c.collectorNumber) : '')+' · ×'+c.qty+' en el mazo</div>' : '<div class="dcs-sub">×'+c.qty+' en el mazo</div>')+
-        '<div class="dcs-price" id="dcsPrice"></div></div>'+
+    '<div class="modal-card-image-wrap">'+
+      (img ? '<img id="dcsImg" class="modal-card-image" src="'+esc(img)+'" alt="'+esc(c.name)+'" title="Toca para ampliar">'
+           : '<div class="modal-card-image modal-card-image-empty">'+icon('image',28)+'</div>')+
+      '<div class="foil-fx" id="dcsFoilFx"'+(c.foil ? '' : ' hidden')+'></div>'+
     '</div>'+
-    '<div class="toggle-row dcs-row"><div><div class="srlabel">'+(multi ? 'Proxies' : 'Es un proxy')+'</div>'+
+    '<h3 class="modal-title" style="justify-content:center; text-align:center;">'+esc(c.name)+'</h3>'+
+    (c.setCode ? '<div class="sheet-set">'+setIconSpanHTML(c.setCode, c.rarity)+'<span>'+esc(c.setName || String(c.setCode).toUpperCase())+(c.collectorNumber ? ' · #'+esc(c.collectorNumber) : '')+'</span></div>' : '')+
+    '<div class="sheet-price" id="dcsPrice"></div>'+
+    '<button type="button" class="change-printing-btn" id="dcsChangePrinting">'+icon('layers',14)+' Cambiar edición</button>'+
+    '<div class="stepper-lg">'+
+      '<button class="qty-btn" id="dcsQtyDec" aria-label="Una copia menos">'+icon('minus',16)+'</button>'+
+      '<span class="qty-val" id="dcsQtyVal">'+c.qty+'</span>'+
+      '<button class="qty-btn" id="dcsQtyInc" aria-label="Una copia más">'+icon('plus',16)+'</button>'+
+    '</div>'+
+    (canFoil ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Foil</div>'+(foilOnly ? '<div class="srsub">Esta edición solo existe en foil</div>' : '')+'</div>'+sw('dcsFoil', !!c.foil, 'Foil', foilOnly)+'</div>' : '')+
+    '<div class="toggle-row dcs-row"><div><div class="srlabel">Idioma</div></div>'+
+      '<select id="dcsLang" class="text-input dcs-select" aria-label="Idioma">'+LANGS.map(function(l){ return '<option value="'+l+'"'+(lang === l ? ' selected' : '')+'>'+l+'</option>'; }).join('')+'</select></div>'+
+    '<div class="toggle-row dcs-row" id="dcsProxyRow"></div>'+
+    (maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
+    '<div class="btn-row">'+
+      '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar</button>'+
+      '<button class="btn btn-primary btn-block" id="dcsDone">'+icon('check',15)+' Hecho</button>'+
+    '</div>'
+  );
+  function units(){
+    const usd = cur === 'USD';
+    let pr = c.prices;
+    if(!pr){ const rc = rulesFor(c.name); if(rc && rc.prices) pr = deckPricesFrom(rc); }
+    pr = pr || {};
+    return {normal: usd ? pr.usd : pr.eur, foil: usd ? pr.usdFoil : pr.eurFoil};
+  }
+  function paintPrice(){
+    const el = document.getElementById('dcsPrice'); if(!el) return;
+    const u = units();
+    const unit = c.foil ? (u.foil != null ? u.foil : u.normal) : (u.normal != null ? u.normal : u.foil);
+    if(unit == null){ el.innerHTML = '<span class="sp-main sp-none">Sin precio</span>'; return; }
+    const px = proxyCount(c), real = c.qty - px;
+    const tag = c.foil ? ' <span class="sp-tag">Foil</span>' : '';
+    const sub = [];
+    if(c.foil && u.normal != null) sub.push('Normal: '+fmtMoney(u.normal, cur));
+    if(!c.foil && u.foil != null) sub.push('Foil: '+fmtMoney(u.foil, cur));
+    let main = '<span class="sp-main">'+fmtMoney(unit, cur)+tag+'</span>';
+    if(px && !real){ main = '<span class="sp-main"><s>'+fmtMoney(unit, cur)+'</s>'+tag+'</span>'; sub.push('Proxy · no suma al total'); }
+    else if(px) sub.push('Cuentan '+real+' de '+c.qty+' ('+fmtMoney(unit*real, cur)+') · '+px+' proxy');
+    else if(c.qty > 1) sub.push('×'+c.qty+' = '+fmtMoney(unit*c.qty, cur));
+    el.innerHTML = main + (sub.length ? '<span class="sp-sub">'+esc(sub.join(' · '))+'</span>' : '');
+  }
+  function paintProxy(){
+    const row = document.getElementById('dcsProxyRow'); if(!row) return;
+    const multi = c.qty > 1;
+    row.innerHTML = '<div><div class="srlabel">'+(multi ? 'Proxies' : 'Es un proxy')+'</div>'+
       '<div class="srsub">'+(multi ? 'Cuántas de las '+c.qty+' copias son proxy. ' : '')+'No cuenta en el valor del mazo ni en el total.</div></div>'+
       (multi
         ? '<div class="qty-stepper"><button class="qty-btn" id="dcsProxyDec" aria-label="Una proxy menos">'+icon('minus',13)+'</button><span class="qty-val" id="dcsProxyVal">'+proxyCount(c)+'</span><button class="qty-btn" id="dcsProxyInc" aria-label="Una proxy más">'+icon('plus',13)+'</button></div>'
-        : sw('dcsProxy', proxyCount(c) > 0, 'Es un proxy'))+
-    '</div>'+
-    (maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
-    '<div class="dcs-actions">'+
-      '<button class="btn btn-secondary" id="dcsView">'+icon('image',15)+' Ver en grande</button>'+
-      '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar del mazo</button>'+
-    '</div>'
-  );
-  function paintPrice(){
-    const el = document.getElementById('dcsPrice'); if(!el) return;
-    const px = proxyCount(c), real = c.qty - px;
-    if(unit == null){ el.innerHTML = '<span class="note">Sin precio</span>'; return; }
-    if(px && !real) el.innerHTML = '<s>'+fmtMoney(unit*c.qty, cur)+'</s> <span class="note">proxy · no suma al total</span>';
-    else if(px) el.innerHTML = fmtMoney(unit*real, cur)+' <span class="note">cuentan '+real+' de '+c.qty+' · '+px+' proxy</span>';
-    else el.innerHTML = fmtMoney(unit, cur)+(c.qty > 1 ? ' <span class="note">×'+c.qty+' = '+fmtMoney(unit*c.qty, cur)+'</span>' : '');
+        : sw('dcsProxy', proxyCount(c) > 0, 'Es un proxy'));
+    const sp = document.getElementById('dcsProxy');
+    if(sp) sp.addEventListener('change', function(){ c.proxy = sp.checked ? c.qty : 0; save(); toast(sp.checked ? 'Marcada como proxy: ya no cuenta en el valor' : 'Ya no es proxy: vuelve a contar en el valor'); });
+    const pd = document.getElementById('dcsProxyDec'), pi = document.getElementById('dcsProxyInc');
+    const stepProxy = function(d){ c.proxy = Math.max(0, Math.min(c.qty, proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); };
+    if(pd) pd.addEventListener('click', function(){ stepProxy(-1); });
+    if(pi) pi.addEventListener('click', function(){ stepProxy(1); });
   }
   async function save(){ paintPrice(); await dbPut('decks', deck); if(document.getElementById('deckCardsList')) openDeckDetail(deck.id); }
-  paintPrice();
-  const sp = document.getElementById('dcsProxy');
-  if(sp) sp.addEventListener('change', function(){ c.proxy = sp.checked ? c.qty : 0; save(); toast(sp.checked ? 'Marcada como proxy: ya no cuenta en el valor' : 'Ya no es proxy: vuelve a contar en el valor'); });
-  const pd = document.getElementById('dcsProxyDec'), pi = document.getElementById('dcsProxyInc');
-  function stepProxy(d){ c.proxy = Math.max(0, Math.min(c.qty, proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); }
-  if(pd) pd.addEventListener('click', function(){ stepProxy(-1); });
-  if(pi) pi.addEventListener('click', function(){ stepProxy(1); });
+  paintPrice(); paintProxy();
+
+  // quantity (at least 1 here; "Quitar" takes the card out of the deck)
+  const qv = document.getElementById('dcsQtyVal');
+  const stepQty = function(d){
+    const before = c.qty;
+    c.qty = Math.max(1, c.qty + d);
+    if(c.qty === before) return;
+    if(c.proxy > c.qty) c.proxy = c.qty;
+    qv.textContent = c.qty; qv.classList.remove('bump'); void qv.offsetWidth; qv.classList.add('bump');
+    if((before > 1) !== (c.qty > 1)) paintProxy(); else { const pv = document.getElementById('dcsProxyVal'); if(pv) pv.textContent = proxyCount(c); }
+    save();
+  };
+  document.getElementById('dcsQtyDec').addEventListener('click', function(){ stepQty(-1); });
+  document.getElementById('dcsQtyInc').addEventListener('click', function(){ stepQty(1); });
+  // foil
+  const foilSw = document.getElementById('dcsFoil');
+  if(foilSw) foilSw.addEventListener('change', function(){ c.foil = foilSw.checked; document.getElementById('dcsFoilFx').hidden = !c.foil; save(); });
+  // language
+  document.getElementById('dcsLang').addEventListener('change', function(e){ c.lang = e.target.value; save(); });
+  // edition: the same picker as in the collection, then back to this sheet
+  document.getElementById('dcsChangePrinting').addEventListener('click', async function(){
+    toast('Buscando otras ediciones…', 1200);
+    try{
+      const prints = await scryPrintsByName(c.name);
+      if(!prints.length || (prints.length === 1 && prints[0].id === c.scryfallId)){ toast('No se han encontrado más ediciones de esta carta.'); return; }
+      openPrintingPicker(prints, async function(p){
+        applyDeckPrinting(c, p);
+        await dbPut('decks', deck);
+        openDeckCardSheet(deck, c.name);
+        if(document.getElementById('deckCardsList')) openDeckDetail(deck.id);
+        toast('Edición cambiada: '+p.set_name);
+      });
+    }catch(e){ toast(e.message || 'No se pudieron cargar las ediciones'); }
+  });
+  // commander (follows the rules)
   const cmdSw = document.getElementById('dcsCommander');
   if(cmdSw) cmdSw.addEventListener('change', async function(){
     cmdSw.disabled = true;
@@ -3901,9 +3997,9 @@ function openDeckCardSheet(deck, name){
     cmdSw.checked = !!c.commander; // back off if the rules said no
     if(changed && document.getElementById('deckCardsList')) openDeckDetail(deck.id);
   });
-  const openView = function(){ closeModalThen(function(){ const row = document.querySelector('#deckCardsList .card-row[data-name="'+CSS.escape(c.name)+'"] img'); openDeckCardViewer(deck, c.name, row); }); };
-  document.getElementById('dcsView').addEventListener('click', openView);
-  const im = document.getElementById('dcsImg'); if(im && im.tagName === 'IMG') im.addEventListener('click', openView);
+  const im = document.getElementById('dcsImg');
+  if(im) im.addEventListener('click', function(){ closeModalThen(function(){ const row = document.querySelector('#deckCardsList .card-row[data-name="'+CSS.escape(c.name)+'"] img'); openDeckCardViewer(deck, c.name, row); }); });
+  document.getElementById('dcsDone').addEventListener('click', closeModal);
   document.getElementById('dcsRemove').addEventListener('click', async function(){
     if(!confirm('¿Quitar «'+c.name+'» del mazo?')) return;
     deck.cards = deck.cards.filter(function(x){ return x !== c; });
