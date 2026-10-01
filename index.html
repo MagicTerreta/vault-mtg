@@ -223,6 +223,12 @@
   .cs-change{display:inline-flex; align-items:center; gap:.3rem; font-size:.82rem; font-weight:600; font-variant-numeric:tabular-nums;}
   .cs-change.up{color:var(--good);} .cs-change.down{color:var(--danger);}
   .cs-change .per{color:var(--ink-soft); font-weight:400;}
+  .cs-split{display:flex; flex-wrap:wrap; justify-content:center; gap:.25rem .9rem; margin-top:.35rem; font-size:.8rem; color:var(--ink-soft);}
+  .cs-split span{display:inline-flex; align-items:center; gap:.35rem;}
+  .cs-split b{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums;}
+  .cs-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .cs-dot.coll{background:var(--accent);} .cs-dot.decks{background:var(--warn);}
+  .vh-split{font-size:.8rem; color:var(--ink-soft); font-variant-numeric:tabular-nums;}
   .cs-meta{font-size:.88rem; color:var(--ink-soft); margin-top:.25rem;}
   .cs-meta b{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums;}
   .cs-more{display:inline-flex; align-items:center; gap:.15rem; margin-top:.6rem; font-size:.76rem; font-weight:600; color:var(--accent);}
@@ -272,6 +278,24 @@
   /* statistics page extras */
   .top-price{flex:none; text-align:right; font-family:var(--font-mono); font-size:.82rem; font-weight:700; color:var(--good); display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
   .top-price small{font-weight:500; color:var(--ink-soft); font-size:.68rem;}
+  .badge-proxy{background:transparent; color:var(--accent); border:1px dashed var(--accent); font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:.58rem; padding:0 6px;}
+  .card-row.is-proxy .card-thumb{filter:grayscale(.6); opacity:.75;}
+  .hero-chip-proxy{border-style:dashed !important;}
+  .dcs-head{display:flex; gap:.9rem; align-items:center; margin-bottom:.9rem;}
+  .dcs-img{flex:none; width:76px; height:auto; aspect-ratio:488/680; border-radius:6px; cursor:pointer;}
+  .dcs-info{min-width:0;}
+  .dcs-name{font-family:var(--font-display); font-size:1.15rem; font-weight:600; line-height:1.2;}
+  .dcs-sub{display:flex; align-items:center; gap:.3rem; flex-wrap:wrap; margin-top:.25rem; font-size:.74rem; color:var(--ink-soft); font-family:var(--font-mono);}
+  .dcs-price{margin-top:.4rem; font-family:var(--font-mono); font-weight:700; font-size:1rem; color:var(--good);}
+  .dcs-price s{color:var(--ink-faint); font-weight:500;}
+  .dcs-price .note{font-family:var(--font-body); font-weight:500; font-size:.76rem; color:var(--ink-soft);}
+  .dcs-row{gap:1rem; padding:.75rem 0; border-top:1px solid var(--line);}
+  .dcs-row .srlabel{font-size:.95rem; font-weight:600;}
+  .dcs-row .srsub{font-size:.76rem; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+  .dcs-actions{display:flex; gap:.6rem; margin-top:.9rem;}
+  .dcs-actions .btn{flex:1; justify-content:center;}
+  .top-deck{display:inline-flex; align-items:center; gap:.25rem; color:var(--warn); font-family:var(--font-body); font-weight:600;}
+  .stat-section h3 .h3-sum{float:right; font-family:var(--font-mono); font-size:.85rem; color:var(--good); font-weight:700;}
   .top-rank{flex:none; width:1.3rem; text-align:center; font-family:var(--font-mono); font-size:.75rem; color:var(--ink-faint);}
 
   /* ---------- Wishlist multi-select ---------- */
@@ -863,10 +887,11 @@ window.runSplash = function(el, opts){
 
   <section class="tab-panel" data-tab="collection">
     <div class="coll-summary" id="statsStripBtn" role="button" tabindex="0" aria-label="Ver estadísticas de la colección">
-      <span class="cs-label">Valor de tu colección</span>
+      <span class="cs-label" id="statLabel">Valor de tu colección</span>
       <span class="cs-value" id="statValue">—</span>
       <span class="cs-change" id="statChange" hidden></span>
-      <span class="cs-meta"><b id="statTotal">0</b> cartas · <b id="statUnique">0</b> únicas</span>
+      <span class="cs-split" id="statSplit" hidden></span>
+      <span class="cs-meta"><b id="statTotal">0</b> cartas · <b id="statUnique">0</b> únicas<span id="statDecks"></span></span>
       <span class="cs-more" id="statMore">Ver estadísticas</span>
     </div>
     <div class="panel-head">
@@ -1231,10 +1256,14 @@ function openDB(){
   return dbPromise;
 }
 async function dbGetAll(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readonly'); const r=tx.objectStore(store).getAll(); r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); }
-async function dbPut(store, val){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbDeleteMany(store, ids){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); ids.forEach(function(id){ os.delete(id); }); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbDelete(store, id){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbPutMany(store, vals){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbPut(store, val){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){noteStoreWrite(store); res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbDeleteMany(store, ids){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); ids.forEach(function(id){ os.delete(id); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbDelete(store, id){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
+/* Decks count towards the grand total, so any change to them refreshes the summary (debounced). */
+var statsRefreshTimer = null;
+function noteStoreWrite(store){ if(store === 'decks') queueStatsRefresh(); }
+function queueStatsRefresh(){ clearTimeout(statsRefreshTimer); statsRefreshTimer = setTimeout(function(){ try{ renderStats(); }catch(e){} }, 250); }
+async function dbPutMany(store, vals){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbClear(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 
 /* ---------- Scryfall client ---------- */
@@ -1376,7 +1405,14 @@ function renderStats(){
   const valor = state.cards.reduce(function(a,c){ const p = itemPrice(c, currency); return a + (p!==null&&p!==undefined ? p*c.quantity : 0); }, 0);
   document.getElementById('statTotal').textContent = totalCards;
   document.getElementById('statUnique').textContent = unique;
-  document.getElementById('statValue').textContent = fmtMoney(valor, currency);
+  const hasDecks = state.decks.length > 0;
+  const deckVal = hasDecks ? decksTotals()[currency === 'USD' ? 'usd' : 'eur'] : 0;
+  document.getElementById('statValue').textContent = fmtMoney(valor + deckVal, currency);
+  document.getElementById('statLabel').textContent = hasDecks ? 'Valor total' : 'Valor de tu colección';
+  const split = document.getElementById('statSplit');
+  split.hidden = !hasDecks;
+  split.innerHTML = hasDecks ? '<span><i class="cs-dot coll"></i>Colección <b>'+fmtMoney(valor, currency)+'</b></span><span><i class="cs-dot decks"></i>Mazos <b>'+fmtMoney(deckVal, currency)+'</b></span>' : '';
+  document.getElementById('statDecks').innerHTML = hasDecks ? ' · <b>'+state.decks.length+'</b> '+(state.decks.length === 1 ? 'mazo' : 'mazos') : '';
   document.getElementById('collectionCount').textContent = unique;
   renderSummaryChange(currency);
 }
@@ -1386,7 +1422,7 @@ function renderSummaryChange(currency){
   if(!el) return;
   let html = '', dir = '';
   try{
-    if(historyReady && historyTotalsCache.length && state.cards.length){
+    if(historyReady && historyTotalsCache.length && (state.cards.length || state.decks.length)){
       const all = historySeries(historyTotalsCache, currency);
       const pts = seriesForRange(all, '1M');
       const base = pts[0], last = all[all.length-1];
@@ -1408,7 +1444,7 @@ function openStatsPanel(){
   const cards = state.cards;
   const totalQty = cards.reduce(function(a,c){ return a+(c.quantity||0); }, 0);
 
-  if(cards.length === 0){
+  if(cards.length === 0 && !state.decks.length){
     panel.innerHTML =
       '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
       '<div class="detail-body">'+emptyStateHTML('stats','Todavía no tienes cartas en tu colección.')+'</div>';
@@ -1458,7 +1494,13 @@ function openStatsPanel(){
   pricedItems.forEach(function(c){ const p=itemPrice(c,currency); if(!mostValuable || p > itemPrice(mostValuable,currency)) mostValuable = c; });
   const foilQty = cards.filter(function(c){ return c.foil; }).reduce(function(a,c){ return a+c.quantity; }, 0);
   const uniqueSets = allSets.length;
-  const topValuable = pricedItems.slice().sort(function(a,b){ return itemPrice(b,currency) - itemPrice(a,currency); }).slice(0, 10);
+  const valuables = pricedItems.map(function(c){ return {c:c, unit:itemPrice(c,currency), qty:c.quantity, deck:null}; });
+  state.decks.forEach(function(d){ (d.cards || []).forEach(function(c){ const real = (c.qty||0) - proxyCount(c); const p = deckCardPrice(c); if(p != null && real > 0) valuables.push({c:c, unit:p, qty:real, deck:d}); }); });
+  const topValuable = valuables.sort(function(a,b){ return b.unit - a.unit; }).slice(0, 10);
+  const deckRows = state.decks.map(function(d){ const v = deckValue(d, currency); return {id:d.id, name:d.name, value:v.value, copies:v.copies, unpriced:v.unpriced, proxies:v.proxies, proxyValue:v.proxyValue}; })
+    .sort(function(a,b){ return b.value - a.value; });
+  const deckSum = deckRows.reduce(function(a,r){ return a + r.value; }, 0);
+  const deckMax = Math.max.apply(null, deckRows.map(function(r){ return r.value; }).concat([0.01]));
   const binderAgg = {};
   cards.forEach(function(c){
     const k = c.binderId && state.binders.some(function(b){ return b.id === c.binderId; }) ? c.binderId : '';
@@ -1484,13 +1526,25 @@ function openStatsPanel(){
       '</div></div>'+
       (topValuable.length ? (
         '<div class="stat-section"><h3>Las más valiosas</h3>'+
-        topValuable.map(function(c, i){
-          const unit = itemPrice(c, currency);
+        topValuable.map(function(r, i){
+          const c = r.c, unit = r.unit;
           const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',14)+'</div>';
-          return '<div class="mover-row top-row" data-id="'+esc(c.id)+'"><span class="top-rank">'+(i+1)+'</span>'+img+
-            '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="mover-prices">'+setIconSpanHTML(c.setCode, c.rarity)+' '+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'')+'</div></div>'+
-            '<div class="top-price">'+fmtMoney(unit, currency)+(c.quantity > 1 ? '<small>×'+c.quantity+' = '+fmtMoney(unit*c.quantity, currency)+'</small>' : '')+'</div></div>';
+          const sub = r.deck ? '<span class="top-deck">'+icon('layers',11)+' '+esc(r.deck.name)+'</span>'
+            : setIconSpanHTML(c.setCode, c.rarity)+' '+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'');
+          return '<div class="mover-row top-row" '+(r.deck ? 'data-deck="'+esc(r.deck.id)+'" data-name="'+esc(c.name)+'"' : 'data-id="'+esc(c.id)+'"')+'><span class="top-rank">'+(i+1)+'</span>'+img+
+            '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div><div class="mover-prices">'+sub+'</div></div>'+
+            '<div class="top-price">'+fmtMoney(unit, currency)+(r.qty > 1 ? '<small>×'+r.qty+' = '+fmtMoney(unit*r.qty, currency)+'</small>' : '')+'</div></div>';
         }).join('')+'</div>'
+      ) : '')+
+      (deckRows.length ? (
+        '<div class="stat-section"><h3>Mazos <span class="h3-sum">'+fmtMoney(deckSum, currency)+'</span></h3>'+
+        deckRows.map(function(r){
+          return '<div class="stat-bar-row"><div class="lbl" style="width:auto; flex:0 0 34%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">'+esc(r.name)+'</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.max(3,Math.round(r.value/deckMax*100))+'%; background:var(--warn);"></div></div><div class="amt" style="min-width:5.2rem;">'+fmtMoney(r.value, currency)+'</div></div>';
+        }).join('')+
+        (function(){ const n = deckRows.reduce(function(a,r){ return a + r.proxies; }, 0), v = deckRows.reduce(function(a,r){ return a + r.proxyValue; }, 0);
+          return n ? '<p class="section-note" style="margin-top:.4rem;">Sin contar '+n+(n === 1 ? ' proxy' : ' proxies')+(v > 0 ? ' (las originales costarían ≈ '+fmtMoney(v, currency)+')' : '')+'.</p>' : ''; })()+
+        (deckRows.some(function(r){ return r.unpriced; }) ? '<p class="section-note" style="margin-top:.4rem;">Algunas cartas aún no tienen precio; se completan al actualizar precios.</p>' : '')+
+        '</div>'
       ) : '')+
       (binderRows.length > 1 ? (
         '<div class="stat-section"><h3>Valor por carpeta</h3>'+
@@ -1520,7 +1574,13 @@ function openStatsPanel(){
   showDetailPanel(panel, 'stats');
   document.getElementById('statsBackBtn').addEventListener('click', navBack);
   renderValueHistorySection();
-  panel.querySelectorAll('.top-row').forEach(function(row){ row.addEventListener('click', function(){ openEditCardModal(row.dataset.id); }); });
+  panel.querySelectorAll('.top-row').forEach(function(row){ row.addEventListener('click', function(){
+    if(row.dataset.deck){
+      const d = state.decks.find(function(x){ return x.id === row.dataset.deck; });
+      const c = d && d.cards.find(function(x){ return x.name === row.dataset.name; });
+      if(c) openCardViewer([viewerItemByName(c, 'Mazo · '+d.name)], 0, row.querySelector('img'));
+    } else openEditCardModal(row.dataset.id);
+  }); });
 }
 
 /* ---------- Collection tab ---------- */
@@ -3312,7 +3372,8 @@ function deckGridItemHTML(deck){
       '</div>'+
       '<div class="gname">'+esc(deck.name)+'</div>'+
       '<div class="gsub">'+
-        '<span class="gsetnum">'+s.total+' cartas · '+s.unique+' únicas</span>'+
+        '<span class="gsetnum">'+s.total+' cartas</span>'+
+        (function(){ const dv = deckValue(deck, state.settings.currency); return dv.value > 0 ? '<span class="gprice">'+fmtMoney(dv.value, state.settings.currency)+'</span>' : ''; })()+
       '</div>'+
     '</div>'
   );
@@ -3383,9 +3444,11 @@ function deckCardRowHTML(deck, c, big){
   const lg = deckLegalityResults[deck.id];
   const problems = lg && lg.flags ? (lg.flags[c.name] || []) : [];
   badge = problems.map(function(p){ return '<span class="badge badge-bad">'+icon('alert',10)+' '+esc(p)+'</span>'; }).join('') + badge;
+  const px = proxyCount(c);
+  if(px) badge = '<span class="badge badge-proxy">'+(px === c.qty ? 'Proxy' : px+' proxy')+'</span>' + badge;
   const img = (big ? c.imageNormal : null) || c.imageSmall;
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
-  return '<div class="card-row'+(big?' commander-row':'')+'" data-name="'+esc(c.name)+'">'+
+  return '<div class="card-row'+(big?' commander-row':'')+(px && px === c.qty ? ' is-proxy' : '')+'" data-name="'+esc(c.name)+'" data-action="deck-card-menu">'+
     (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost || cardManaCost(rulesFor(c.name)))+'</div><div class="card-meta">'+((c.manaCost || cardManaCost(rulesFor(c.name)) || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+badge+'</div></div>'+
     '<div class="card-value">'+
@@ -3452,28 +3515,125 @@ function deckHeroHTML(deck, s){
       '</div>'+
     '</div>';
 }
-function deckCardPrice(name){
+/* Deck cards store the price of the printing they were added with (refreshed daily). */
+function deckPricesFrom(card){
+  const p = (card && card.prices) || {};
+  return {eur: toNum(p.eur), eurFoil: toNum(p.eur_foil), usd: toNum(p.usd), usdFoil: toNum(p.usd_foil)};
+}
+function storedDeckPrice(c, currency){
+  const pr = c && c.prices; if(!pr) return null;
+  const usd = currency === 'USD';
+  const p = usd ? pr.usd : pr.eur, f = usd ? pr.usdFoil : pr.eurFoil;
+  return p != null ? p : (f != null ? f : null);
+}
+function deckCardPrice(c){
+  if(typeof c === 'string') c = {name: c};
+  const own = storedDeckPrice(c, state.settings.currency);
+  if(own != null) return own;
+  const name = c.name;
   const card = rulesFor(name);
   if(!card || !card.prices) return null;
   const usd = state.settings.currency === 'USD';
   const p = toNum(usd ? card.prices.usd : card.prices.eur);
   return p != null ? p : toNum(usd ? card.prices.usd_foil : card.prices.eur_foil);
 }
+/* What a deck is worth: each card's stored price (its printing), falling back to Scryfall's
+   default printing from this session's cache. Decks are separate physical cards, so this
+   adds to the collection's value. */
+/* copies of a deck card marked as proxies (0..qty); proxies don't count towards any value */
+function proxyCount(c){ return Math.max(0, Math.min(c.qty || 0, c.proxy || 0)); }
+function deckValue(deck, currency){
+  let value = 0, copies = 0, unpriced = 0, proxies = 0, proxyValue = 0;
+  (deck.cards || []).forEach(function(c){
+    const q = c.qty || 0, px = proxyCount(c), real = q - px;
+    copies += q; proxies += px;
+    let p = storedDeckPrice(c, currency);
+    if(p == null){ const rc = rulesFor(c.name); if(rc && rc.prices){ const usd = currency === 'USD'; p = toNum(usd ? rc.prices.usd : rc.prices.eur); if(p == null) p = toNum(usd ? rc.prices.usd_foil : rc.prices.eur_foil); } }
+    if(p != null){ value += p*real; proxyValue += p*px; } else unpriced += real;
+  });
+  return {value: Math.round(value*100)/100, copies: copies, unpriced: unpriced, proxies: proxies, proxyValue: Math.round(proxyValue*100)/100};
+}
+function decksTotals(){
+  let eur = 0, usd = 0, copies = 0;
+  state.decks.forEach(function(d){ eur += deckValue(d, 'EUR').value; usd += deckValue(d, 'USD').value; copies += deckValue(d, 'EUR').copies; });
+  return {eur: Math.round(eur*100)/100, usd: Math.round(usd*100)/100, copies: copies, count: state.decks.length};
+}
+function grandTotal(currency){
+  return collectionTotals()[currency === 'USD' ? 'usd' : 'eur'] + decksTotals()[currency === 'USD' ? 'usd' : 'eur'];
+}
+/* Refreshes deck card prices in batches of 75: by Scryfall id, else set + number, else name.
+   onlyMissing = just the cards that have no price yet (decks made before prices were stored). */
+async function refreshDeckPrices(onlyMissing){
+  const targets = [];
+  state.decks.forEach(function(d){ (d.cards || []).forEach(function(c){ if(!onlyMissing || !c.prices) targets.push({deck:d, card:c}); }); });
+  if(!targets.length) return true;
+  const nameKey = function(n){ return 'n:'+frontFaceName(n).toLowerCase(); };
+  const idents = [], seen = {};
+  const want = function(key, ident){ if(!seen[key]){ seen[key] = true; idents.push({key:key, ident:ident}); } };
+  targets.forEach(function(t){
+    const c = t.card;
+    if(c.scryfallId){ t.key = 'id:'+c.scryfallId; want(t.key, {id: c.scryfallId}); }
+    else if(c.setCode && c.collectorNumber){ t.key = 'sn:'+String(c.setCode).toLowerCase()+'/'+c.collectorNumber; want(t.key, {set: String(c.setCode).toLowerCase(), collector_number: String(c.collectorNumber)}); }
+    else { t.key = nameKey(c.name); want(t.key, {name: frontFaceName(c.name)}); }
+  });
+  const found = {}; let reached = false;
+  async function fetchAll(list){
+    for(let i=0;i<list.length;i+=75){
+      const chunk = list.slice(i, i+75);
+      try{
+        const r = await fetch(SCRYFALL+'/cards/collection', {method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({identifiers: chunk.map(function(x){ return x.ident; })})});
+        if(r.ok){
+          reached = true;
+          const j = await r.json();
+          (j.data || []).forEach(function(card){
+            found['id:'+card.id] = card;
+            found['sn:'+card.set+'/'+card.collector_number] = card;
+            if(!found[nameKey(card.name)]) found[nameKey(card.name)] = card;
+          });
+        }
+      }catch(e){}
+      if(i+75 < list.length) await sleep(110);
+    }
+  }
+  await fetchAll(idents);
+  if(!reached) return false;
+  // printings Scryfall didn't match (odd ids/numbers): fall back to the card's name
+  const retry = [], seen2 = {};
+  targets.forEach(function(t){ if(!found[t.key] && !found[nameKey(t.card.name)] && !seen2[nameKey(t.card.name)]){ seen2[nameKey(t.card.name)] = true; retry.push({key:nameKey(t.card.name), ident:{name: frontFaceName(t.card.name)}}); } });
+  if(retry.length) await fetchAll(retry);
+  const dirty = [];
+  targets.forEach(function(t){
+    const card = found[t.key] || found[nameKey(t.card.name)];
+    if(!card || !card.prices) return;
+    const np = deckPricesFrom(card), op = t.card.prices || {};
+    if(!t.card.prices || np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil){
+      t.card.prices = np;
+      if(dirty.indexOf(t.deck) < 0) dirty.push(t.deck);
+    }
+  });
+  if(dirty.length) await dbPutMany('decks', dirty);
+  return true;
+}
+function deckPricesMissing(){ return state.decks.some(function(d){ return (d.cards || []).some(function(c){ return !c.prices; }); }); }
 /* Value chips use Scryfall's price for each card's default printing, hence the "≈". */
 function renderDeckValueChips(deck){
   const el = document.getElementById('deckValueChips');
   if(!el) return;
-  let total = 0, priced = 0, missQty = 0, missCost = 0;
+  let total = 0, priced = 0, missQty = 0, missCost = 0, proxies = 0, proxyCost = 0;
   deck.cards.forEach(function(c){
-    const p = deckCardPrice(c.name);
+    const p = deckCardPrice(c);
+    const px = proxyCount(c);
+    proxies += px;
     const miss = Math.max(0, c.qty - ownedQtyForName(c.name));
     missQty += miss;
-    if(p != null){ total += p*c.qty; priced++; missCost += p*miss; }
+    if(p != null){ total += p*(c.qty - px); priced++; missCost += p*miss; proxyCost += p*px; }
   });
   const cur = state.settings.currency;
   let html = '';
   // "missing" = cards of this deck that aren't in your collection (compared by name)
-  if(priced) html += '<span class="hero-chip" title="Valor aproximado del mazo completo">Valor ≈ '+fmtMoney(total, cur)+'</span>';
+  if(priced) html += '<span class="hero-chip" title="Valor aproximado del mazo (sin contar los proxies)">Valor ≈ '+fmtMoney(total, cur)+'</span>';
+  if(proxies) html += '<span class="hero-chip hero-chip-proxy" title="Los proxies no cuentan en el valor; esto costarían las cartas originales">'+proxies+(proxies === 1 ? ' proxy' : ' proxies')+(proxyCost > 0 ? ' · originales ≈ '+fmtMoney(proxyCost, cur) : '')+'</span>';
   if(missQty){
     html += '<span class="hero-chip hero-chip-warn" title="Cartas del mazo que no están en tu colección">'+missQty+' no '+(missQty === 1 ? 'está' : 'están')+' en tu colección</span>';
     if(priced && missCost > 0) html += '<span class="hero-chip" title="Lo que costaría comprar las que no tienes">Completarlo ≈ '+fmtMoney(missCost, cur)+'</span>';
@@ -3565,20 +3725,14 @@ function openDeckDetail(id){
       const face = printFace(card);
       const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
       if(existing) existing.qty += 1;
-      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), imageBack:faceBackUrl(card), setCode:card.set, setName:card.set_name, rarity:card.rarity, collectorNumber:card.collector_number, commander:false});
+      else deck.cards.push({name:card.name, qty:1, cmc:card.cmc||0, colors:card.colors||(card.card_faces&&card.card_faces[0]&&card.card_faces[0].colors)||[], imageSmall:face.image, imageNormal:face.imageNormal, typeLine:card.type_line||'', manaCost:cardManaCost(card), imageBack:faceBackUrl(card), setCode:card.set, setName:card.set_name, rarity:card.rarity, collectorNumber:card.collector_number, commander:false, scryfallId:card.id, prices:deckPricesFrom(card)});
       await dbPut('decks', deck);
       openDeckDetail(deck.id);
     }catch(err){ toast(err.message); }
   });
   document.getElementById('deckCardsList').addEventListener('click', async function(e){
     const view = e.target.closest('[data-action="deck-view"]');
-    if(view){
-      const g = groupDeckCards(deck);
-      const ordered = g.commanders.concat.apply(g.commanders, g.sections.map(function(sec){ return sec.cards; }));
-      const items = ordered.map(function(c){ return viewerItemByName(c, (c.commander ? 'Comandante · ' : '')+'×'+c.qty+' · En colección: '+ownedQtyForName(c.name)); });
-      openCardViewer(items, Math.max(0, ordered.findIndex(function(c){ return c.name === view.dataset.name; })), view);
-      return;
-    }
+    if(view){ openDeckCardViewer(deck, view.dataset.name, view); return; }
     const crown = e.target.closest('[data-action="toggle-commander"]');
     if(crown){
       const c = deck.cards.find(function(x){ return x.name===crown.dataset.name; });
@@ -3587,14 +3741,86 @@ function openDeckDetail(id){
     }
     const inc = e.target.closest('[data-action="deck-inc"]');
     const dec = e.target.closest('[data-action="deck-dec"]');
-    if(!inc && !dec) return;
+    if(!inc && !dec){
+      const row = e.target.closest('[data-action="deck-card-menu"]');
+      if(row && !e.target.closest('button')) openDeckCardSheet(deck, row.dataset.name);
+      return;
+    }
     const name = (inc||dec).dataset.name;
     const c = deck.cards.find(function(x){ return x.name===name; });
     if(!c) return;
     if(inc) c.qty++;
-    else { c.qty--; if(c.qty<=0){ deck.cards = deck.cards.filter(function(x){ return x.name!==name; }); } }
+    else { c.qty--; if(c.proxy > c.qty) c.proxy = c.qty; if(c.qty<=0){ deck.cards = deck.cards.filter(function(x){ return x.name!==name; }); } }
     await dbPut('decks', deck);
     openDeckDetail(deck.id);
+  });
+}
+/* Opens the deck's cards in the viewer (commanders first, then by type), at the given card. */
+function openDeckCardViewer(deck, name, sourceEl){
+  const g = groupDeckCards(deck);
+  const ordered = g.commanders.concat.apply(g.commanders, g.sections.map(function(sec){ return sec.cards; }));
+  const items = ordered.map(function(c){
+    const px = proxyCount(c);
+    return viewerItemByName(c, (c.commander ? 'Comandante · ' : '')+'×'+c.qty+(px ? ' · '+(px === c.qty ? 'Proxy' : px+' proxy') : '')+' · En colección: '+ownedQtyForName(c.name));
+  });
+  openCardViewer(items, Math.max(0, ordered.findIndex(function(c){ return c.name === name; })), sourceEl);
+}
+/* Card menu inside a deck (tap the card's row): proxy, commander, view, remove.
+   Proxies stay in the deck (playtest, legality, curve…) but don't count towards any value. */
+function openDeckCardSheet(deck, name){
+  const c = deck.cards.find(function(x){ return x.name === name; });
+  if(!c) return;
+  const cur = state.settings.currency;
+  const unit = deckCardPrice(c);
+  const img = c.imageNormal || c.imageSmall;
+  const multi = c.qty > 1;
+  const sw = function(id, on, label){ return '<label class="switch" aria-label="'+label+'"><input type="checkbox" id="'+id+'"'+(on ? ' checked' : '')+'><span class="track"></span><span class="thumb"></span></label>'; };
+  openModal(
+    '<div class="dcs-head">'+
+      (img ? '<img class="card-thumb dcs-img" src="'+esc(img)+'" alt="" id="dcsImg" title="Ver en grande">' : '<div class="card-thumb card-thumb-empty dcs-img">'+icon('image',18)+'</div>')+
+      '<div class="dcs-info"><div class="dcs-name">'+esc(c.name)+'</div>'+
+        (c.setCode ? '<div class="dcs-sub">'+setIconSpanHTML(c.setCode, c.rarity)+esc(String(c.setCode).toUpperCase())+(c.collectorNumber ? ' #'+esc(c.collectorNumber) : '')+' · ×'+c.qty+' en el mazo</div>' : '<div class="dcs-sub">×'+c.qty+' en el mazo</div>')+
+        '<div class="dcs-price" id="dcsPrice"></div></div>'+
+    '</div>'+
+    '<div class="toggle-row dcs-row"><div><div class="srlabel">'+(multi ? 'Proxies' : 'Es un proxy')+'</div>'+
+      '<div class="srsub">'+(multi ? 'Cuántas de las '+c.qty+' copias son proxy. ' : '')+'No cuenta en el valor del mazo ni en el total.</div></div>'+
+      (multi
+        ? '<div class="qty-stepper"><button class="qty-btn" id="dcsProxyDec" aria-label="Una proxy menos">'+icon('minus',13)+'</button><span class="qty-val" id="dcsProxyVal">'+proxyCount(c)+'</span><button class="qty-btn" id="dcsProxyInc" aria-label="Una proxy más">'+icon('plus',13)+'</button></div>'
+        : sw('dcsProxy', proxyCount(c) > 0, 'Es un proxy'))+
+    '</div>'+
+    '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>'+
+    '<div class="dcs-actions">'+
+      '<button class="btn btn-secondary" id="dcsView">'+icon('image',15)+' Ver en grande</button>'+
+      '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar del mazo</button>'+
+    '</div>'
+  );
+  function paintPrice(){
+    const el = document.getElementById('dcsPrice'); if(!el) return;
+    const px = proxyCount(c), real = c.qty - px;
+    if(unit == null){ el.innerHTML = '<span class="note">Sin precio</span>'; return; }
+    if(px && !real) el.innerHTML = '<s>'+fmtMoney(unit*c.qty, cur)+'</s> <span class="note">proxy · no suma al total</span>';
+    else if(px) el.innerHTML = fmtMoney(unit*real, cur)+' <span class="note">cuentan '+real+' de '+c.qty+' · '+px+' proxy</span>';
+    else el.innerHTML = fmtMoney(unit, cur)+(c.qty > 1 ? ' <span class="note">×'+c.qty+' = '+fmtMoney(unit*c.qty, cur)+'</span>' : '');
+  }
+  async function save(){ paintPrice(); await dbPut('decks', deck); if(document.getElementById('deckCardsList')) openDeckDetail(deck.id); }
+  paintPrice();
+  const sp = document.getElementById('dcsProxy');
+  if(sp) sp.addEventListener('change', function(){ c.proxy = sp.checked ? c.qty : 0; save(); toast(sp.checked ? 'Marcada como proxy: ya no cuenta en el valor' : 'Ya no es proxy: vuelve a contar en el valor'); });
+  const pd = document.getElementById('dcsProxyDec'), pi = document.getElementById('dcsProxyInc');
+  function stepProxy(d){ c.proxy = Math.max(0, Math.min(c.qty, proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); }
+  if(pd) pd.addEventListener('click', function(){ stepProxy(-1); });
+  if(pi) pi.addEventListener('click', function(){ stepProxy(1); });
+  document.getElementById('dcsCommander').addEventListener('change', function(e){ c.commander = e.target.checked; save(); });
+  const openView = function(){ closeModalThen(function(){ const row = document.querySelector('#deckCardsList .card-row[data-name="'+CSS.escape(c.name)+'"] img'); openDeckCardViewer(deck, c.name, row); }); };
+  document.getElementById('dcsView').addEventListener('click', openView);
+  const im = document.getElementById('dcsImg'); if(im && im.tagName === 'IMG') im.addEventListener('click', openView);
+  document.getElementById('dcsRemove').addEventListener('click', async function(){
+    if(!confirm('¿Quitar «'+c.name+'» del mazo?')) return;
+    deck.cards = deck.cards.filter(function(x){ return x !== c; });
+    closeModal();
+    await dbPut('decks', deck);
+    openDeckDetail(deck.id);
+    toast('«'+c.name+'» quitada del mazo');
   });
 }
 function newDeckModal(){
@@ -3677,7 +3903,8 @@ async function importDeckTxtFile(file){
         name: card.name, qty: e.qty, cmc: card.cmc||0,
         colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
         imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card),
-        setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander
+        setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander,
+        scryfallId: card.id, prices: deckPricesFrom(card)
       });
     }catch(err){ fail++; }
     setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
@@ -3982,10 +4209,11 @@ function buildSnapshot(){
     const e = itemPrice(c,'EUR'), u = itemPrice(c,'USD');
     items[c.id] = [e == null ? null : e, u == null ? null : u, c.quantity];
   });
-  return Object.assign({date: localDateKey(), ts: Date.now(), items: items}, collectionTotals());
+  const dt = decksTotals();
+  return Object.assign({date: localDateKey(), ts: Date.now(), items: items}, collectionTotals(), {deckEur: dt.eur, deckUsd: dt.usd, deckCopies: dt.copies});
 }
 async function saveTodaySnapshot(){
-  if(!historyReady || !state.cards.length) return;
+  if(!historyReady || (!state.cards.length && !state.decks.length)) return;
   try{ const snap = buildSnapshot(); await dbPut('valueHistory', snap); cacheHistoryTotals(snap); await pruneHistoryOncePerDay(); }catch(e){}
 }
 let snapshotTimer = null;
@@ -4021,7 +4249,7 @@ async function refreshPricesBatch(onProgress){
     if(onProgress) onProgress(Math.min(ids.length, i+75), ids.length);
     if(i+75 < ids.length) await sleep(110);
   }
-  if(!reached) return false;
+  if(ids.length && !reached) return false;
   const changed = [];
   state.cards.forEach(function(item){
     const card = byId[item.scryfallId];
@@ -4037,6 +4265,8 @@ async function refreshPricesBatch(onProgress){
     if(dirty) changed.push(item);
   });
   if(changed.length) await dbPutMany('cards', changed);
+  const decksOk = await refreshDeckPrices(false);
+  if(!ids.length && !decksOk) return false;
   try{ localStorage.setItem(PRICE_REFRESH_KEY, String(Date.now())); }catch(e){}
   await saveTodaySnapshot();
   return true;
@@ -4047,27 +4277,27 @@ function valueChangeText(before, after, currency){
   return (d > 0 ? '+' : '−')+fmtMoney(Math.abs(d), currency)+' desde la última actualización';
 }
 async function refreshAllPrices(){
-  if(state.cards.length===0){ toast('Tu colección está vacía'); return; }
+  if(state.cards.length===0 && state.decks.length===0){ toast('Tu colección está vacía'); return; }
   const cur = state.settings.currency;
-  const before = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
+  const before = grandTotal(cur);
   setSettingsProgress(0, true);
   const ok = await refreshPricesBatch(function(done, total){ setSettingsProgress(Math.round(done/total*100), true); });
   setSettingsProgress(0,false);
   if(!ok){ toast('No se pudo conectar con Scryfall. Inténtalo más tarde.'); return; }
-  renderCollection();
-  toast('Precios actualizados: '+valueChangeText(before, collectionTotals()[cur === 'USD' ? 'usd' : 'eur'], cur), 3600);
+  renderCollection(); renderDecks(); renderStats();
+  toast('Precios actualizados: '+valueChangeText(before, grandTotal(cur), cur), 3600);
 }
 async function autoRefreshPricesDaily(){
-  if(!state.cards.length || navigator.onLine === false) return;
+  if((!state.cards.length && !state.decks.length) || navigator.onLine === false) return;
   let last = 0;
   try{ last = parseInt(localStorage.getItem(PRICE_REFRESH_KEY) || '0', 10) || 0; }catch(e){}
   if(Date.now() - last < 20*3600*1000){ scheduleTodaySnapshot(); return; }
   const cur = state.settings.currency;
-  const before = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
+  const before = grandTotal(cur);
   const ok = await refreshPricesBatch(null);
   if(!ok) return;
-  renderCollection();
-  const after = collectionTotals()[cur === 'USD' ? 'usd' : 'eur'];
+  renderCollection(); renderDecks(); renderStats();
+  const after = grandTotal(cur);
   if(Math.abs(after-before) >= 0.01) toast('Precios del día actualizados: '+valueChangeText(before, after, cur), 4200);
 }
 
@@ -4085,11 +4315,18 @@ function niceStep(range, count){
   return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * mag;
 }
 function historySeries(history, currency){
-  const key = currency === 'USD' ? 'usd' : 'eur';
+  const key = currency === 'USD' ? 'usd' : 'eur', dkey = currency === 'USD' ? 'deckUsd' : 'deckEur';
   const today = localDateKey();
-  const pts = history.filter(function(h){ return h.date !== today; }).map(function(h){ return {date:h.date, t:dateFromKey(h.date).getTime(), v:h[key], snap:h}; });
   const live = buildSnapshot();
-  pts.push({date: today, t: dateFromKey(today).getTime(), v: live[key], snap: live, live: true});
+  const past = history.filter(function(h){ return h.date !== today; }).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  // the total includes the decks; days recorded before decks were tracked use their first known value
+  const firstWithDecks = past.find(function(h){ return h[dkey] != null; });
+  const deckFallback = firstWithDecks ? firstWithDecks[dkey] : (live[dkey] || 0);
+  const pts = past.map(function(h){
+    const dv = h[dkey] != null ? h[dkey] : deckFallback;
+    return {date:h.date, t:dateFromKey(h.date).getTime(), v:(h[key] || 0) + dv, coll:(h[key] || 0), decks:dv, snap:h};
+  });
+  pts.push({date: today, t: dateFromKey(today).getTime(), v: live[key] + (live[dkey] || 0), coll: live[key], decks: live[dkey] || 0, snap: live, live: true});
   pts.sort(function(a,b){ return a.t - b.t; });
   return pts;
 }
@@ -4166,11 +4403,15 @@ async function renderValueHistorySection(){
       '<span>'+signedMoney(d, currency)+' ('+(pct>=0?'+':'−')+Math.abs(pct).toFixed(1).replace('.',',')+' %)</span> <span class="vh-period">'+esc(period)+'</span></div>';
     if(base.snap && base.snap.items && !base.live && Math.abs(d) >= 0.01){
       const pe = priceEffect(base.snap, currency);
-      breakdownHTML = '<div class="vh-breakdown">Por cambios de precio: '+signedMoney(pe, currency)+' · Por cartas añadidas o quitadas: '+signedMoney(d - pe, currency)+'</div>';
+      const dDecks = (last.decks || 0) - (base.decks || 0);
+      breakdownHTML = '<div class="vh-breakdown">Por cambios de precio: '+signedMoney(pe, currency)+' · Por cartas añadidas o quitadas: '+signedMoney(d - dDecks - pe, currency)+
+        (Math.abs(dDecks) >= 0.01 ? ' · Mazos: '+signedMoney(dDecks, currency) : '')+'</div>';
     }
   }
   let html =
-    '<div class="vh-hero"><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+deltaHTML+breakdownHTML+'</div>';
+    '<div class="vh-hero"><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+
+      (state.decks.length ? '<div class="vh-split">Colección '+fmtMoney(last.coll, currency)+' · Mazos '+fmtMoney(last.decks, currency)+'</div>' : '')+
+      deltaHTML+breakdownHTML+'</div>';
   if(all.length < 2){
     html += '<div class="vh-empty">El registro empieza hoy. MagicTerreta guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
     box.innerHTML = html;
@@ -5527,7 +5768,11 @@ async function init(){
      compete with it for the phone's CPU (immediate when there is no intro) */
   (window.__splashDone || Promise.resolve()).then(function(){
     maybeRemindBackup();
-    setTimeout(autoRefreshPricesDaily, 2500);
+    setTimeout(async function(){
+      await autoRefreshPricesDaily();
+      // decks made before prices were stored get theirs once (the daily refresh may have done it)
+      if(deckPricesMissing() && navigator.onLine !== false){ if(await refreshDeckPrices(true)){ renderDecks(); renderStats(); scheduleTodaySnapshot(); } }
+    }, 2500);
   });
 
   document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
