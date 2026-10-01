@@ -278,6 +278,36 @@
   /* statistics page extras */
   .top-price{flex:none; text-align:right; font-family:var(--font-mono); font-size:.82rem; font-weight:700; color:var(--good); display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
   .top-price small{font-weight:500; color:var(--ink-soft); font-size:.68rem;}
+  .bracket-card{margin-top:.8rem; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:.85rem .9rem .75rem;}
+  .bk-head{display:flex; gap:.75rem; align-items:center;}
+  .bk-num{flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-family:var(--font-body); font-weight:800; font-size:1.35rem; color:#fff; background:var(--bk, #888);}
+  .bracket-card.b1, .deck-bracket-badge.b1{--bk:#2f9e6e;} .bracket-card.b2, .deck-bracket-badge.b2{--bk:#2586dc;}
+  .bracket-card.b3, .deck-bracket-badge.b3{--bk:#8a5fd1;} .bracket-card.b4, .deck-bracket-badge.b4{--bk:#d9772b;} .bracket-card.b5, .deck-bracket-badge.b5{--bk:#cc3b3b;}
+  .bk-title{font-weight:700; font-size:.95rem;}
+  .bk-tag{font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:0 6px; margin-left:.2rem; vertical-align:middle;}
+  .bk-sub{font-size:.78rem; color:var(--ink-soft); margin-top:1px; line-height:1.35;}
+  .bk-list{margin-top:.6rem;}
+  .bk-list li.ok .li-icon{color:var(--good);} .bk-list li.bad .li-icon{color:var(--danger);}
+  .bk-note{font-size:.72rem; color:var(--ink-faint); line-height:1.45; margin-top:.5rem;}
+  .deck-bracket-badge{position:absolute; left:6px; top:6px; z-index:2; font-family:var(--font-body); font-weight:800; font-size:.62rem; letter-spacing:.02em; color:#fff;
+    background:var(--bk); padding:2px 6px; border-radius:999px; box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .deck-tabs{display:flex; gap:.45rem; overflow-x:auto; scrollbar-width:none; margin:-.1rem -1rem .9rem; padding:.1rem 1rem .2rem;}
+  .deck-tabs::-webkit-scrollbar{display:none;}
+  .deck-tab{flex:none; display:inline-flex; align-items:center; gap:.45rem; padding:.42rem .8rem; border-radius:999px; border:1px solid var(--line); background:var(--surface);
+    color:var(--ink-soft); font:inherit; font-size:.84rem; font-weight:600; cursor:pointer; transition:background .15s, color .15s, border-color .15s;}
+  .deck-tab .dt-n{font-family:var(--font-mono); font-size:.72rem; padding:0 6px; border-radius:999px; background:var(--surface-2); color:var(--ink-soft);}
+  .deck-tab.active{background:var(--accent); border-color:var(--accent); color:var(--on-accent);}
+  .deck-tab.active .dt-n{background:rgba(255,255,255,.22); color:var(--on-accent);}
+  .deck-group + .deck-group{margin-top:1.1rem;}
+  .deck-group .settings-section-title{margin-top:0;}
+  .side-title{margin-top:1.2rem;}
+  .hero-format{cursor:pointer; font:inherit; font-size:.74rem; font-weight:700;}
+  .hero-format svg{transform:rotate(90deg);}
+  .fmt-pick{display:flex; flex-direction:column; gap:.5rem; margin-top:.9rem;}
+  .fmt-opt{display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; padding:.75rem .9rem; border-radius:var(--radius-m);
+    border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:inherit; cursor:pointer;}
+  .fmt-opt b{font-size:.95rem;} .fmt-opt span{font-size:.76rem; color:var(--ink-soft);}
+  .fmt-opt.active{border-color:var(--accent); background:var(--accent-soft);}
   .deck-print{display:inline-flex; align-items:center; gap:3px; font-family:var(--font-mono); font-size:.63rem; color:var(--ink-soft);}
   select.text-input.dcs-select{width:auto; flex:0 0 auto; min-width:6.5rem; padding:.45rem .6rem;}
   .badge-proxy{background:transparent; color:var(--accent); border:1px dashed var(--accent); font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:.58rem; padding:0 6px;}
@@ -991,6 +1021,7 @@ window.runSplash = function(el, opts){
     <div id="decksImportProgress" hidden>
       <div class="progress-track"><div class="progress-fill" id="decksImportProgressFill"></div></div>
     </div>
+    <div class="deck-tabs" id="deckTabs" role="tablist" aria-label="Formatos"></div>
     <div id="decksList"></div>
   </section>
 
@@ -1533,7 +1564,7 @@ function openStatsPanel(){
   const foilQty = cards.filter(function(c){ return c.foil; }).reduce(function(a,c){ return a+c.quantity; }, 0);
   const uniqueSets = allSets.length;
   const valuables = pricedItems.map(function(c){ return {c:c, unit:itemPrice(c,currency), qty:c.quantity, deck:null}; });
-  state.decks.forEach(function(d){ (d.cards || []).forEach(function(c){ const real = (c.qty||0) - proxyCount(c); const p = deckCardPrice(c); if(p != null && real > 0) valuables.push({c:c, unit:p, qty:real, deck:d}); }); });
+  state.decks.forEach(function(d){ (d.cards || []).forEach(function(c){ const real = cardCopies(c) - proxyCount(c); const p = deckCardPrice(c); if(p != null && real > 0) valuables.push({c:c, unit:p, qty:real, deck:d}); }); });
   const topValuable = valuables.sort(function(a,b){ return b.unit - a.unit; }).slice(0, 10);
   const deckRows = state.decks.map(function(d){ const v = deckValue(d, currency); return {id:d.id, name:d.name, value:v.value, copies:v.copies, unpriced:v.unpriced, proxies:v.proxies, proxyValue:v.proxyValue}; })
     .sort(function(a,b){ return b.value - a.value; });
@@ -1631,7 +1662,7 @@ function buildDeckIndex(){
       const k = normName(c.name).split(' // ')[0];
       const list = idx[k] = idx[k] || [];
       const same = list.find(function(u){ return u.deck === d; });
-      if(same) same.qty += c.qty; else list.push({deck: d, qty: c.qty, commander: !!c.commander});
+      if(same) same.qty += cardCopies(c); else list.push({deck: d, qty: cardCopies(c), commander: !!c.commander});
     });
   });
   deckIndex = idx;
@@ -2142,7 +2173,7 @@ function searchDecksAndWishlist(q){
     d.cards.forEach(function(c){
       if(normName(c.name).indexOf(nq) === -1) return;
       const k = normName(c.name);
-      (byName[k] = byName[k] || {card: c, uses: []}).uses.push({deck: d, qty: c.qty, commander: !!c.commander});
+      (byName[k] = byName[k] || {card: c, uses: []}).uses.push({deck: d, qty: cardCopies(c), commander: !!c.commander});
     });
   });
   const decks = Object.keys(byName).map(function(k){ return byName[k]; }).sort(function(a,b){ return a.card.name.localeCompare(b.card.name); });
@@ -2194,7 +2225,7 @@ function renderAlsoIn(also){
 function deckUsageHTML(name){
   const uses = deckUsesOf(name);
   if(!uses.length) return '<div class="usage-box usage-none">'+icon('layers',14)+' No está en ninguno de tus mazos</div>';
-  const need = uses.reduce(function(a,u){ return a + u.card.qty; }, 0);
+  const need = uses.reduce(function(a,u){ return a + cardCopies(u.card); }, 0);
   const owned = ownedQtyForName(name);
   const short = uses.length > 1 && need > owned;
   return '<div class="usage-box'+(short ? ' usage-short' : '')+'">'+
@@ -2228,7 +2259,7 @@ function openDecksWithCard(name){
       const cmds = u.deck.cards.filter(function(x){ return x.commander; }).map(function(x){ return x.name; });
       return '<button class="dw-row" data-open-deck="'+esc(u.deck.id)+'">'+coverOf(u.deck)+
         '<span class="dw-info"><span class="dw-name">'+esc(u.deck.name)+'</span>'+
-        '<span class="dw-sub">'+(u.commander ? icon('crown',11)+' Es el comandante' : (cmds.length ? esc(cmds.join(' & ')) : esc(u.deck.format || 'Mazo')))+(u.qty > 1 ? ' · ×'+u.qty : '')+'</span></span>'+
+        '<span class="dw-sub">'+(u.commander ? icon('crown',11)+' Es el comandante' : (cmds.length ? esc(cmds.join(' & ')) : esc(deckFormat(u.deck) ? formatLabel(deckFormat(u.deck)) : 'Mazo')))+(u.qty > 1 ? ' · ×'+u.qty : '')+'</span></span>'+
         icon('chevron',16)+'</button>';
     }).join('')+'</div>'
   );
@@ -3364,11 +3395,13 @@ async function addAllScanQueueToCollection(){
 
 /* ---------- Decks ---------- */
 function deckSummary(deck){
-  const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
+  const total = deck.cards.reduce(function(a,c){ return a+(c.qty||0); }, 0);
+  const side = deck.cards.reduce(function(a,c){ return a+(c.side||0); }, 0);
   const colorSet = {};
   deck.cards.forEach(function(c){ (c.colors||[]).forEach(function(col){ colorSet[col]=true; }); });
-  return {total: total, unique: deck.cards.length, colors: Object.keys(colorSet)};
+  return {total: total, side: side, unique: deck.cards.length, colors: Object.keys(colorSet)};
 }
+function deckCountText(s){ return s.total+(s.total === 1 ? ' carta' : ' cartas')+(s.side ? ' + '+s.side+' banquillo' : ''); }
 // Deck tiles show the commander's own art when the deck has one marked, falling
 // back to a generic deck icon otherwise — laid out in the same 3-column grid
 // used by the collection's grid view, for a consistent "wall of cards" look.
@@ -3411,22 +3444,49 @@ function deckGridItemHTML(deck){
   return (
     '<div class="card-grid-item" data-id="'+deck.id+'" data-action="open-deck">'+
       '<div class="gimg-wrap">'+img+
-        (deck.legality === 'legal' ? '<span class="deck-legal-badge ok" title="Legal en Commander">'+icon('check',12)+'</span>'
-          : deck.legality === 'illegal' ? '<span class="deck-legal-badge bad" title="No es legal en Commander">'+icon('alert',11)+'</span>' : '')+
+        (deck.legality === 'legal' ? '<span class="deck-legal-badge ok" title="Legal en '+esc(formatLabel(deckFormat(deck)))+'">'+icon('check',12)+'</span>'
+          : deck.legality === 'illegal' ? '<span class="deck-legal-badge bad" title="No es legal en '+esc(formatLabel(deckFormat(deck)))+'">'+icon('alert',11)+'</span>' : '')+
+        (deck.bracket && deckFormat(deck) === 'commander' ? '<span class="deck-bracket-badge b'+deck.bracket+'" title="Nivel (bracket) '+deck.bracket+' · '+esc(BRACKETS[deck.bracket].name)+'">B'+deck.bracket+'</span>' : '')+
       '</div>'+
       '<div class="gname">'+esc(deck.name)+'</div>'+
       '<div class="gsub">'+
-        '<span class="gsetnum">'+s.total+' cartas</span>'+
+        '<span class="gsetnum">'+s.total+(s.side ? '+'+s.side : '')+' cartas</span>'+
         (function(){ const dv = deckValue(deck, state.settings.currency); return dv.value > 0 ? '<span class="gprice">'+fmtMoney(dv.value, state.settings.currency)+'</span>' : ''; })()+
       '</div>'+
     '</div>'
   );
 }
+/* Mazos tab: "Todos" (grouped by format) or one format at a time, with counts. */
 function renderDecks(){
   const el = document.getElementById('decksList');
+  const tabsEl = document.getElementById('deckTabs');
+  const counts = {all: state.decks.length, '': 0};
+  DECK_FORMATS.forEach(function(f){ counts[f.key] = 0; });
+  state.decks.forEach(function(d){ counts[deckFormat(d)]++; });
+  let tab = state.settings.deckTab || 'all';
+  if(tab === 'none' && !counts['']) tab = 'all';
+  const tabs = [{key:'all', label:'Todos', n:counts.all}].concat(DECK_FORMATS.map(function(f){ return {key:f.key, label:f.label, n:counts[f.key]}; }))
+    .concat(counts[''] ? [{key:'none', label:'Sin formato', n:counts['']}] : []);
+  if(tabsEl){
+    tabsEl.hidden = state.decks.length === 0;
+    tabsEl.innerHTML = tabs.map(function(t){ return '<button type="button" role="tab" class="deck-tab'+(t.key === tab ? ' active' : '')+'" data-deck-tab="'+t.key+'" aria-selected="'+(t.key === tab)+'">'+esc(t.label)+'<span class="dt-n">'+t.n+'</span></button>'; }).join('');
+  }
   if(state.decks.length === 0){ el.className=''; el.innerHTML = emptyStateHTML('layers','Todavía no tienes mazos.<br>Crea uno para empezar a planificarlo.'); return; }
+  const byFmt = function(k){ return state.decks.filter(function(d){ return deckFormat(d) === k; }); };
+  if(tab === 'all'){
+    el.className = 'deck-groups';
+    el.innerHTML = DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){
+      const list = byFmt(f.key); if(!list.length) return '';
+      return '<div class="deck-group"><div class="settings-section-title">'+esc(f.label)+' <span class="count-pill">'+list.length+'</span></div>'+
+        '<div class="card-grid">'+list.map(deckGridItemHTML).join('')+'</div></div>';
+    }).join('');
+    return;
+  }
+  const k = tab === 'none' ? '' : tab;
+  const list = byFmt(k);
+  if(!list.length){ el.className=''; el.innerHTML = emptyStateHTML('layers','No tienes mazos de '+esc(formatLabel(k))+' todavía.<br>Crea uno o importa una lista.'); return; }
   el.className = 'card-grid';
-  el.innerHTML = state.decks.map(deckGridItemHTML).join('');
+  el.innerHTML = list.map(deckGridItemHTML).join('');
 }
 function ownedQtyForName(name){
   const n = name.toLowerCase();
@@ -3467,8 +3527,9 @@ function cardTypeCategory(typeLine){
   return 'other';
 }
 function groupDeckCards(deck){
-  const commanders = deck.cards.filter(function(c){ return c.commander; });
-  const rest = deck.cards.filter(function(c){ return !c.commander; });
+  const commanders = deck.cards.filter(function(c){ return c.commander && (c.qty||0) > 0; });
+  const rest = deck.cards.filter(function(c){ return !c.commander && (c.qty||0) > 0; });
+  const sideboard = deck.cards.filter(function(c){ return (c.side||0) > 0; }).sort(function(a,b){ return a.name.localeCompare(b.name); });
   const byKey = {};
   rest.forEach(function(c){ const k = cardTypeCategory(c.typeLine); (byKey[k] = byKey[k]||[]).push(c); });
   const labels = {other:'Otros'};
@@ -3477,34 +3538,36 @@ function groupDeckCards(deck){
   const sections = order.filter(function(k){ return byKey[k] && byKey[k].length; }).map(function(k){
     return {key:k, label:labels[k], cards: byKey[k].slice().sort(function(a,b){ return a.name.localeCompare(b.name); })};
   });
-  return {commanders: commanders, sections: sections};
+  return {commanders: commanders, sections: sections, sideboard: sideboard};
 }
-function deckCardRowHTML(deck, c, big){
+function deckCardRowHTML(deck, c, big, board){
+  const side = board === 'side';
+  const q = side ? (c.side||0) : (c.qty||0);
   const owned = ownedQtyForName(c.name);
   let badge;
-  if(owned >= c.qty) badge = '<span class="badge badge-good">En colección: '+owned+'</span>';
+  if(owned >= cardCopies(c)) badge = '<span class="badge badge-good">En colección: '+owned+'</span>';
   else if(owned > 0) badge = '<span class="badge badge-warn">En colección: '+owned+'</span>';
   else badge = '<span class="badge">En colección: 0</span>';
   const lg = deckLegalityResults[deck.id];
   const problems = lg && lg.flags ? (lg.flags[c.name] || []) : [];
   badge = problems.map(function(p){ return '<span class="badge badge-bad">'+icon('alert',10)+' '+esc(p)+'</span>'; }).join('') + badge;
   const px = proxyCount(c);
-  if(px) badge = '<span class="badge badge-proxy">'+(px === c.qty ? 'Proxy' : px+' proxy')+'</span>' + badge;
+  if(px) badge = '<span class="badge badge-proxy">'+(px === cardCopies(c) ? 'Proxy' : px+' proxy')+'</span>' + badge;
   const printInfo = (c.setCode ? '<span class="deck-print">'+setIconSpanHTML(c.setCode, c.rarity)+'<span>'+esc(String(c.setCode).toUpperCase())+'</span></span>' : '')+
     (c.foil ? '<span class="badge badge-foil">Foil</span>' : '')+
     (c.lang && c.lang !== 'EN' ? '<span class="badge">'+esc(c.lang)+'</span>' : '');
   badge = printInfo + badge;
   const img = (big ? c.imageNormal : null) || c.imageSmall;
   const thumbClass = 'card-thumb'+(big?' card-thumb-lg':'');
-  return '<div class="card-row'+(big?' commander-row':'')+(px && px === c.qty ? ' is-proxy' : '')+'" data-name="'+esc(c.name)+'" data-action="deck-card-menu">'+
+  return '<div class="card-row'+(big?' commander-row':'')+(px && px === cardCopies(c) ? ' is-proxy' : '')+'" data-name="'+esc(c.name)+'" data-board="'+(side ? 'side' : 'main')+'" data-action="deck-card-menu">'+
     (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost || cardManaCost(rulesFor(c.name)))+'</div><div class="card-meta">'+((c.manaCost || cardManaCost(rulesFor(c.name)) || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+badge+'</div></div>'+
     '<div class="card-value">'+
-      (maybeCommander(c) ? '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>' : '')+
+      (!side && (isCommanderDeck(deck) || c.commander) && maybeCommander(c) ? '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>' : '')+
       '<div class="qty-stepper">'+
-        '<button class="qty-btn" data-action="deck-dec" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('minus',13)+'</button>'+
-        '<span class="qty-val">'+c.qty+'</span>'+
-        '<button class="qty-btn" data-action="deck-inc" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('plus',13)+'</button>'+
+        '<button class="qty-btn" data-action="deck-dec" data-board="'+(side ? 'side' : 'main')+'" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('minus',13)+'</button>'+
+        '<span class="qty-val">'+q+'</span>'+
+        '<button class="qty-btn" data-action="deck-inc" data-board="'+(side ? 'side' : 'main')+'" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('plus',13)+'</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -3522,6 +3585,11 @@ function deckCardsListHTML(deck){
     html += '<div class="settings-section-title">'+esc(sec.label)+' <span class="count-pill">'+n+'</span></div>'+
       sec.cards.map(function(c){ return deckCardRowHTML(deck, c, false); }).join('');
   });
+  if(g.sideboard.length){
+    const n = g.sideboard.reduce(function(a,c){ return a+(c.side||0); }, 0);
+    html += '<div class="settings-section-title side-title">'+icon('layers',13)+' Banquillo <span class="count-pill">'+n+'</span></div>'+
+      g.sideboard.map(function(c){ return deckCardRowHTML(deck, c, false, 'side'); }).join('');
+  }
   return html;
 }
 /* ---------- Deck cover ("hero") ----------
@@ -3547,7 +3615,7 @@ function deckHeroHTML(deck, s){
     if(pick) art = heroImgHTML(pick);
   }
   const allCmds = deck.cards.filter(function(c){ return c.commander; });
-  const kicker = [deck.format || (allCmds.length ? 'Commander' : 'Mazo'), s.total+(s.total === 1 ? ' carta' : ' cartas')].join(' · ');
+  const kicker = [deckFormat(deck) ? formatLabel(deckFormat(deck)) : 'Mazo', deckCountText(s)].join(' · ');
   const identity = s.colors.length ? s.colors : [];
   return '<div class="deck-hero'+(art ? '' : ' no-art')+'">'+
       '<div class="deck-hero-art">'+art+'</div><div class="deck-hero-shade"></div>'+
@@ -3556,6 +3624,7 @@ function deckHeroHTML(deck, s){
         '<h1 class="deck-hero-name">'+esc(deck.name)+'</h1>'+
         (allCmds.length ? '<div class="deck-hero-cmd">'+icon('crown',13)+' '+esc(allCmds.map(function(c){ return c.name; }).join(' & '))+'</div>' : '')+
         '<div class="deck-hero-chips">'+
+          '<button type="button" class="hero-chip hero-format" id="deckFormatBtn" title="Cambiar formato">'+esc(formatLabel(deckFormat(deck)))+' '+icon('chevron',12)+'</button>'+
           '<span class="hero-chip hero-colors">'+(identity.length ? colorPipsHTML(identity) : colorPipsHTML([]))+'</span>'+
           '<span class="hero-chip">'+s.unique+' únicas</span>'+
           '<span id="deckValueChips" class="hero-chips-dyn"></span>'+
@@ -3590,11 +3659,11 @@ function deckCardPrice(c){
    default printing from this session's cache. Decks are separate physical cards, so this
    adds to the collection's value. */
 /* copies of a deck card marked as proxies (0..qty); proxies don't count towards any value */
-function proxyCount(c){ return Math.max(0, Math.min(c.qty || 0, c.proxy || 0)); }
+function proxyCount(c){ return Math.max(0, Math.min(cardCopies(c), c.proxy || 0)); }
 function deckValue(deck, currency){
   let value = 0, copies = 0, unpriced = 0, proxies = 0, proxyValue = 0;
   (deck.cards || []).forEach(function(c){
-    const q = c.qty || 0, px = proxyCount(c), real = q - px;
+    const q = cardCopies(c), px = proxyCount(c), real = q - px;
     copies += q; proxies += px;
     let p = storedDeckPrice(c, currency);
     if(p == null){ const rc = rulesFor(c.name); if(rc && rc.prices){ const usd = currency === 'USD'; p = toNum(usd ? rc.prices.usd : rc.prices.eur); if(p == null) p = toNum(usd ? rc.prices.usd_foil : rc.prices.eur_foil); } }
@@ -3672,11 +3741,11 @@ function renderDeckValueChips(deck){
   let total = 0, priced = 0, missQty = 0, missCost = 0, proxies = 0, proxyCost = 0;
   deck.cards.forEach(function(c){
     const p = deckCardPrice(c);
-    const px = proxyCount(c);
+    const px = proxyCount(c), n = cardCopies(c);
     proxies += px;
-    const miss = Math.max(0, c.qty - ownedQtyForName(c.name));
+    const miss = Math.max(0, n - ownedQtyForName(c.name));
     missQty += miss;
-    if(p != null){ total += p*(c.qty - px); priced++; missCost += p*miss; proxyCost += p*px; }
+    if(p != null){ total += p*(n - px); priced++; missCost += p*miss; proxyCost += p*px; }
   });
   const cur = state.settings.currency;
   let html = '';
@@ -3720,6 +3789,7 @@ function openDeckDetail(id){
       deckHeroHTML(deck, s)+
       '<div class="deck-sheet">'+
       '<div id="deckLegality" data-deck-id="'+esc(deck.id)+'"></div>'+
+      '<div id="deckBracket" data-deck-id="'+esc(deck.id)+'"></div>'+
       (deck.cards.length ? curveHTML(deck) : '')+
       '<div class="panel-head" style="margin-top:1.3rem;"><h2>Añadir carta al mazo</h2></div>'+
       '<div class="search-box"><input id="deckSearchInput" class="text-input" placeholder="Nombre de la carta" autocomplete="off"><div id="deckSuggestions" class="suggestions" hidden></div></div>'+
@@ -3739,6 +3809,7 @@ function openDeckDetail(id){
   renderDeckValueChips(deck);
 
   document.getElementById('deckBackBtn').addEventListener('click', navBack);
+  document.getElementById('deckFormatBtn').addEventListener('click', function(){ openDeckFormatSheet(deck); });
   runDeckLegality(deck);
   document.getElementById('deckExportBtn').addEventListener('click', function(){ openDeckExportModal(deck); });
   const ptBtn = document.getElementById('deckPlaytestBtn');
@@ -3803,8 +3874,11 @@ function openDeckDetail(id){
     const name = (inc||dec).dataset.name;
     const c = deck.cards.find(function(x){ return x.name===name; });
     if(!c) return;
-    if(inc) c.qty++;
-    else { c.qty--; if(c.proxy > c.qty) c.proxy = c.qty; if(c.qty<=0){ deck.cards = deck.cards.filter(function(x){ return x.name!==name; }); } }
+    const key = (inc||dec).dataset.board === 'side' ? 'side' : 'qty';
+    c[key] = Math.max(0, (c[key]||0) + (inc ? 1 : -1));
+    if(c.proxy > cardCopies(c)) c.proxy = cardCopies(c);
+    if(key === 'qty' && !c.qty) c.commander = false;
+    if(cardCopies(c) <= 0) deck.cards = deck.cards.filter(function(x){ return x !== c; });
     await dbPut('decks', deck);
     openDeckDetail(deck.id);
   });
@@ -3854,10 +3928,10 @@ async function toggleDeckCommander(deck, c){
 /* Opens the deck's cards in the viewer (commanders first, then by type), at the given card. */
 function openDeckCardViewer(deck, name, sourceEl){
   const g = groupDeckCards(deck);
-  const ordered = g.commanders.concat.apply(g.commanders, g.sections.map(function(sec){ return sec.cards; }));
+  const ordered = g.commanders.concat.apply(g.commanders, g.sections.map(function(sec){ return sec.cards; }).concat([g.sideboard.filter(function(c){ return !c.qty; })]));
   const items = ordered.map(function(c){
     const px = proxyCount(c);
-    return viewerItemByName(c, (c.commander ? 'Comandante · ' : '')+'×'+c.qty+(px ? ' · '+(px === c.qty ? 'Proxy' : px+' proxy') : '')+' · En colección: '+ownedQtyForName(c.name));
+    return viewerItemByName(c, (c.commander ? 'Comandante · ' : '')+'×'+(c.qty||0)+(c.side ? ' + '+c.side+' banquillo' : '')+(px ? ' · '+(px === cardCopies(c) ? 'Proxy' : px+' proxy') : '')+' · En colección: '+ownedQtyForName(c.name));
   });
   openCardViewer(items, Math.max(0, ordered.findIndex(function(c){ return c.name === name; })), sourceEl);
 }
@@ -3888,6 +3962,7 @@ function openDeckCardSheet(deck, name){
   const canFoil = !fin || fin.indexOf('foil') > -1 || fin.indexOf('etched') > -1;
   const foilOnly = !!(fin && canFoil && fin.indexOf('nonfoil') < 0);
   const lang = c.lang || 'EN';
+  const withSide = deckFormat(deck) !== 'commander' || (c.side||0) > 0;
   const sw = function(id, on, label, disabled){ return '<label class="switch" aria-label="'+label+'"><input type="checkbox" id="'+id+'"'+(on ? ' checked' : '')+(disabled ? ' disabled' : '')+'><span class="track"></span><span class="thumb"></span></label>'; };
   openModal(
     '<div class="modal-card-image-wrap">'+
@@ -3899,16 +3974,19 @@ function openDeckCardSheet(deck, name){
     (c.setCode ? '<div class="sheet-set">'+setIconSpanHTML(c.setCode, c.rarity)+'<span>'+esc(c.setName || String(c.setCode).toUpperCase())+(c.collectorNumber ? ' · #'+esc(c.collectorNumber) : '')+'</span></div>' : '')+
     '<div class="sheet-price" id="dcsPrice"></div>'+
     '<button type="button" class="change-printing-btn" id="dcsChangePrinting">'+icon('layers',14)+' Cambiar edición</button>'+
-    '<div class="stepper-lg">'+
-      '<button class="qty-btn" id="dcsQtyDec" aria-label="Una copia menos">'+icon('minus',16)+'</button>'+
-      '<span class="qty-val" id="dcsQtyVal">'+c.qty+'</span>'+
-      '<button class="qty-btn" id="dcsQtyInc" aria-label="Una copia más">'+icon('plus',16)+'</button>'+
-    '</div>'+
+    (withSide
+      ? '<div class="toggle-row dcs-row"><div><div class="srlabel">En el mazo</div></div><div class="qty-stepper"><button class="qty-btn" id="dcsQtyDec" aria-label="Una copia menos">'+icon('minus',13)+'</button><span class="qty-val" id="dcsQtyVal">'+(c.qty||0)+'</span><button class="qty-btn" id="dcsQtyInc" aria-label="Una copia más">'+icon('plus',13)+'</button></div></div>'+
+        '<div class="toggle-row dcs-row"><div><div class="srlabel">En el banquillo</div><div class="srsub">Sideboard · máximo 15 cartas en total</div></div><div class="qty-stepper"><button class="qty-btn" id="dcsSideDec" aria-label="Una menos en el banquillo">'+icon('minus',13)+'</button><span class="qty-val" id="dcsSideVal">'+(c.side||0)+'</span><button class="qty-btn" id="dcsSideInc" aria-label="Una más en el banquillo">'+icon('plus',13)+'</button></div></div>'
+      : '<div class="stepper-lg">'+
+          '<button class="qty-btn" id="dcsQtyDec" aria-label="Una copia menos">'+icon('minus',16)+'</button>'+
+          '<span class="qty-val" id="dcsQtyVal">'+c.qty+'</span>'+
+          '<button class="qty-btn" id="dcsQtyInc" aria-label="Una copia más">'+icon('plus',16)+'</button>'+
+        '</div>')+
     (canFoil ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Foil</div>'+(foilOnly ? '<div class="srsub">Esta edición solo existe en foil</div>' : '')+'</div>'+sw('dcsFoil', !!c.foil, 'Foil', foilOnly)+'</div>' : '')+
     '<div class="toggle-row dcs-row"><div><div class="srlabel">Idioma</div></div>'+
       '<select id="dcsLang" class="text-input dcs-select" aria-label="Idioma">'+LANGS.map(function(l){ return '<option value="'+l+'"'+(lang === l ? ' selected' : '')+'>'+l+'</option>'; }).join('')+'</select></div>'+
     '<div class="toggle-row dcs-row" id="dcsProxyRow"></div>'+
-    (maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
+    ((isCommanderDeck(deck) || c.commander) && maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
     '<div class="btn-row">'+
       '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar</button>'+
       '<button class="btn btn-primary btn-block" id="dcsDone">'+icon('check',15)+' Hecho</button>'+
@@ -3926,48 +4004,55 @@ function openDeckCardSheet(deck, name){
     const u = units();
     const unit = c.foil ? (u.foil != null ? u.foil : u.normal) : (u.normal != null ? u.normal : u.foil);
     if(unit == null){ el.innerHTML = '<span class="sp-main sp-none">Sin precio</span>'; return; }
-    const px = proxyCount(c), real = c.qty - px;
+    const n = cardCopies(c), px = proxyCount(c), real = n - px;
     const tag = c.foil ? ' <span class="sp-tag">Foil</span>' : '';
     const sub = [];
     if(c.foil && u.normal != null) sub.push('Normal: '+fmtMoney(u.normal, cur));
     if(!c.foil && u.foil != null) sub.push('Foil: '+fmtMoney(u.foil, cur));
     let main = '<span class="sp-main">'+fmtMoney(unit, cur)+tag+'</span>';
     if(px && !real){ main = '<span class="sp-main"><s>'+fmtMoney(unit, cur)+'</s>'+tag+'</span>'; sub.push('Proxy · no suma al total'); }
-    else if(px) sub.push('Cuentan '+real+' de '+c.qty+' ('+fmtMoney(unit*real, cur)+') · '+px+' proxy');
-    else if(c.qty > 1) sub.push('×'+c.qty+' = '+fmtMoney(unit*c.qty, cur));
+    else if(px) sub.push('Cuentan '+real+' de '+n+' ('+fmtMoney(unit*real, cur)+') · '+px+' proxy');
+    else if(n > 1) sub.push('×'+n+' = '+fmtMoney(unit*n, cur));
     el.innerHTML = main + (sub.length ? '<span class="sp-sub">'+esc(sub.join(' · '))+'</span>' : '');
   }
   function paintProxy(){
     const row = document.getElementById('dcsProxyRow'); if(!row) return;
-    const multi = c.qty > 1;
+    const multi = cardCopies(c) > 1;
     row.innerHTML = '<div><div class="srlabel">'+(multi ? 'Proxies' : 'Es un proxy')+'</div>'+
-      '<div class="srsub">'+(multi ? 'Cuántas de las '+c.qty+' copias son proxy. ' : '')+'No cuenta en el valor del mazo ni en el total.</div></div>'+
+      '<div class="srsub">'+(multi ? 'Cuántas de las '+cardCopies(c)+' copias son proxy. ' : '')+'No cuenta en el valor del mazo ni en el total.</div></div>'+
       (multi
         ? '<div class="qty-stepper"><button class="qty-btn" id="dcsProxyDec" aria-label="Una proxy menos">'+icon('minus',13)+'</button><span class="qty-val" id="dcsProxyVal">'+proxyCount(c)+'</span><button class="qty-btn" id="dcsProxyInc" aria-label="Una proxy más">'+icon('plus',13)+'</button></div>'
         : sw('dcsProxy', proxyCount(c) > 0, 'Es un proxy'));
     const sp = document.getElementById('dcsProxy');
-    if(sp) sp.addEventListener('change', function(){ c.proxy = sp.checked ? c.qty : 0; save(); toast(sp.checked ? 'Marcada como proxy: ya no cuenta en el valor' : 'Ya no es proxy: vuelve a contar en el valor'); });
+    if(sp) sp.addEventListener('change', function(){ c.proxy = sp.checked ? cardCopies(c) : 0; save(); toast(sp.checked ? 'Marcada como proxy: ya no cuenta en el valor' : 'Ya no es proxy: vuelve a contar en el valor'); });
     const pd = document.getElementById('dcsProxyDec'), pi = document.getElementById('dcsProxyInc');
-    const stepProxy = function(d){ c.proxy = Math.max(0, Math.min(c.qty, proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); };
+    const stepProxy = function(d){ c.proxy = Math.max(0, Math.min(cardCopies(c), proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); };
     if(pd) pd.addEventListener('click', function(){ stepProxy(-1); });
     if(pi) pi.addEventListener('click', function(){ stepProxy(1); });
   }
   async function save(){ paintPrice(); await dbPut('decks', deck); if(document.getElementById('deckCardsList')) openDeckDetail(deck.id); }
   paintPrice(); paintProxy();
 
-  // quantity (at least 1 here; "Quitar" takes the card out of the deck)
-  const qv = document.getElementById('dcsQtyVal');
-  const stepQty = function(d){
-    const before = c.qty;
-    c.qty = Math.max(1, c.qty + d);
-    if(c.qty === before) return;
-    if(c.proxy > c.qty) c.proxy = c.qty;
-    qv.textContent = c.qty; qv.classList.remove('bump'); void qv.offsetWidth; qv.classList.add('bump');
-    if((before > 1) !== (c.qty > 1)) paintProxy(); else { const pv = document.getElementById('dcsProxyVal'); if(pv) pv.textContent = proxyCount(c); }
+  // quantities: main deck and sideboard (at least 1 copy in total; "Quitar" takes the card out)
+  const step = function(key, d, el){
+    const beforeTotal = cardCopies(c), before = c[key] || 0;
+    const next = Math.max(0, before + d);
+    if(next === before || (beforeTotal - before + next) < 1) return;
+    c[key] = next;
+    if(key === 'qty' && !c.qty) c.commander = false;
+    if(c.proxy > cardCopies(c)) c.proxy = cardCopies(c);
+    el.textContent = next; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+    if((beforeTotal > 1) !== (cardCopies(c) > 1)) paintProxy(); else { const pv = document.getElementById('dcsProxyVal'); if(pv) pv.textContent = proxyCount(c); }
     save();
   };
-  document.getElementById('dcsQtyDec').addEventListener('click', function(){ stepQty(-1); });
-  document.getElementById('dcsQtyInc').addEventListener('click', function(){ stepQty(1); });
+  const qv = document.getElementById('dcsQtyVal'), sv = document.getElementById('dcsSideVal');
+  const minMain = function(){ return withSide ? 0 : 1; };
+  document.getElementById('dcsQtyDec').addEventListener('click', function(){ if((c.qty||0) > minMain()) step('qty', -1, qv); });
+  document.getElementById('dcsQtyInc').addEventListener('click', function(){ step('qty', 1, qv); });
+  if(sv){
+    document.getElementById('dcsSideDec').addEventListener('click', function(){ step('side', -1, sv); });
+    document.getElementById('dcsSideInc').addEventListener('click', function(){ step('side', 1, sv); });
+  }
   // foil
   const foilSw = document.getElementById('dcsFoil');
   if(foilSw) foilSw.addEventListener('change', function(){ c.foil = foilSw.checked; document.getElementById('dcsFoilFx').hidden = !c.foil; save(); });
@@ -4013,13 +4098,15 @@ function newDeckModal(){
   openModal(
     '<h3 class="modal-title">'+icon('layers',20)+' Nuevo mazo</h3>'+
     '<div class="field"><label for="newDeckName">Nombre</label><input id="newDeckName" class="text-input" placeholder="Ej. Comandante Atraxa"></div>'+
-    '<div class="field"><label for="newDeckFormat">Formato (opcional)</label><input id="newDeckFormat" class="text-input" placeholder="Commander, Standard, Modern…"></div>'+
+    '<div class="field"><label for="newDeckFormat">Formato</label><select id="newDeckFormat" class="text-input">'+
+      DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){ return '<option value="'+f.key+'"'+(f.key === (DECK_FORMATS.some(function(x){ return x.key === state.settings.deckTab; }) ? state.settings.deckTab : 'commander') ? ' selected' : '')+'>'+f.label+'</option>'; }).join('')+
+    '</select></div>'+
     '<button class="btn btn-primary btn-block" id="createDeckBtn">'+icon('check',15)+' Crear mazo</button>'
   );
   document.getElementById('createDeckBtn').addEventListener('click', async function(){
     const name = document.getElementById('newDeckName').value.trim();
     if(!name){ toast('Ponle un nombre al mazo'); return; }
-    const deck = {id:uuid(), name:name, format:document.getElementById('newDeckFormat').value.trim(), cards:[], createdAt:Date.now()};
+    const deck = {id:uuid(), name:name, format:document.getElementById('newDeckFormat').value, cards:[], createdAt:Date.now()};
     await dbPut('decks', deck);
     state.decks.push(deck);
     closeModal(); renderDecks(); openDeckDetail(deck.id);
@@ -4028,35 +4115,51 @@ function newDeckModal(){
 
 // ManaBox (and MTG Arena, which it mirrors) export decklists as plain text:
 // one card per line as "QTY Name" or "QTY Name (SET) 123" — the set/number
-// are optional. Section headers like "Deck"/"Sideboard"/"Commander" and
-// blank or comment lines are skipped; everything else is folded into one
-// flat list, matching how this app's decks already work (no separate
-// sideboard concept here).
+// are optional. Section headers ("Deck", "Sideboard", "Commander", "Companion",
+// "Maybeboard") pick where the next cards go; "SB:" lines go to the sideboard and
+// "*F*" marks a foil. MTGO-style lists have no headers: there the sideboard is the
+// last block after a blank line (only when the main block has 60+ cards, so a
+// Commander list split into blocks isn't touched).
 const DECK_TXT_HEADER_RE = /^(deck|sideboard|commander|companion|maybeboard|about|name)\b.*$/i;
 function parseDeckImportText(text){
   const lines = text.split(/\r?\n/);
   const out = [];
-  let section = 'deck';
+  let section = 'deck', sawHeader = false, block = 0;
   for(let i=0;i<lines.length;i++){
     const line = lines[i].trim();
-    if(!line || line.startsWith('//') || line.startsWith('#')) continue;
+    if(!line){ if(out.length && out[out.length-1].block === block) block++; continue; }
+    if(line.startsWith('//') || line.startsWith('#')) continue;
     const headerMatch = line.match(DECK_TXT_HEADER_RE);
-    if(headerMatch){ section = headerMatch[1].toLowerCase(); continue; }
-    const m = line.match(/^(\d+)\s*x?\s+(.+)$/i);
+    if(headerMatch){ section = headerMatch[1].toLowerCase(); sawHeader = true; continue; }
+    if(section === 'maybeboard') continue; // "considering" cards aren't part of the deck
+    let sbLine = false;
+    let body = line;
+    if(/^sb:\s*/i.test(body)){ sbLine = true; body = body.replace(/^sb:\s*/i, ''); }
+    const m = body.match(/^(\d+)\s*x?\s+(.+)$/i);
     if(!m) continue;
     const qty = parseInt(m[1],10) || 1;
     let rest = m[2].trim();
     let setCode = null, collectorNumber = null;
-    const setMatch = rest.match(/^(.*?)\s*\(([A-Za-z0-9]{2,5})\)\s*([A-Za-z0-9\-★]*)\s*$/);
+    const setMatch = rest.replace(/\s*\*[FE]\*\s*$/i, '').match(/^(.*?)\s*\(([A-Za-z0-9]{2,5})\)\s*([A-Za-z0-9\-★]*)\s*$/);
     if(setMatch){
       rest = setMatch[1].trim();
       setCode = setMatch[2];
       collectorNumber = (setMatch[3]||'').trim() || null;
     }
-    rest = rest.replace(/\s*\*F\*\s*$/i,'').trim(); // strip a trailing foil marker some exporters add
+    const foil = /\*F\*/i.test(rest) || /\*F\*/i.test(body);
+    rest = rest.replace(/\s*\*[FE]\*\s*$/i,'').trim(); // trailing foil / etched marker some exporters add
     if(!rest) continue;
-    out.push({qty:qty, name:rest, setCode:setCode, collectorNumber:collectorNumber, commander: section==='commander'});
+    out.push({qty:qty, name:rest, setCode:setCode, collectorNumber:collectorNumber, commander: section==='commander',
+      side: sbLine || section === 'sideboard' || section === 'companion', foil: foil, block: block});
   }
+  // MTGO style: "main deck ⏎⏎ sideboard" with no headers at all
+  const lastBlock = out.length ? out[out.length-1].block : 0;
+  if(!sawHeader && lastBlock > 0 && !out.some(function(e){ return e.side; })){
+    const sum = function(f){ return out.filter(f).reduce(function(a,e){ return a+e.qty; }, 0); };
+    const main = sum(function(e){ return e.block < lastBlock; }), side = sum(function(e){ return e.block === lastBlock; });
+    if(main >= 60 && side <= 15 && main + side !== 100) out.forEach(function(e){ if(e.block === lastBlock) e.side = true; });
+  }
+  out.forEach(function(e){ delete e.block; });
   return out;
 }
 function setDecksImportProgress(pct, show){
@@ -4099,7 +4202,8 @@ function importCardImage(card){ const f = printFace(card); return f.image || f.i
 function setImportProgress(el, f){
   const pctEl = el.querySelector('#ioPct'); if(!pctEl) return;
   el.querySelector('#ioFill').style.transform = 'scaleX('+f.toFixed(4)+')';
-  const from = +pctEl.textContent || 0, to = Math.round(f*100);
+  const from = +pctEl.textContent || 0, to = Math.max(Math.round(f*100), el._pctMax || 0); // never counts backwards
+  el._pctMax = to;
   cancelAnimationFrame(el._pctRaf);
   if(to - from <= 2 || prefersReducedMotion()){ pctEl.textContent = to; return; }
   const t0 = performance.now(), dur = 450;
@@ -4201,16 +4305,23 @@ async function importDeckTxtFile(file){
   if(!entries.length){ toast('No se ha podido leer ninguna carta de ese archivo.'); return; }
 
   const defaultName = file.name.replace(/\.[^.]+$/, '').trim() || 'Mazo importado';
-  const deck = {id:uuid(), name:defaultName, format:'', cards:[], createdAt:Date.now()};
+  const tabFmt = DECK_FORMATS.some(function(f){ return f.key === state.settings.deckTab; }) ? state.settings.deckTab : '';
+  const fileFmt = entries.some(function(e){ return e.commander; }) ? 'commander' : (formatKeyFromText(defaultName) || tabFmt);
+  const deck = {id:uuid(), name:defaultName, format:fileFmt, cards:[], createdAt:Date.now()};
 
   const busy = openImportOverlay({title:'Importando mazo', subtitle:defaultName, cancelLabel:'Cancelar'});
   let fail = 0, done = 0;
   function addToDeck(e, card){
     const face = printFace(card);
     const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
-    if(existing){ existing.qty += e.qty; if(e.commander) existing.commander = true; return; }
+    if(existing){
+      if(e.side) existing.side = (existing.side||0) + e.qty; else existing.qty = (existing.qty||0) + e.qty;
+      if(e.commander) existing.commander = true;
+      if(e.foil) existing.foil = true;
+      return;
+    }
     deck.cards.push({
-      name: card.name, qty: e.qty, cmc: card.cmc||0,
+      name: card.name, qty: e.side ? 0 : e.qty, side: e.side ? e.qty : 0, foil: !!e.foil, cmc: card.cmc||0,
       colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
       imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card),
       setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander,
@@ -4253,9 +4364,11 @@ async function importDeckTxtFile(file){
   await dbPut('decks', deck);
   state.decks.push(deck);
   renderDecks();
-  const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
-  await finishImportOverlay('Mazo importado', total+' cartas'+(fail ? ' · '+fail+' no encontradas' : ''));
+  const total = deck.cards.reduce(function(a,c){ return a+(c.qty||0); }, 0);
+  const sideTotal = deck.cards.reduce(function(a,c){ return a+(c.side||0); }, 0);
+  await finishImportOverlay('Mazo importado', total+' cartas'+(sideTotal ? ' + '+sideTotal+' banquillo' : '')+(fail ? ' · '+fail+' no encontradas' : ''));
   openDeckDetail(deck.id);
+  if(!deck.format) setTimeout(function(){ openDeckFormatSheet(deck, {title:'¿De qué formato es?'}); }, 350);
   if(fail) toast('Mazo importado: '+total+' cartas, '+fail+' no encontradas');
 }
 
@@ -5086,9 +5199,66 @@ function commanderPairOk(a, b){
   if((A.doctorsCompanion && B.isDoctor) || (B.doctorsCompanion && A.isDoctor)) return true;
   return false;
 }
-function isCommanderDeck(deck){
-  return deck.cards.some(function(c){ return c.commander; }) || /commander|edh/i.test(deck.format || '');
+/* ---------- Deck formats ----------
+   Each deck has a format: commander, modern, pauper, standard or '' (sin formato). Older
+   decks stored free text ("Commander", "EDH"…); they're converted once at start-up. */
+const DECK_FORMATS = [{key:'commander', label:'Commander'}, {key:'modern', label:'Modern'}, {key:'pauper', label:'Pauper'}, {key:'standard', label:'Standard'}];
+const SIXTY_FORMATS = ['modern', 'pauper', 'standard'];
+function formatKeyFromText(t){
+  t = String(t || '').toLowerCase();
+  if(/commander|edh/.test(t)) return 'commander';
+  if(/modern/.test(t)) return 'modern';
+  if(/pauper/.test(t)) return 'pauper';
+  if(/standard|est[aá]ndar/.test(t)) return 'standard';
+  return '';
 }
+function deckFormat(deck){
+  const k = formatKeyFromText(deck.format);
+  if(k) return k;
+  return (deck.cards || []).some(function(c){ return c.commander; }) ? 'commander' : '';
+}
+function formatLabel(k){ const f = DECK_FORMATS.find(function(x){ return x.key === k; }); return f ? f.label : 'Sin formato'; }
+function isCommanderDeck(deck){ return deckFormat(deck) === 'commander'; }
+/* old free-text formats → keys (the original text is kept in formatNote if it wasn't one of ours) */
+async function migrateDeckFormats(){
+  const changed = [];
+  state.decks.forEach(function(d){
+    const k = deckFormat(d);
+    if(d.format !== k){ if(d.format && !formatKeyFromText(d.format)) d.formatNote = d.format; d.format = k; changed.push(d); }
+  });
+  if(changed.length) await dbPutMany('decks', changed);
+}
+/* "¿De qué formato es?" — used from the deck cover and after importing a deck without one. */
+function openDeckFormatSheet(deck, opts){
+  opts = opts || {};
+  const cur = deckFormat(deck);
+  openModal(
+    '<h3 class="modal-title">'+icon('layers',20)+' '+esc(opts.title || 'Formato del mazo')+'</h3>'+
+    '<div class="section-note" style="margin-top:-.4rem;">'+esc(deck.name)+' · se comprobarán sus reglas y prohibiciones</div>'+
+    '<div class="fmt-pick">'+DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){
+      return '<button type="button" class="fmt-opt'+(f.key === cur ? ' active' : '')+'" data-fmt="'+f.key+'"><b>'+esc(f.label)+'</b><span>'+esc(FORMAT_BLURB[f.key])+'</span></button>';
+    }).join('')+'</div>'
+  );
+  document.querySelector('#modalRoot .fmt-pick').addEventListener('click', async function(e){
+    const b = e.target.closest('[data-fmt]'); if(!b) return;
+    const k = b.dataset.fmt;
+    deck.format = k; delete deck.legality; delete deck.bracket;
+    if(k !== 'commander') deck.cards.forEach(function(c){ c.commander = false; });
+    await dbPut('decks', deck);
+    closeModal();
+    renderDecks();
+    if(document.getElementById('deckCardsList')) openDeckDetail(deck.id);
+    toast(k ? 'Mazo de '+formatLabel(k) : 'Mazo sin formato');
+  });
+}
+const FORMAT_BLURB = {
+  commander: '100 cartas, singleton, comandante e identidad de color',
+  modern: '60+ cartas, banquillo 15, máx. 4 copias, ediciones desde 8ª',
+  pauper: '60+ cartas, banquillo 15, máx. 4 copias, solo comunes',
+  standard: '60+ cartas, banquillo 15, máx. 4 copias, ediciones recientes',
+  '': 'Sin comprobar reglas'
+};
+function cardCopies(c){ return (c.qty || 0) + (c.side || 0); }
 function listNames(names, max){
   max = max || 6;
   const shown = names.slice(0, max).join(', ');
@@ -5107,7 +5277,8 @@ function computeCommanderLegality(deck){
 
   // 1) size
   if(total !== 100){
-    issues.push({level:'error', title: total < 100 ? 'Faltan '+(100-total)+' cartas: un mazo de Commander tiene exactamente 100 (con el comandante).' : 'Sobran '+(total-100)+' cartas: un mazo de Commander tiene exactamente 100 (con el comandante).', cards:[]});
+    const off = Math.abs(100-total);
+    issues.push({level:'error', title: (total < 100 ? (off === 1 ? 'Falta 1 carta' : 'Faltan '+off+' cartas') : (off === 1 ? 'Sobra 1 carta' : 'Sobran '+off+' cartas'))+': un mazo de Commander tiene exactamente 100 (con el comandante).', cards:[]});
   }
   // 2) commander(s)
   const cmdCards = commanders.map(function(c){ return rulesFor(c.name); }).filter(Boolean);
@@ -5176,14 +5347,54 @@ function computeCommanderLegality(deck){
   const hasWarn = issues.some(function(i){ return i.level === 'warn'; });
   return {status: hasError ? 'illegal' : (hasWarn ? 'warn' : 'legal'), issues: issues, flags: flags, total: total};
 }
+/* Modern / Pauper / Standard: main deck of 60 or more, sideboard of 15 at most, at most 4
+   copies of a card counting main deck + sideboard (basic lands and "any number" cards
+   excepted) and every card legal in the format. Scryfall's legalities keep the ban lists,
+   Pauper's commons and Standard's rotation up to date. null while rules data is missing. */
+function maxCopies60(card){ const m = maxCopiesAllowed(card); return m === 1 ? 4 : m; }
+function computeFormatLegality(deck, fmt){
+  const names = deck.cards.map(function(c){ return c.name; });
+  if(names.some(function(n){ return rulesFor(n) === undefined; })) return null;
+  const issues = [], flags = {};
+  function flag(name, label){ (flags[name] = flags[name] || []).indexOf(label) === -1 && flags[name].push(label); }
+  const label = formatLabel(fmt);
+  const main = deck.cards.reduce(function(a,c){ return a+(c.qty||0); }, 0);
+  const side = deck.cards.reduce(function(a,c){ return a+(c.side||0); }, 0);
+  if(main < 60) issues.push({level:'error', title:(60-main === 1 ? 'Falta 1 carta' : 'Faltan '+(60-main)+' cartas')+': el mazo principal de '+label+' necesita al menos 60.', cards:[]});
+  if(side > 15) issues.push({level:'error', title:'El banquillo tiene '+side+' cartas: como máximo pueden ser 15.', cards:[]});
+  const banned = [], notLegal = [], dupes = [], unknown = [];
+  deck.cards.forEach(function(c){
+    const card = rulesFor(c.name);
+    if(!card){ unknown.push(c.name); return; }
+    const l = card.legalities && card.legalities[fmt];
+    if(l === 'banned'){ banned.push(c.name); flag(c.name, 'Prohibida'); }
+    else if(l && l !== 'legal' && l !== 'restricted'){ notLegal.push(c.name); flag(c.name, fmt === 'pauper' ? 'No es común' : 'No legal'); }
+    const max = maxCopies60(card), n = cardCopies(c);
+    if(n > max){ dupes.push(n+'× '+c.name); flag(c.name, 'Más de '+max); }
+  });
+  if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en '+label+'.', cards: banned});
+  if(notLegal.length){
+    const why = fmt === 'pauper' ? 'solo se permiten cartas que se hayan impreso como comunes'
+      : fmt === 'standard' ? 'no están en las ediciones que forman parte de Standard ahora mismo'
+      : 'no se han impreso en ninguna edición válida para Modern';
+    issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no es legal':'cartas no son legales')+' en '+label+': '+why+'.', cards: notLegal});
+  }
+  if(dupes.length) issues.push({level:'error', title:'Como máximo 4 copias de cada carta contando mazo y banquillo (salvo tierras básicas y cartas que digan lo contrario).', cards: dupes});
+  if(unknown.length) issues.push({level:'warn', title: unknown.length+' '+(unknown.length===1?'carta no se ha encontrado':'cartas no se han encontrado')+' en Scryfall y no se han podido comprobar.', cards: unknown});
+  const hasError = issues.some(function(i){ return i.level === 'error'; });
+  const hasWarn = issues.some(function(i){ return i.level === 'warn'; });
+  return {status: hasError ? 'illegal' : (hasWarn ? 'warn' : 'legal'), issues: issues, flags: flags, total: main, side: side};
+}
 function legalityPanelHTML(deck, result, state_){
-  if(state_ === 'hint'){
-    return '<div class="legality-card hint"><div class="legality-head"><span class="lg-icon">'+icon('crown',14)+'</span>'+
-      '<div>¿Es un mazo de Commander?<div class="legality-sub">Marca el comandante con la corona para comprobar si es legal.</div></div></div></div>';
+  const fmt = deckFormat(deck), label = formatLabel(fmt);
+  if(state_ === 'choose'){
+    return '<div class="legality-card hint"><div class="legality-head"><span class="lg-icon">'+icon('layers',14)+'</span>'+
+      '<div>¿De qué formato es este mazo?<div class="legality-sub">Elígelo para comprobar sus reglas y prohibiciones.</div></div>'+
+      '<button class="btn btn-ghost" id="legalityFormatBtn" style="margin-left:auto;">Elegir</button></div></div>';
   }
   if(state_ === 'loading'){
     return '<div class="legality-card loading"><div class="legality-head"><span class="lg-icon">'+icon('search',14)+'</span>'+
-      '<div>Comprobando legalidad en Commander…<div class="legality-sub">Consultando Scryfall</div></div></div></div>';
+      '<div>Comprobando legalidad en '+esc(label)+'…<div class="legality-sub">Consultando Scryfall</div></div></div></div>';
   }
   if(state_ === 'offline'){
     return '<div class="legality-card warn"><div class="legality-head"><span class="lg-icon">'+icon('alert',14)+'</span>'+
@@ -5193,10 +5404,12 @@ function legalityPanelHTML(deck, result, state_){
   const errors = result.issues.filter(function(i){ return i.level === 'error'; }).length;
   const cls = result.status === 'legal' ? 'ok' : (result.status === 'warn' ? 'warn' : 'bad');
   const headIcon = result.status === 'legal' ? icon('check',15) : icon('alert',14);
-  const title = result.status === 'legal' ? 'Legal en Commander'
+  const title = result.status === 'legal' ? 'Legal en '+label
     : result.status === 'warn' ? 'Parece legal, pero revisa lo siguiente'
-    : 'No es legal en Commander · '+errors+' '+(errors===1?'problema':'problemas');
-  const sub = result.status === 'legal' ? result.total+' cartas · singleton · identidad de color · sin prohibidas' : '';
+    : 'No es legal en '+label+' · '+errors+' '+(errors===1?'problema':'problemas');
+  const sub = result.status !== 'legal' ? ''
+    : fmt === 'commander' ? result.total+' cartas · singleton · identidad de color · sin prohibidas'
+    : result.total+' cartas'+(result.side ? ' + '+result.side+' banquillo' : '')+' · máx. 4 copias'+(fmt === 'pauper' ? ' · solo comunes' : '')+' · sin prohibidas';
   const items = result.issues.map(function(i){
     const ic = i.level === 'error' ? icon('x',13) : (i.level === 'warn' ? icon('alert',13) : icon('info',13));
     return '<li class="'+i.level+'"><span class="li-icon">'+ic+'</span><div>'+esc(i.title)+
@@ -5226,12 +5439,12 @@ function applyRulesToDeck(deck){
 async function runDeckLegality(deck){
   const el = document.getElementById('deckLegality');
   if(!el) return;
-  const cmdDeck = isCommanderDeck(deck);
+  const fmt = deckFormat(deck);
   const names = deck.cards.map(function(c){ return c.name; });
   const stillHere = function(){ const e = document.getElementById('deckLegality'); return e && e.dataset.deckId === deck.id; };
   let ok = true;
   if(names.some(function(n){ return rulesFor(n) === undefined; })){
-    if(cmdDeck) el.innerHTML = legalityPanelHTML(deck, null, 'loading');
+    if(fmt) el.innerHTML = legalityPanelHTML(deck, null, 'loading');
     ok = await ensureCardRules(names);
     if(!stillHere()) return; // user navigated away meanwhile
   }
@@ -5240,16 +5453,19 @@ async function runDeckLegality(deck){
     renderDeckValueChips(deck);
   }
   const target = document.getElementById('deckLegality');
-  if(!cmdDeck){
-    const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
-    target.innerHTML = (!deck.format && total >= 90) ? legalityPanelHTML(deck, null, 'hint') : '';
+  const bracketEl = document.getElementById('deckBracket');
+  if(!fmt){
+    target.innerHTML = deck.cards.length ? legalityPanelHTML(deck, null, 'choose') : '';
+    const fb = document.getElementById('legalityFormatBtn');
+    if(fb) fb.addEventListener('click', function(){ openDeckFormatSheet(deck); });
+    if(bracketEl) bracketEl.innerHTML = '';
     delete deckLegalityResults[deck.id];
     const list = document.getElementById('deckCardsList');
     if(list && ok) list.innerHTML = deckCardsListHTML(deck);
-    if(deck.legality){ delete deck.legality; await dbPut('decks', deck); }
+    if(deck.legality || deck.bracket){ delete deck.legality; delete deck.bracket; await dbPut('decks', deck); }
     return;
   }
-  const result = ok ? computeCommanderLegality(deck) : null;
+  const result = ok ? (fmt === 'commander' ? computeCommanderLegality(deck) : computeFormatLegality(deck, fmt)) : null;
   if(!result){
     target.innerHTML = legalityPanelHTML(deck, null, 'offline');
     const retry = document.getElementById('legalityRetryBtn');
@@ -5262,7 +5478,113 @@ async function runDeckLegality(deck){
   if(list) list.innerHTML = deckCardsListHTML(deck);
   // remember the verdict for the badge on the deck tile
   const status = result.status === 'legal' ? 'legal' : (result.status === 'illegal' ? 'illegal' : 'warn');
-  if(deck.legality !== status){ deck.legality = status; await dbPut('decks', deck); }
+  let dirty = false;
+  if(deck.legality !== status){ deck.legality = status; dirty = true; }
+  if(fmt === 'commander'){ if(await renderDeckBracket(deck)) dirty = true; }
+  else { if(bracketEl) bracketEl.innerHTML = ''; if(deck.bracket){ delete deck.bracket; dirty = true; } }
+  if(dirty) await dbPut('decks', deck);
+}
+
+/* ---------- Commander bracket (power level) estimate ----------
+   The official brackets (Wizards; update of Oct 2025, Game Changers list as kept by Scryfall's
+   "is:gamechanger" search so it stays current): 1 Exhibición · 2 Básico · 3 Mejorado (up to 3
+   Game Changers, no mass land denial, no chained extra turns, no early two-card combos) ·
+   4 Optimizado (no limits) · 5 cEDH (competitive intent, which a list can't show).
+   Tutors no longer count. Combos come from a list of well-known two-card combos, so this is
+   an estimate to start the pre-game conversation, not a verdict. */
+const BRACKETS = {
+  1: {name:'Exhibición', desc:'Temático o muy casual; partidas largas (turno 9 o más).'},
+  2: {name:'Básico', desc:'Nivel de un precon: sin Game Changers, sin combos ni destrucción masiva de tierras.'},
+  3: {name:'Mejorado', desc:'Mazo afinado con hasta 3 Game Changers y sin combos tempranos; gana a partir del turno 6.'},
+  4: {name:'Optimizado', desc:'Sin restricciones: tan fuerte como quieras; puede ganar desde el turno 4.'},
+  5: {name:'cEDH', desc:'Competitivo de torneo.'}
+};
+const KNOWN_COMBOS = [
+  ["Thassa's Oracle","Demonic Consultation"],["Thassa's Oracle","Tainted Pact"],["Laboratory Maniac","Demonic Consultation"],
+  ["Jace, Wielder of Mysteries","Demonic Consultation"],["Isochron Scepter","Dramatic Reversal"],
+  ["Kiki-Jiki, Mirror Breaker","Zealous Conscripts"],["Kiki-Jiki, Mirror Breaker","Pestermite"],["Kiki-Jiki, Mirror Breaker","Deceiver Exarch"],
+  ["Kiki-Jiki, Mirror Breaker","Felidar Guardian"],["Splinter Twin","Pestermite"],["Splinter Twin","Deceiver Exarch"],
+  ["Exquisite Blood","Sanguine Bond"],["Exquisite Blood","Vito, Thorn of the Dusk Rose"],["Heliod, Sun-Crowned","Walking Ballista"],
+  ["Basalt Monolith","Rings of Brighthearth"],["Basalt Monolith","Power Artifact"],["Grim Monolith","Power Artifact"],["Kinnan, Bonder Prodigy","Basalt Monolith"],
+  ["Dualcaster Mage","Twinflame"],["Dualcaster Mage","Heat Shimmer"],["Devoted Druid","Vizier of Remedies"],
+  ["Niv-Mizzet, Parun","Curiosity"],["Niv-Mizzet, the Firemind","Curiosity"],["Peregrine Drake","Deadeye Navigator"],["Palinchron","Deadeye Navigator"],
+  ["Mikaeus, the Unhallowed","Triskelion"],["Mikaeus, the Unhallowed","Walking Ballista"],["Painter's Servant","Grindstone"],
+  ["Worldgorger Dragon","Animate Dead"],["Sword of the Meek","Thopter Foundry"],["Earthcraft","Squirrel Nest"],["Pili-Pala","Grand Architect"],
+  ["Mindcrank","Duskmantle Guardian"],["Mindcrank","Bloodchief Ascension"],["Food Chain","Squee, the Immortal"],["Food Chain","Eternal Scourge"],
+  ["Bloom Tender","Freed from the Real"],["Ghave, Guru of Spores","Ashnod's Altar"],["Auriok Salvagers","Lion's Eye Diamond"]
+];
+const MLD_RES = [/(destroy|exile) all [^.]*lands/i, /return all [^.]*lands/i, /each player sacrifices [^.]*lands/i, /lands? (?:don't|do not) untap/i,
+  /can't untap more than/i, /skip (?:their|your) untap steps?/i, /nonbasic lands are (?:mountains|islands|swamps|plains|forests)/i];
+const EXTRA_TURN_RE = /takes? an extra turn/i;
+const GC_KEY = 'mtgGameChangers';
+let gameChangerNames = null;
+/* The current Game Changers, from Scryfall (cached for a week). Offline: each card's own flag. */
+async function ensureGameChangers(){
+  if(gameChangerNames) return gameChangerNames;
+  try{ const c = JSON.parse(localStorage.getItem(GC_KEY) || 'null'); if(c && c.ts && Date.now() - c.ts < 7*DAY_MS && Array.isArray(c.names) && c.names.length){ gameChangerNames = new Set(c.names); return gameChangerNames; } }catch(e){}
+  try{
+    const names = [];
+    let url = SCRYFALL+'/cards/search?q='+encodeURIComponent('is:gamechanger')+'&unique=cards';
+    while(url){
+      const r = await fetch(url); if(!r.ok) break;
+      const j = await r.json();
+      (j.data || []).forEach(function(card){ names.push(card.name.toLowerCase()); names.push(frontFaceName(card.name).toLowerCase()); });
+      url = j.has_more ? j.next_page : null;
+    }
+    if(names.length){
+      gameChangerNames = new Set(names);
+      try{ localStorage.setItem(GC_KEY, JSON.stringify({ts: Date.now(), names: Array.from(gameChangerNames)})); }catch(e){}
+      return gameChangerNames;
+    }
+  }catch(e){}
+  return new Set();
+}
+function computeBracket(deck, gcSet){
+  const main = deck.cards.filter(function(c){ return (c.qty||0) > 0; });
+  const have = new Set(main.map(function(c){ return frontFaceName(c.name).toLowerCase(); }));
+  const gc = [], mld = [], extra = [];
+  main.forEach(function(c){
+    const card = rulesFor(c.name);
+    const key = frontFaceName(c.name).toLowerCase();
+    if((card && card.game_changer) || gcSet.has(c.name.toLowerCase()) || gcSet.has(key)) gc.push(c.name);
+    if(!card) return;
+    const t = cardOracle(card);
+    if(MLD_RES.some(function(re){ return re.test(t); })) mld.push(c.name);
+    if(EXTRA_TURN_RE.test(t)) extra.push(c.name);
+  });
+  const combos = KNOWN_COMBOS.filter(function(p){ return have.has(p[0].toLowerCase()) && have.has(p[1].toLowerCase()); });
+  const chained = extra.length >= 3;
+  const four = gc.length > 3 || mld.length > 0 || combos.length > 0 || chained;
+  const bracket = four ? 4 : (gc.length ? 3 : 2);
+  return {bracket: bracket, gc: gc, mld: mld, extra: extra, combos: combos, chained: chained, maybe1: !four && !gc.length && !extra.length};
+}
+function bracketPanelHTML(b){
+  const B = BRACKETS[b.bracket];
+  const li = function(level, text, cards){ return '<li class="'+level+'"><span class="li-icon">'+(level === 'ok' ? icon('check',13) : icon('alert',13))+'</span><div>'+text+(cards && cards.length ? '<div class="li-cards">'+esc(cards)+'</div>' : '')+'</div></li>'; };
+  const gcLevel = b.gc.length > 3 ? 'bad' : (b.gc.length ? 'warn' : 'ok');
+  const items = [
+    li(gcLevel, b.gc.length ? b.gc.length+' Game Changer'+(b.gc.length === 1 ? '' : 's')+(b.gc.length > 3 ? ' (más de 3 → nivel 4)' : ' (hasta 3 → nivel 3)') : 'Sin Game Changers', listNames(b.gc, 8)),
+    li(b.mld.length ? 'bad' : 'ok', b.mld.length ? 'Destrucción masiva de tierras (→ nivel 4)' : 'Sin destrucción masiva de tierras', listNames(b.mld)),
+    li(b.chained ? 'bad' : (b.extra.length ? 'warn' : 'ok'), b.extra.length ? b.extra.length+' carta'+(b.extra.length === 1 ? '' : 's')+' de turno extra'+(b.chained ? ' (pueden encadenarse → nivel 4)' : ' (una o dos están bien hasta el nivel 3)') : 'Sin turnos extra', listNames(b.extra)),
+    li(b.combos.length ? 'bad' : 'ok', b.combos.length ? 'Combo de 2 cartas (→ nivel 4)' : 'Sin combos de 2 cartas conocidos', b.combos.map(function(p){ return p[0]+' + '+p[1]; }).join(' · '))
+  ].join('');
+  const extraNote = b.bracket === 4 ? ' Si está pensado para torneo y para ganar cuanto antes, sería nivel 5 (cEDH).'
+    : (b.maybe1 ? ' Si es un mazo temático o muy casual, puede ser nivel 1.' : '');
+  return '<div class="bracket-card b'+b.bracket+'">'+
+    '<div class="bk-head"><span class="bk-num">'+b.bracket+'</span><div><div class="bk-title">Nivel '+b.bracket+' · '+esc(B.name)+' <span class="bk-tag">estimado</span></div>'+
+      '<div class="bk-sub">'+esc(B.desc)+'</div></div></div>'+
+    '<ul class="legality-issues bk-list">'+items+'</ul>'+
+    '<div class="bk-note">Según las reglas oficiales de brackets de Commander (Game Changers de Scryfall; los combos, de una lista de combos conocidos).'+esc(extraNote)+' Al final, el nivel también depende de cómo juegues el mazo: coméntalo con tu grupo.</div>'+
+  '</div>';
+}
+/* Renders the bracket card in the deck view; returns true when deck.bracket changed. */
+async function renderDeckBracket(deck){
+  const gcSet = await ensureGameChangers();
+  const el = document.getElementById('deckBracket');
+  const b = computeBracket(deck, gcSet);
+  if(el && el.dataset.deckId === deck.id) el.innerHTML = bracketPanelHTML(b);
+  if(deck.bracket !== b.bracket){ deck.bracket = b.bracket; return true; }
+  return false;
 }
 
 /* ---------- Text export (decks & wishlist) ----------
@@ -5274,7 +5596,7 @@ function safeFileName(name){
 }
 function deckMissingCards(deck){
   return deck.cards.map(function(c){
-    return {card:c, missing: Math.max(0, c.qty - ownedQtyForName(c.name))};
+    return {card:c, missing: Math.max(0, cardCopies(c) - ownedQtyForName(c.name))};
   }).filter(function(x){ return x.missing > 0; });
 }
 function deckExportText(deck, mode){
@@ -5290,6 +5612,10 @@ function deckExportText(deck, mode){
   }
   lines.push('Deck');
   g.sections.forEach(function(sec){ sec.cards.forEach(function(c){ lines.push(c.qty+' '+c.name); }); });
+  if(g.sideboard.length){
+    lines.push('', 'Sideboard');
+    g.sideboard.forEach(function(c){ lines.push(c.side+' '+c.name); });
+  }
   return lines.join('\n');
 }
 function wishlistExportText(){
@@ -5999,6 +6325,7 @@ async function init(){
     historyTotalsCache = (await dbGetAll('valueHistory')).map(stripHistoryItems).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
     historyReady = true;
   }catch(e){ toast('Tu navegador no soporta almacenamiento local: los datos no se guardarán.'); }
+  await migrateDeckFormats().catch(function(){});
   renderCollection();
   renderStats();
 
@@ -6090,6 +6417,12 @@ async function init(){
   document.getElementById('decksList').addEventListener('click', function(e){
     const row = e.target.closest('[data-action="open-deck"]');
     if(row) openDeckDetail(row.dataset.id);
+  });
+  document.getElementById('deckTabs').addEventListener('click', function(e){
+    const b = e.target.closest('[data-deck-tab]'); if(!b) return;
+    state.settings.deckTab = b.dataset.deckTab; saveSettings(); renderDecks();
+    const act = document.querySelector('#deckTabs .deck-tab.active'); // the buttons were redrawn
+    if(act && act.scrollIntoView) act.scrollIntoView({block:'nearest', inline:'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth'});
   });
   document.getElementById('newBinderBtn').addEventListener('click', function(){ openBinderModal(null); });
   document.getElementById('bindersList').addEventListener('click', function(e){
