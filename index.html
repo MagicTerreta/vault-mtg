@@ -298,6 +298,40 @@
   .stat-section h3 .h3-sum{float:right; font-family:var(--font-mono); font-size:.85rem; color:var(--good); font-weight:700;}
   .top-rank{flex:none; width:1.3rem; text-align:center; font-family:var(--font-mono); font-size:.75rem; color:var(--ink-faint);}
 
+
+  /* ---------- Import progress (blocking overlay) ---------- */
+  html.io-open, html.io-open body{overflow:hidden;}
+  .io-overlay{position:fixed; inset:0; z-index:10000; display:grid; place-items:center; padding:1rem; background:rgba(14,11,22,.55);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); touch-action:none; animation:ioIn .25s ease both;}
+  .io-overlay.closing{animation:ioOut .25s ease forwards; pointer-events:none;}
+  .io-panel{width:min(340px,100%); background:var(--surface); color:var(--ink); border-radius:24px; padding:1.3rem 1.3rem 1rem; text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.4); animation:ioPanelIn .35s cubic-bezier(.2,.8,.2,1) both;}
+  .io-pile{position:relative; height:168px; margin-bottom:.5rem;}
+  .io-slot{position:absolute; left:50%; top:50%; width:100px; aspect-ratio:488/680; transform:translate(-50%,-50%); border:2px dashed var(--line); border-radius:7px;}
+  .io-card{position:absolute; left:50%; top:50%; width:100px; aspect-ratio:488/680; margin:-70px 0 0 -50px; border-radius:6px; object-fit:cover;
+    background:linear-gradient(135deg,#2c2344,#120f1a); box-shadow:0 6px 16px rgba(0,0,0,.35);
+    transform:translateX(var(--x)) rotate(var(--r)); animation:ioDeal .5s cubic-bezier(.2,.8,.25,1) both;}
+  @keyframes ioDeal{from{transform:translate(170px,-90px) rotate(28deg) scale(.85); opacity:0;} 55%{opacity:1;}}
+  .io-title{font-family:var(--font-display); font-size:1.2rem; font-weight:600; line-height:1.25;}
+  .io-sub{font-size:.82rem; color:var(--ink-soft); margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .io-pct{display:flex; justify-content:center; align-items:baseline; min-height:3.6rem; align-items:center; margin:.7rem 0 .45rem;
+    font-family:var(--font-body); font-weight:800; font-size:2.5rem; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums;}
+  .io-pct small{font-size:1.1rem; font-weight:700; color:var(--ink-soft); margin-left:3px; align-self:flex-end; padding-bottom:.35rem;}
+  .io-bar{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden;}
+  .io-fill{height:100%; width:100%; transform-origin:left center; transform:scaleX(0); transition:transform .35s ease;
+    background:linear-gradient(90deg,#e0442e,#23a05b,#d9c88f,#2586dc,#6b4f8a);}
+  .io-status{font-size:.8rem; color:var(--ink-soft); margin-top:.6rem; min-height:1.25em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .io-note{font-size:.72rem; color:var(--ink-faint); margin-top:.2rem;}
+  .io-cancel{margin-top:.55rem; border:none; background:none; color:var(--ink-soft); font:inherit; font-size:.82rem; font-weight:600; cursor:pointer;
+    text-decoration:underline; text-underline-offset:2px; padding:.35rem .7rem;}
+  .io-cancel:disabled{opacity:.6; text-decoration:none; cursor:default;}
+  .io-check{display:inline-grid; place-items:center; width:58px; height:58px; border-radius:50%; background:var(--good); color:#fff; animation:ioPop .45s cubic-bezier(.2,1.5,.4,1) both;}
+  .io-check.bad{background:var(--danger);}
+  @keyframes ioPop{from{transform:scale(.3); opacity:0;}}
+  @keyframes ioIn{from{opacity:0;}}
+  @keyframes ioOut{to{opacity:0;}}
+  @keyframes ioPanelIn{from{transform:translateY(16px) scale(.96); opacity:0;}}
+
   /* ---------- Wishlist multi-select ---------- */
   .wish-selbar{position:sticky; top:0; z-index:5; background:var(--paper); padding:.2rem 0 .7rem; margin-bottom:.2rem; border-bottom:1px solid var(--line);}
   .wsb-row{display:flex; align-items:center; gap:.5rem;}
@@ -517,6 +551,8 @@
   .commander-row .card-name{font-size:1.02rem;}
   .crown-btn{color:var(--ink-faint);}
   .crown-btn.active{color:var(--warn);}
+  .crown-btn.busy{animation:crownBusy .8s ease-in-out infinite; pointer-events:none;}
+  @keyframes crownBusy{50%{opacity:.35; transform:scale(.88);}}
   /* Foil shine: a diagonal rainbow band blended over the card art so foil cards read
      as shiny at a glance, similar to how ManaBox and other trackers mark foils. */
   .foil-fx{position:absolute; inset:0; border-radius:inherit; pointer-events:none;
@@ -3452,7 +3488,7 @@ function deckCardRowHTML(deck, c, big){
     (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost || cardManaCost(rulesFor(c.name)))+'</div><div class="card-meta">'+((c.manaCost || cardManaCost(rulesFor(c.name)) || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+badge+'</div></div>'+
     '<div class="card-value">'+
-      '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>'+
+      (maybeCommander(c) ? '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>' : '')+
       '<div class="qty-stepper">'+
         '<button class="qty-btn" data-action="deck-dec" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('minus',13)+'</button>'+
         '<span class="qty-val">'+c.qty+'</span>'+
@@ -3736,7 +3772,12 @@ function openDeckDetail(id){
     const crown = e.target.closest('[data-action="toggle-commander"]');
     if(crown){
       const c = deck.cards.find(function(x){ return x.name===crown.dataset.name; });
-      if(c){ c.commander = !c.commander; await dbPut('decks', deck); openDeckDetail(deck.id); }
+      if(c && !crown.classList.contains('busy')){
+        crown.classList.add('busy');
+        const changed = await toggleDeckCommander(deck, c);
+        crown.classList.remove('busy');
+        if(changed) openDeckDetail(deck.id);
+      }
       return;
     }
     const inc = e.target.closest('[data-action="deck-inc"]');
@@ -3754,6 +3795,48 @@ function openDeckDetail(id){
     await dbPut('decks', deck);
     openDeckDetail(deck.id);
   });
+}
+/* Could this deck card be a commander at all? Quick check from the stored type line, used to
+   show the crown only where it makes sense (no type line stored → show it, checked on tap). */
+function maybeCommander(c){
+  const type = String(c.typeLine || '').split(' // ')[0];
+  return !!c.commander || !type || /Legendary/.test(type);
+}
+/* Marks / unmarks a deck card as commander following the rules. Unmarking is always allowed.
+   Marking needs Scryfall's rules data (fetched if missing): legendary creature, legendary
+   Vehicle or Spacecraft with P/T, or "can be your commander"; a Background only next to a
+   "Choose a Background" commander; at most 2, and a pair must be allowed (Partner…).
+   Returns true when something changed. */
+async function toggleDeckCommander(deck, c){
+  if(c.commander){ c.commander = false; await dbPut('decks', deck); return true; }
+  const others = deck.cards.filter(function(x){ return x.commander && x !== c; });
+  if(others.length >= 2){ toast('Un mazo puede tener como máximo 2 comandantes. Quita uno antes.', 3600); return false; }
+  const names = [c.name].concat(others.map(function(x){ return x.name; }));
+  await ensureCardRules(names);
+  const card = rulesFor(c.name);
+  if(!card){
+    toast(card === null ? 'Scryfall no conoce «'+c.name+'», así que no puedo comprobar si puede ser comandante.'
+                        : 'Sin conexión no puedo comprobar si «'+c.name+'» puede ser comandante. Inténtalo de nuevo con internet.', 4200);
+    return false;
+  }
+  const tr = commanderTraits(card);
+  if(!tr.canLead && !tr.isBackground){
+    toast('«'+c.name+'» no puede ser comandante: tiene que ser una criatura legendaria, un vehículo legendario o decir en su texto que puede ser tu comandante.', 4800);
+    return false;
+  }
+  if(others.length === 1){
+    const other = rulesFor(others[0].name);
+    if(other && !commanderPairOk(other, card)){
+      toast('«'+others[0].name+'» y «'+c.name+'» no pueden ir juntos de comandantes: los dos necesitan Partner (o Partner with, Friends forever, Elegir un trasfondo…).', 5200);
+      return false;
+    }
+  } else if(!tr.canLead){
+    toast('«'+c.name+'» es un Trasfondo: solo puede ser comandante junto a una criatura con «Elegir un trasfondo». Marca primero esa criatura.', 5200);
+    return false;
+  }
+  c.commander = true;
+  await dbPut('decks', deck);
+  return true;
 }
 /* Opens the deck's cards in the viewer (commanders first, then by type), at the given card. */
 function openDeckCardViewer(deck, name, sourceEl){
@@ -3788,7 +3871,7 @@ function openDeckCardSheet(deck, name){
         ? '<div class="qty-stepper"><button class="qty-btn" id="dcsProxyDec" aria-label="Una proxy menos">'+icon('minus',13)+'</button><span class="qty-val" id="dcsProxyVal">'+proxyCount(c)+'</span><button class="qty-btn" id="dcsProxyInc" aria-label="Una proxy más">'+icon('plus',13)+'</button></div>'
         : sw('dcsProxy', proxyCount(c) > 0, 'Es un proxy'))+
     '</div>'+
-    '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>'+
+    (maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
     '<div class="dcs-actions">'+
       '<button class="btn btn-secondary" id="dcsView">'+icon('image',15)+' Ver en grande</button>'+
       '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar del mazo</button>'+
@@ -3810,7 +3893,14 @@ function openDeckCardSheet(deck, name){
   function stepProxy(d){ c.proxy = Math.max(0, Math.min(c.qty, proxyCount(c) + d)); const v = document.getElementById('dcsProxyVal'); v.textContent = c.proxy; v.classList.remove('bump'); void v.offsetWidth; v.classList.add('bump'); save(); }
   if(pd) pd.addEventListener('click', function(){ stepProxy(-1); });
   if(pi) pi.addEventListener('click', function(){ stepProxy(1); });
-  document.getElementById('dcsCommander').addEventListener('change', function(e){ c.commander = e.target.checked; save(); });
+  const cmdSw = document.getElementById('dcsCommander');
+  if(cmdSw) cmdSw.addEventListener('change', async function(){
+    cmdSw.disabled = true;
+    const changed = await toggleDeckCommander(deck, c);
+    cmdSw.disabled = false;
+    cmdSw.checked = !!c.commander; // back off if the rules said no
+    if(changed && document.getElementById('deckCardsList')) openDeckDetail(deck.id);
+  });
   const openView = function(){ closeModalThen(function(){ const row = document.querySelector('#deckCardsList .card-row[data-name="'+CSS.escape(c.name)+'"] img'); openDeckCardViewer(deck, c.name, row); }); };
   document.getElementById('dcsView').addEventListener('click', openView);
   const im = document.getElementById('dcsImg'); if(im && im.tagName === 'IMG') im.addEventListener('click', openView);
@@ -3878,6 +3968,137 @@ function setDecksImportProgress(pct, show){
   wrap.hidden = !show;
   document.getElementById('decksImportProgressFill').style.width = pct+'%';
 }
+/* ---------- Import progress (blocking) ----------
+   Long imports (a deck .txt, a collection CSV) read one card at a time from Scryfall. While
+   that runs, a full-screen panel shows the cards stacking into a pile as they're found, the
+   percentage, "Carta N de M · name" and a cancel link. Nothing behind it can be touched and
+   the back button is ignored until it finishes. */
+let importBusy = null;
+function openImportOverlay(opts){
+  closeImportOverlay(true);
+  const el = document.createElement('div');
+  el.id = 'importOverlay'; el.className = 'io-overlay';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', opts.title);
+  el.innerHTML = '<div class="io-panel">'+
+      '<div class="io-pile" id="ioPile"><div class="io-slot"></div></div>'+
+      '<div class="io-title" id="ioTitle">'+esc(opts.title)+'</div>'+
+      '<div class="io-sub">'+esc(opts.subtitle || '')+'</div>'+
+      '<div class="io-pct" id="ioPctWrap" aria-live="polite"><span id="ioPct">0</span><small>%</small></div>'+
+      '<div class="io-bar"><div class="io-fill" id="ioFill"></div></div>'+
+      '<div class="io-status" id="ioStatus">Preparando…</div>'+
+      '<div class="io-note" id="ioNote">No cierres la app hasta que termine</div>'+
+      '<button type="button" class="io-cancel" id="ioCancel">'+esc(opts.cancelLabel || 'Cancelar')+'</button>'+
+    '</div>';
+  document.body.appendChild(el);
+  document.documentElement.classList.add('io-open');
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  const busy = {cancelled:false, el:el};
+  importBusy = busy;
+  const cb = el.querySelector('#ioCancel');
+  cb.addEventListener('click', function(){ busy.cancelled = true; cb.disabled = true; cb.textContent = opts.cancellingLabel || 'Cancelando…'; });
+  return busy;
+}
+function importCardImage(card){ const f = printFace(card); return f.image || f.imageNormal || ''; }
+/* percentage + bar; big jumps (a whole batch at once) count up smoothly */
+function setImportProgress(el, f){
+  const pctEl = el.querySelector('#ioPct'); if(!pctEl) return;
+  el.querySelector('#ioFill').style.transform = 'scaleX('+f.toFixed(4)+')';
+  const from = +pctEl.textContent || 0, to = Math.round(f*100);
+  cancelAnimationFrame(el._pctRaf);
+  if(to - from <= 2 || prefersReducedMotion()){ pctEl.textContent = to; return; }
+  const t0 = performance.now(), dur = 450;
+  const step = function(now){
+    const k = Math.min(1, (now - t0) / dur);
+    if(!pctEl.isConnected) return;
+    pctEl.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+    if(k < 1) el._pctRaf = requestAnimationFrame(step);
+  };
+  el._pctRaf = requestAnimationFrame(step);
+}
+function dealToPile(el, img){
+  if(!img) return;
+  const pile = el.querySelector('#ioPile'); if(!pile) return;
+  const im = document.createElement('img');
+  im.className = 'io-card'; im.alt = ''; im.decoding = 'async';
+  im.style.setProperty('--r', (Math.random()*14 - 7).toFixed(1)+'deg');
+  im.style.setProperty('--x', Math.round(Math.random()*16 - 8)+'px');
+  im.src = img;
+  pile.appendChild(im);
+  const cards = pile.querySelectorAll('.io-card');
+  if(cards.length > 6) cards[0].remove(); // the pile only keeps the top few
+}
+/* one card at a time (the slow path) */
+function updateImportOverlay(done, total, label, img){
+  const el = importBusy && importBusy.el; if(!el) return;
+  setImportProgress(el, total ? Math.min(1, done/total) : 0);
+  el.querySelector('#ioStatus').textContent = 'Carta '+Math.min(total, done + (img ? 0 : 1))+' de '+total+(label ? ' · '+label : '');
+  if(img) dealToPile(el, img);
+}
+/* a whole batch at once: the counter runs up and its last few cards are dealt onto the pile */
+function importOverlayBatch(done, total, cards){
+  const el = importBusy && importBusy.el; if(!el) return;
+  setImportProgress(el, total ? Math.min(1, done/total) : 0);
+  const last = cards[cards.length - 1];
+  el.querySelector('#ioStatus').textContent = 'Carta '+done+' de '+total+(last ? ' · '+last.name : '');
+  const deal = cards.slice(-6);
+  deal.forEach(function(card, i){ setTimeout(function(){ if(el.isConnected) dealToPile(el, importCardImage(card)); }, i*90); });
+  el._settleAt = performance.now() + deal.length*90 + 380;
+}
+/* Looks up to 75 cards with a single Scryfall request. list: [{key, ident}] where ident is
+   {id} | {set, collector_number} | {name}. Returns {key: card} (unmatched keys left out),
+   or null if Scryfall couldn't be reached. */
+async function scryCollectionBatch(list){
+  let r = null;
+  try{
+    r = await fetch(SCRYFALL+'/cards/collection', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({identifiers: list.map(function(x){ return x.ident; })})});
+  }catch(e){ return null; }
+  if(!r || !r.ok) return null;
+  const j = await r.json();
+  const byId = {}, bySn = {}, byName = {};
+  (j.data || []).forEach(function(card){
+    byId[card.id] = card;
+    bySn[String(card.set).toLowerCase()+'/'+String(card.collector_number).toLowerCase()] = card;
+    byName[card.name.toLowerCase()] = card;
+    const front = frontFaceName(card.name).toLowerCase();
+    if(!byName[front]) byName[front] = card;
+  });
+  const out = {};
+  list.forEach(function(x){
+    const i = x.ident;
+    const c = i.id ? byId[i.id] : i.set ? bySn[String(i.set).toLowerCase()+'/'+String(i.collector_number).toLowerCase()] : i.name ? byName[String(i.name).toLowerCase()] : null;
+    if(c) out[x.key] = c;
+  });
+  return out;
+}
+/* success / failure end state for a moment, then closes */
+function finishImportOverlay(title, detail, ok){
+  return new Promise(function(res){
+    const el = importBusy && importBusy.el;
+    if(!el){ res(); return; }
+    el.querySelector('#ioPctWrap').innerHTML = ok === false ? '<span class="io-check bad">'+icon('alert',26)+'</span>' : '<span class="io-check">'+icon('check',30)+'</span>';
+    if(ok !== false) el.querySelector('#ioFill').style.transform = 'scaleX(1)';
+    el.querySelector('#ioTitle').textContent = title;
+    el.querySelector('#ioStatus').textContent = detail || '';
+    el.querySelector('#ioNote').hidden = true;
+    el.querySelector('#ioCancel').hidden = true;
+    setTimeout(function(){ closeImportOverlay(); res(); }, ok === false ? 1700 : 950);
+  });
+}
+/* waits until the cards being dealt have landed, so the end state doesn't cut them off */
+function importOverlaySettle(){
+  const el = importBusy && importBusy.el;
+  const wait = el && el._settleAt ? el._settleAt - performance.now() : 0;
+  return wait > 0 ? sleep(Math.min(wait, 900)) : Promise.resolve();
+}
+function closeImportOverlay(immediate){
+  importBusy = null;
+  document.documentElement.classList.remove('io-open');
+  const el = document.getElementById('importOverlay'); if(!el) return;
+  if(immediate || prefersReducedMotion()){ el.remove(); return; }
+  el.classList.add('closing');
+  setTimeout(function(){ el.remove(); }, 260);
+}
 async function importDeckTxtFile(file){
   const text = await file.text();
   const entries = parseDeckImportText(text);
@@ -3886,40 +4107,60 @@ async function importDeckTxtFile(file){
   const defaultName = file.name.replace(/\.[^.]+$/, '').trim() || 'Mazo importado';
   const deck = {id:uuid(), name:defaultName, format:'', cards:[], createdAt:Date.now()};
 
-  setDecksImportProgress(0, true);
-  let fail = 0;
-  for(let i=0;i<entries.length;i++){
-    const e = entries[i];
-    try{
-      let card = null;
-      if(e.setCode && e.collectorNumber){
-        try{ const rr = await fetch(SCRYFALL+'/cards/'+e.setCode.toLowerCase()+'/'+e.collectorNumber); if(rr.ok) card = await rr.json(); }catch(err){}
-      }
-      if(!card) card = await scryFuzzy(e.name);
-      const face = printFace(card);
-      const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
-      if(existing){ existing.qty += e.qty; if(e.commander) existing.commander = true; }
-      else deck.cards.push({
-        name: card.name, qty: e.qty, cmc: card.cmc||0,
-        colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card),
-        setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander,
-        scryfallId: card.id, prices: deckPricesFrom(card)
-      });
-    }catch(err){ fail++; }
-    setDecksImportProgress(Math.round((i+1)/entries.length*100), true);
-    await sleep(110);
+  const busy = openImportOverlay({title:'Importando mazo', subtitle:defaultName, cancelLabel:'Cancelar'});
+  let fail = 0, done = 0;
+  function addToDeck(e, card){
+    const face = printFace(card);
+    const existing = deck.cards.find(function(c){ return c.name.toLowerCase()===card.name.toLowerCase(); });
+    if(existing){ existing.qty += e.qty; if(e.commander) existing.commander = true; return; }
+    deck.cards.push({
+      name: card.name, qty: e.qty, cmc: card.cmc||0,
+      colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
+      imageSmall: face.image, imageNormal: face.imageNormal, typeLine: card.type_line||'', manaCost: cardManaCost(card), imageBack: faceBackUrl(card),
+      setCode: card.set, setName: card.set_name, rarity: card.rarity, collectorNumber: card.collector_number, commander: !!e.commander,
+      scryfallId: card.id, prices: deckPricesFrom(card)
+    });
   }
-  setDecksImportProgress(0, false);
-
-  if(deck.cards.length === 0){ toast('No se pudo reconocer ninguna carta de ese archivo.'); return; }
+  // 75 cards per Scryfall request; only what it can't match in bulk is looked up one by one
+  for(let b=0; b<entries.length && !busy.cancelled; b+=75){
+    const chunk = entries.slice(b, b+75);
+    if(b === 0) updateImportOverlay(0, entries.length, 'buscando cartas…');
+    const found = await scryCollectionBatch(chunk.map(function(e, k){
+      return {key: String(k), ident: (e.setCode && e.collectorNumber) ? {set: e.setCode.toLowerCase(), collector_number: String(e.collectorNumber)} : {name: frontFaceName(e.name)}};
+    })) || {};
+    const dealt = [];
+    for(let k=0; k<chunk.length; k++){
+      if(busy.cancelled) break;
+      const e = chunk[k];
+      let card = found[String(k)] || null;
+      if(card){ done++; addToDeck(e, card); dealt.push(card); continue; }
+      // not matched in bulk (typo, translated name, odd collector number…): on its own
+      updateImportOverlay(done, entries.length, e.name);
+      try{
+        if(e.setCode && e.collectorNumber){
+          try{ const rr = await fetch(SCRYFALL+'/cards/'+e.setCode.toLowerCase()+'/'+e.collectorNumber); if(rr.ok) card = await rr.json(); }catch(err){}
+        }
+        if(!card) card = await scryFuzzy(e.name);
+      }catch(err){ card = null; }
+      done++;
+      if(card){ addToDeck(e, card); updateImportOverlay(done, entries.length, card.name, importCardImage(card)); }
+      else { fail++; updateImportOverlay(done, entries.length, e.name+' (no encontrada)'); }
+      await sleep(110);
+    }
+    importOverlayBatch(done, entries.length, dealt);
+    if(b+75 < entries.length) await sleep(110);
+  }
+  await importOverlaySettle();
+  if(busy.cancelled){ closeImportOverlay(); toast('Importación cancelada: no se ha guardado nada'); return; }
+  if(deck.cards.length === 0){ await finishImportOverlay('No se pudo importar', 'No se ha reconocido ninguna carta del archivo', false); return; }
 
   await dbPut('decks', deck);
   state.decks.push(deck);
   renderDecks();
-  openDeckDetail(deck.id);
   const total = deck.cards.reduce(function(a,c){ return a+c.qty; }, 0);
-  toast('Mazo importado: '+total+' cartas'+(fail?(', '+fail+' no encontradas'):''));
+  await finishImportOverlay('Mazo importado', total+' cartas'+(fail ? ' · '+fail+' no encontradas' : ''));
+  openDeckDetail(deck.id);
+  if(fail) toast('Mazo importado: '+total+' cartas, '+fail+' no encontradas');
 }
 
 /* ---------- Binders ---------- */
@@ -4556,7 +4797,7 @@ async function importCSVFile(file){
   const idx = {};
   header.forEach(function(h,i){ idx[h]=i; });
   const dataRows = rows.slice(1);
-  setSettingsProgress(0,true);
+  const busy = openImportOverlay({title:'Importando colección', subtitle:file.name, cancelLabel:'Detener', cancellingLabel:'Deteniendo…'});
 
   // Index the cards already in the collection so re-importing the same (or an updated)
   // export merges into existing rows instead of duplicating them every time.
@@ -4565,68 +4806,97 @@ async function importCSVFile(file){
     existingByKey[importMatchKey(c.scryfallId, c.foil, c.condition, c.lang)] = c;
   });
 
-  let created=0, updated=0, fail=0;
-  for(let i=0;i<dataRows.length;i++){
-    const r = dataRows[i];
-    const name = idx.name!==undefined ? r[idx.name] : null;
-    const scryId = idx.scryfall_id!==undefined ? r[idx.scryfall_id] : null;
-    const setCode = idx.set_code!==undefined ? r[idx.set_code] : null;
-    const collNum = idx.collector_number!==undefined ? r[idx.collector_number] : null;
-    try{
-      let card = null;
-      if(scryId){ try{ card = await scryById(scryId); }catch(e){} }
-      if(!card && setCode && collNum){ try{ const rr = await fetch(SCRYFALL+'/cards/'+setCode.toLowerCase()+'/'+collNum); if(rr.ok) card = await rr.json(); }catch(e){} }
-      if(!card && name){ card = await scryFuzzy(name); }
-      if(!card) throw new Error('sin datos suficientes');
-      const face = printFace(card);
-      const foilFlag = idx.foil!==undefined && isFoilValue(r[idx.foil]);
-      const condition = normalizeCondition(idx.condition!==undefined ? r[idx.condition] : '');
-      const lang = (idx.lang!==undefined && r[idx.lang] && r[idx.lang].toUpperCase()) || 'EN';
-      const quantity = (idx.quantity!==undefined && parseInt(r[idx.quantity],10)) || 1;
-      const binderNameVal = idx.binder!==undefined ? (r[idx.binder]||'').trim() : '';
-      let binderId = null;
-      if(binderNameVal){
-        let b = state.binders.find(function(x){ return x.name.toLowerCase()===binderNameVal.toLowerCase(); });
-        if(!b){ b = {id:uuid(), name:binderNameVal, createdAt:Date.now()}; await dbPut('binders', b); state.binders.push(b); }
-        binderId = b.id;
-      }
-
-      const key = importMatchKey(card.id, foilFlag, condition, lang);
-      const existing = existingByKey[key];
-      const sharedFields = {
-        name: card.name, setCode: card.set, setName: card.set_name,
-        collectorNumber: card.collector_number, rarity: card.rarity,
-        colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
-        cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at || null,
-        imageSmall: face.image, imageNormal: face.imageNormal || face.image,
-        prices: {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)},
-        imageBack: faceBackUrl(card), manaCost: cardManaCost(card)
-      };
-      if(existing){
-        // Same card + foil + condition + language already in the collection: refresh its
-        // data and quantity instead of adding a duplicate row. Only overwrite the binder
-        // if this CSV row actually specifies one, so we don't undo a manual move.
-        Object.assign(existing, sharedFields, {quantity: quantity});
-        if(binderNameVal) existing.binderId = binderId;
-        await dbPut('cards', existing);
-        updated++;
-      } else {
-        const item = Object.assign({
-          id: uuid(), scryfallId: card.id, foil: foilFlag, condition: condition, lang: lang,
-          quantity: quantity, binderId: binderId, addedAt: Date.now()
-        }, sharedFields);
-        await dbPut('cards', item);
-        state.cards.push(item);
-        existingByKey[key] = item;
-        created++;
-      }
-    }catch(e){ fail++; }
-    setSettingsProgress(Math.round((i+1)/dataRows.length*100), true);
-    await sleep(110);
+  let created=0, updated=0, fail=0, done=0;
+  const cell = function(r, k){ return idx[k]!==undefined ? r[idx[k]] : null; };
+  async function processRow(r, card, toSave){
+    const face = printFace(card);
+    const foilFlag = idx.foil!==undefined && isFoilValue(r[idx.foil]);
+    const condition = normalizeCondition(idx.condition!==undefined ? r[idx.condition] : '');
+    const lang = (idx.lang!==undefined && r[idx.lang] && r[idx.lang].toUpperCase()) || 'EN';
+    const quantity = (idx.quantity!==undefined && parseInt(r[idx.quantity],10)) || 1;
+    const binderNameVal = idx.binder!==undefined ? (r[idx.binder]||'').trim() : '';
+    let binderId = null;
+    if(binderNameVal){
+      let b = state.binders.find(function(x){ return x.name.toLowerCase()===binderNameVal.toLowerCase(); });
+      if(!b){ b = {id:uuid(), name:binderNameVal, createdAt:Date.now()}; await dbPut('binders', b); state.binders.push(b); }
+      binderId = b.id;
+    }
+    const key = importMatchKey(card.id, foilFlag, condition, lang);
+    const existing = existingByKey[key];
+    const p = card.prices || {};
+    const sharedFields = {
+      name: card.name, setCode: card.set, setName: card.set_name,
+      collectorNumber: card.collector_number, rarity: card.rarity,
+      colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
+      cmc: card.cmc||0, typeLine: card.type_line||'', releasedAt: card.released_at || null,
+      imageSmall: face.image, imageNormal: face.imageNormal || face.image,
+      prices: {eur: toNum(p.eur), eurFoil: toNum(p.eur_foil), usd: toNum(p.usd), usdFoil: toNum(p.usd_foil)},
+      imageBack: faceBackUrl(card), manaCost: cardManaCost(card)
+    };
+    if(existing){
+      // Same card + foil + condition + language already in the collection: refresh its
+      // data and quantity instead of adding a duplicate row. Only overwrite the binder
+      // if this CSV row actually specifies one, so we don't undo a manual move.
+      Object.assign(existing, sharedFields, {quantity: quantity});
+      if(binderNameVal) existing.binderId = binderId;
+      toSave.add(existing);
+      updated++;
+    } else {
+      const item = Object.assign({
+        id: uuid(), scryfallId: card.id, foil: foilFlag, condition: condition, lang: lang,
+        quantity: quantity, binderId: binderId, addedAt: Date.now()
+      }, sharedFields);
+      state.cards.push(item);
+      existingByKey[key] = item;
+      toSave.add(item);
+      created++;
+    }
   }
-  setSettingsProgress(0,false);
-  renderCollection();
-  toast(created+' añadidas, '+updated+' actualizadas'+(fail?(', '+fail+' con error'):''));
+  // 75 rows per Scryfall request; rows it can't match in bulk are looked up one by one.
+  // Each batch is saved as soon as it's done, so "Detener" keeps what's already imported.
+  for(let b=0; b<dataRows.length && !busy.cancelled; b+=75){
+    const chunk = dataRows.slice(b, b+75);
+    if(b === 0) updateImportOverlay(0, dataRows.length, 'buscando cartas…');
+    const list = [];
+    chunk.forEach(function(r, k){
+      const scryId = cell(r, 'scryfall_id'), setCode = cell(r, 'set_code'), collNum = cell(r, 'collector_number'), name = cell(r, 'name');
+      const ident = scryId ? {id: scryId} : (setCode && collNum) ? {set: setCode.toLowerCase(), collector_number: String(collNum)} : name ? {name: frontFaceName(name)} : null;
+      if(ident) list.push({key: String(k), ident: ident});
+    });
+    const found = (list.length ? await scryCollectionBatch(list) : {}) || {};
+    const toSave = new Set(), dealt = [];
+    for(let k=0; k<chunk.length; k++){
+      if(busy.cancelled) break;
+      const r = chunk[k];
+      const name = cell(r, 'name'), scryId = cell(r, 'scryfall_id'), setCode = cell(r, 'set_code'), collNum = cell(r, 'collector_number');
+      let card = found[String(k)] || null;
+      const bulk = !!card;
+      if(!card){
+        updateImportOverlay(done, dataRows.length, name || '');
+        try{
+          if(scryId){ try{ card = await scryById(scryId); }catch(e){} }
+          if(!card && setCode && collNum){ try{ const rr = await fetch(SCRYFALL+'/cards/'+setCode.toLowerCase()+'/'+collNum); if(rr.ok) card = await rr.json(); }catch(e){} }
+          if(!card && name){ card = await scryFuzzy(name); }
+        }catch(e){ card = null; }
+      }
+      done++;
+      try{
+        if(!card) throw new Error('sin datos suficientes');
+        await processRow(r, card, toSave);
+        if(bulk) dealt.push(card); else updateImportOverlay(done, dataRows.length, card.name, importCardImage(card));
+      }catch(e){ fail++; updateImportOverlay(done, dataRows.length, (name || 'Fila '+(b+k+2))+' (con error)'); }
+      if(!bulk) await sleep(110);
+    }
+    if(toSave.size) await dbPutMany('cards', Array.from(toSave));
+    importOverlayBatch(done, dataRows.length, dealt);
+    if(b+75 < dataRows.length) await sleep(110);
+  }
+  await importOverlaySettle();
+  renderCollection(); renderStats();
+  const summary = created+' añadidas · '+updated+' actualizadas'+(fail ? ' · '+fail+' con error' : '');
+  if(busy.cancelled){ closeImportOverlay(); toast('Importación detenida: '+summary, 4000); return; }
+  await finishImportOverlay('Colección importada', summary, created + updated > 0 || !fail);
+  toast(summary, 3600);
 }
 async function wipeAll(){
   if(!confirm('Esto borrará TODA tu colección, mazos, carpetas y lista de deseos de este dispositivo.'+(backupIsOverdue()?'\n\nNo tienes una copia de seguridad reciente: te recomendamos crear una antes (Ajustes → Copia de seguridad).':'')+'\n\n¿Continuar?')) return;
@@ -4691,10 +4961,14 @@ function maxCopiesAllowed(card){
 }
 function commanderTraits(card){
   const t = cardOracle(card), type = cardFrontType(card);
+  const face0 = card.card_faces && card.card_faces[0];
+  const hasPT = card.power != null || !!(face0 && face0.power != null);
   const withName = /Partner with ([^\n(]+)/.exec(t);
   const variant = /Partner\s*[—–-]\s*([^\n(]+)/.exec(t); // e.g. "Partner—Father & son"
   return {
-    canLead: (/Legendary/.test(type) && /Creature/.test(type)) || /can be your commander/i.test(t),
+    // legendary creature, legendary Vehicle, legendary Spacecraft with power/toughness (rules since
+    // Edge of Eternities, 2025), or a card that says so itself (Lord Windgrace, Grist…)
+    canLead: (/Legendary/.test(type) && (/Creature/.test(type) || /Vehicle/.test(type) || (/Spacecraft/.test(type) && hasPT))) || /can be your commander/i.test(t),
     partner: /(^|\n)Partner(\s*\(|\s*$)/m.test(t),
     partnerWith: withName ? withName[1].trim().toLowerCase() : null,
     partnerVariant: variant ? variant[1].trim().toLowerCase() : null,
@@ -4751,7 +5025,7 @@ function computeCommanderLegality(deck){
       const other = cmdCards.find(function(x){ return x !== card; });
       const okAsBackground = tr.isBackground && other && commanderTraits(other).choosesBackground;
       if(!tr.canLead && !okAsBackground){
-        issues.push({level:'error', title:'«'+card.name+'» no puede ser comandante: tiene que ser una criatura legendaria (o decir que puede ser tu comandante).', cards:[]});
+        issues.push({level:'error', title:'«'+card.name+'» no puede ser comandante: tiene que ser una criatura legendaria, un vehículo legendario o decir que puede ser tu comandante.', cards:[]});
         flag(card.name, 'No puede ser comandante');
       }
     });
@@ -5527,6 +5801,7 @@ function requestExitConfirm(){
 }
 let ignoreNextPop = false;
 window.addEventListener('popstate', function(e){
+  if(importBusy){ history.pushState({navDepth: navDepth}, ''); return; } // importing: back is ignored
   if(ignoreNextPop && e.state && typeof e.state.navDepth === 'number'){ ignoreNextPop = false; navDepth = e.state.navDepth; return; }
   if(e.state && typeof e.state.navDepth === 'number'){
     navDepth = e.state.navDepth;
@@ -5714,7 +5989,7 @@ async function init(){
     e.target.value = '';
     if(!file) return;
     try{ await importDeckTxtFile(file); }
-    catch(err){ setDecksImportProgress(0,false); toast(err.message || 'No se pudo importar el archivo'); }
+    catch(err){ closeImportOverlay(true); toast(err.message || 'No se pudo importar el archivo'); }
   });
   document.getElementById('decksList').addEventListener('click', function(e){
     const row = e.target.closest('[data-action="open-deck"]');
@@ -5751,7 +6026,8 @@ async function init(){
   document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
   document.getElementById('importCsvBtn').addEventListener('click', function(){ document.getElementById('importFileInput').click(); });
   document.getElementById('importFileInput').addEventListener('change', function(e){
-    const f = e.target.files[0]; if(f) importCSVFile(f); e.target.value='';
+    const f = e.target.files[0]; e.target.value='';
+    if(f) importCSVFile(f).catch(function(err){ closeImportOverlay(true); toast(err.message || 'No se pudo importar el archivo'); });
   });
   document.getElementById('wipeAllBtn').addEventListener('click', wipeAll);
 
