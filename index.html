@@ -736,6 +736,59 @@
   .viewer-hint{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(10.6rem + env(safe-area-inset-bottom)); z-index:4; font-size:.72rem; background:rgba(0,0,0,.45); padding:.3rem .7rem; border-radius:999px; opacity:0; animation:hintInOut 3.2s ease .6s both; pointer-events:none; white-space:nowrap;}
   .viewer.closing .viewer-hint, .viewer.touched .viewer-hint{display:none;}
   @keyframes hintInOut{ 0%{opacity:0;} 12%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
+
+  /* ---------- Inspección 3D: big card you tilt with a finger or by tilting the phone ----------
+     Every layer that moves is its own compositor layer and only its transform/opacity change
+     per frame: the rainbow, the glare and the sparkle are painted once, then slid around. */
+  .viewer-top, .viewer-info, .viewer-stage{transition:opacity .25s ease;}
+  .viewer.insp-on .viewer-top, .viewer.insp-on .viewer-info, .viewer.insp-on .viewer-stage,
+  .viewer.insp-on .viewer-arrow{opacity:0 !important; pointer-events:none;}
+  .viewer.insp-on .viewer-hint{display:none;}
+  .viewer.insp-on .viewer-stage .foil-fx{display:none;} /* its shimmer would keep re-drawing behind the 3D view */
+  /* while a card is open full screen, the foil shimmers of the lists underneath stand still
+     (they'd keep re-drawing every frame behind it) */
+  html.viewer-open .tab-panel .foil-fx, html.viewer-open #detailPanel .foil-fx, html.viewer-open #modalRoot .foil-fx{animation-play-state:paused;}
+  .insp{position:absolute; inset:0; z-index:6; touch-action:none; -webkit-tap-highlight-color:transparent;}
+  .insp-top{position:absolute; top:0; left:0; right:0; z-index:2; display:flex; align-items:center; justify-content:space-between; padding:calc(.8rem + env(safe-area-inset-top)) 1rem .5rem; animation:fadeIn .3s ease .1s both;}
+  .insp-title{display:inline-flex; align-items:center; gap:.45rem; font-size:.78rem; font-weight:700; letter-spacing:.02em; background:rgba(255,255,255,.12); padding:.34rem .75rem; border-radius:999px; backdrop-filter:blur(8px);}
+  .insp-kind{font-size:.58rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; padding:2px 7px; border-radius:999px; color:#1c1530;
+    background:linear-gradient(100deg,#ff8fd0,#ffe680 30%,#8dffc8 55%,#8db6ff 78%,#d9a2ff);}
+  .insp-kind.etched{background:linear-gradient(100deg,#9aa3b5,#f4f6fa 45%,#b8c0cf 70%,#eef1f6);}
+  .insp-card{position:absolute; transform-origin:0 0; perspective:1300px;}
+  .insp-shadow{position:absolute; left:6%; right:6%; top:7%; bottom:1%; border-radius:7%; background:rgba(0,0,0,.62); filter:blur(22px); will-change:transform;}
+  .insp-rot{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform;}
+  .insp-flip{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .75s cubic-bezier(.3,.75,.25,1);}
+  .insp-flip.flipped{transform:rotateY(180deg);}
+  /* rounded corners by clip-path, not border-radius: a rounded overflow clip over moving, blended
+     layers makes the browser re-draw the whole card every frame; clip-path doesn't */
+  .insp-face{position:absolute; inset:0; overflow:hidden; clip-path:inset(0 round 4.6% / 3.3%); -webkit-clip-path:inset(0 round 4.6% / 3.3%); isolation:isolate; backface-visibility:hidden; -webkit-backface-visibility:hidden; background:#16131d;}
+  .insp-face.back{transform:rotateY(180deg);}
+  .insp-face > img{display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; -webkit-user-drag:none;}
+  .insp-face .viewer-glare, .insp-face .flip-loading{display:none;}
+  .ifx{position:absolute; pointer-events:none; will-change:transform, opacity;}
+  /* light on the surface: a soft hot spot where the light hits, a little darker away from it.
+     At most two layers blend per card (light + foil): blending is the expensive part on phones. */
+  .ifx-glare{left:-50%; top:-50%; width:200%; height:200%; mix-blend-mode:overlay; opacity:.35;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.5) 9%, rgba(255,255,255,0) 26%, rgba(0,0,0,.22) 48%, rgba(0,0,0,.35) 70%);}
+  /* foil: the whole card shimmers (like real Magic foils): glitter + a soft sheen + bands of
+     rainbow, all in one layer so the phone only blends one thing */
+  .ifx-holo{left:-100%; top:-100%; width:300%; height:300%; mix-blend-mode:color-dodge; opacity:.2;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 16 -10'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 170px 170px,
+      repeating-linear-gradient(28deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.2) 3%, rgba(255,255,255,0) 6.5%, rgba(255,255,255,0) 11%),
+      repeating-linear-gradient(118deg,
+        rgba(0,0,0,0) 0%, hsla(320,95%,58%,.55) 2.4%, hsla(40,95%,58%,.55) 4.6%, hsla(140,90%,50%,.5) 6.8%,
+        hsla(195,95%,56%,.55) 9%, hsla(265,90%,64%,.55) 11.2%, rgba(0,0,0,0) 14%, rgba(0,0,0,0) 19%);}
+  /* etched foil: a cooler, silvery sheen (and a finer glitter) instead of the rainbow */
+  .ifx-metal{left:-100%; top:-100%; width:300%; height:300%; mix-blend-mode:overlay; opacity:.25;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 16 -10'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 130px 130px,
+      repeating-linear-gradient(104deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.8) 3%, rgba(214,222,240,.45) 5.5%, rgba(255,255,255,0) 8.5%, rgba(0,0,0,.2) 12%, rgba(255,255,255,0) 15.5%);}
+  .insp-bottom{position:absolute; left:0; right:0; bottom:0; z-index:2; display:flex; flex-direction:column; align-items:center; gap:.65rem; padding:.5rem 1rem calc(1.2rem + env(safe-area-inset-bottom)); animation:fadeIn .3s ease .1s both;}
+  .insp-name{font-family:var(--font-display); font-size:1.02rem; font-weight:600; text-align:center; text-shadow:0 1px 8px rgba(0,0,0,.5);}
+  .insp-hint{font-size:.72rem; opacity:.72; text-align:center;}
+  .insp.leaving .insp-top, .insp.leaving .insp-bottom{opacity:0; transition:opacity .2s ease; animation:none;}
+  .insp.leaving{pointer-events:none;}
   .card-thumb[data-action], .thumb-wrap[data-action]{cursor:zoom-in;}
   .sort-option{display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .1rem; border-bottom:1px solid var(--line);}
   .sort-option:last-child{border-bottom:none;}
@@ -1137,6 +1190,7 @@ const ICONS = {
   search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
   camera:'<path d="M4 8h3l1.6-2h6.8L17 8h3v11H4z"/><circle cx="12" cy="14" r="3.4"/>',
   layers:'<polygon points="12 3 21 8 12 13 3 8 12 3"/><polyline points="3 13 12 18 21 13"/>',
+  cube:'<path d="M12 2.8 20.4 7.4v9.2L12 21.2l-8.4-4.6V7.4z"/><polyline points="3.6 7.4 12 12 20.4 7.4"/><line x1="12" y1="12" x2="12" y2="21.2"/>',
   folder:'<path d="M3 6.2A2.2 2.2 0 0 1 5.2 4h4l2 2.2h7.6A2.2 2.2 0 0 1 21 8.4V18a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 18z"/>',
   sliders:'<line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="var(--paper)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--paper)"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="7" cy="18" r="2" fill="var(--paper)"/>',
   plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
@@ -2402,7 +2456,7 @@ function viewerPrice(normal, foilP, isFoil, qty){
 function viewerItemFromCollection(c){
   const p = c.prices || {}, usd = state.settings.currency === 'USD';
   return {
-    name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil,
+    name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes),
     set: {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang},
     price: viewerPrice(usd ? p.usd : p.eur, usd ? p.usdFoil : p.eurFoil, c.foil, c.quantity),
     sub: '', meta: '',
@@ -2436,7 +2490,7 @@ function viewerItemByName(c, meta){
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
     set: c.setCode ? {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang && c.lang !== 'EN' ? c.lang : ''} : null,
-    foil: !!c.foil,
+    foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes),
     price: unit != null ? {main: fmtMoney(unit, state.settings.currency), foil: !!c.foil, sub: ''} : null,
     back: c.imageBack ? c.imageBack : (multi ? undefined : null),
     loadBack: async function(){
@@ -2468,10 +2522,12 @@ function openCardViewer(items, startIndex, sourceEl){
       (many ? '<button class="viewer-btn viewer-arrow prev viewer-fade" id="viewerPrev" aria-label="Anterior">'+icon('back',18)+'</button>'+
               '<button class="viewer-btn viewer-arrow next viewer-fade" id="viewerNext" aria-label="Siguiente">'+icon('chevron',18)+'</button>' : '')+
       '<div class="viewer-info viewer-fade"><div class="viewer-name" id="viewerName"></div><div class="viewer-set" id="viewerSet"></div><div class="viewer-price" id="viewerPrice"></div><div class="viewer-sub" id="viewerSub"></div>'+
-        '<div class="viewer-actions"><button class="viewer-chip primary" id="viewerFlip">'+icon('layers',15)+' <span>Ver dorso</span></button></div></div>'+
+        '<div class="viewer-actions"><button class="viewer-chip primary" id="viewerFlip">'+icon('layers',15)+' <span>Ver dorso</span></button>'+
+          '<button class="viewer-chip" id="viewer3d">'+icon('cube',15)+' <span>Ver en 3D</span></button></div></div>'+
       '<div class="viewer-hint">'+(many ? 'Desliza para ver más · toca la carta para girarla' : 'Toca la carta para girarla')+'</div>'+
     '</div>';
   root.hidden = false;
+  document.documentElement.classList.add('viewer-open');
   navPush();
   viewer = { items: items, index: startIndex, startIndex: startIndex, sourceEl: sourceEl || null, slides: {}, dx: 0, dy: 0, bgFlip: false, tilt: {x:0, y:0}, closing: false };
   const stage = document.getElementById('viewerStage');
@@ -2621,7 +2677,7 @@ function resetTilt(){
 }
 function applyTilt(nx, ny){ // nx, ny in -1..1
   const el = viewer && viewer.slides[viewer.index];
-  if(!el || prefersReducedMotion()) return;
+  if(!el || prefersReducedMotion() || viewer.insp) return;
   const t = el.querySelector('.viewer-tilt');
   t.style.transform = 'rotateX('+(-ny*9).toFixed(2)+'deg) rotateY('+(nx*11).toFixed(2)+'deg)';
   el.querySelectorAll('.viewer-glare').forEach(function(g){
@@ -2633,12 +2689,14 @@ function bindViewerEvents(stage){
   const root = document.getElementById('viewer');
   document.getElementById('viewerClose').addEventListener('click', function(e){ e.stopPropagation(); closeLightbox(); });
   document.getElementById('viewerFlip').addEventListener('click', function(e){ e.stopPropagation(); flipCurrent(); });
+  document.getElementById('viewer3d').addEventListener('click', function(e){ e.stopPropagation(); openInspect(); });
   const prev = document.getElementById('viewerPrev'), next = document.getElementById('viewerNext');
   if(prev) prev.addEventListener('click', function(e){ e.stopPropagation(); goToSlide(viewer.index-1); });
   if(next) next.addEventListener('click', function(e){ e.stopPropagation(); goToSlide(viewer.index+1); });
 
   let g = null; // gesture
   root.addEventListener('pointerdown', function(e){
+    if(viewer && viewer.insp) return; // the 3D view handles its own gestures
     if(e.target.closest('button')) return;
     // remember what was pressed: with pointer capture, later events are retargeted to the root
     g = {x:e.clientX, y:e.clientY, t:performance.now(), axis:null, id:e.pointerId, lastX:e.clientX, lastT:performance.now(), vx:0, target:e.target};
@@ -2646,7 +2704,7 @@ function bindViewerEvents(stage){
     try{ root.setPointerCapture(e.pointerId); }catch(err){}
   });
   root.addEventListener('pointermove', function(e){
-    if(!viewer) return;
+    if(!viewer || viewer.insp) return;
     if(!g){
       if(e.pointerType === 'mouse'){ // desktop: tilt follows the mouse over the card
         const el = viewer.slides[viewer.index]; if(!el) return;
@@ -2672,7 +2730,7 @@ function bindViewerEvents(stage){
     }
   });
   function end(e){
-    if(!g || !viewer) { g = null; return; }
+    if(!g || !viewer || viewer.insp) { g = null; return; }
     const dx = e.clientX - g.x, dy = e.clientY - g.y, dt = performance.now() - g.t;
     const gg = g; g = null;
     if(!gg.axis){
@@ -2697,9 +2755,14 @@ function bindViewerEvents(stage){
   }
   root.addEventListener('pointerup', end);
   root.addEventListener('pointercancel', function(){ if(viewer){ viewer.dx = 0; viewer.dy = 0; layoutSlides(true); } g = null; });
-  root.addEventListener('pointerleave', function(e){ if(e.pointerType === 'mouse' && !g && viewer) resetTilt(); });
+  root.addEventListener('pointerleave', function(e){ if(e.pointerType === 'mouse' && !g && viewer && !viewer.insp) resetTilt(); });
 
   viewer.onKey = function(e){
+    if(viewer.insp){
+      if(e.key === 'Escape') closeInspect();
+      else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flipInspect(); }
+      return;
+    }
     if(e.key === 'ArrowLeft') goToSlide(viewer.index-1);
     else if(e.key === 'ArrowRight') goToSlide(viewer.index+1);
     else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flipCurrent(); }
@@ -2709,14 +2772,206 @@ function bindViewerEvents(stage){
   // phones: tilt the card by tilting the phone (subtle, relative to how you hold it)
   let base = null, raf = 0;
   viewer.onOrient = function(e){
+    if(viewer && viewer.insp){ viewer.insp.orient(e); return; }
     if(e.beta == null || e.gamma == null || g) return;
     if(!base) base = {b: e.beta, g: e.gamma};
     const nx = Math.max(-1, Math.min(1, (e.gamma - base.g) / 22)), ny = Math.max(-1, Math.min(1, (e.beta - base.b) / 22));
     cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ applyTilt(nx, ny); });
   };
   window.addEventListener('deviceorientation', viewer.onOrient);
-  viewer.onResize = function(){ sizeViewer(); layoutSlides(false); };
+  viewer.onResize = function(){ sizeViewer(); layoutSlides(false); if(viewer.insp) sizeInspect(); };
   window.addEventListener('resize', viewer.onResize);
+}
+/* ---------- Inspección 3D ----------
+   The card, big, to tilt with a finger (it leans where you press) or by tilting the phone.
+   A spring follows the input so it moves like a real object, and the light reacts to the
+   angle: a glare on every card, rainbow bands + sparkle on foils (all over the card, as real
+   Magic foils are) and a silvery sheen on etched foils. Per frame only transforms and
+   opacities change, so the phone's compositor does the work. Back / X leave the 3D view and
+   return to the viewer. Our own take on the idea of simeydotme's pokemon-cards-css. */
+function etchedOnly(fin){ return !!(fin && fin.indexOf('etched') > -1 && fin.indexOf('foil') < 0); }
+function inspFxHTML(kind){ // 'foil' | 'etched' | ''
+  return (kind === 'foil' ? '<div class="ifx ifx-holo"></div>' : '')+
+    (kind === 'etched' ? '<div class="ifx ifx-metal"></div>' : '')+
+    '<div class="ifx ifx-glare"></div>';
+}
+function clamp1(v){ return Math.max(-1, Math.min(1, v)); }
+function openInspect(){
+  if(!viewer || viewer.insp || viewer.closing) return;
+  const it = viewer.items[viewer.index];
+  const slide = viewer.slides[viewer.index];
+  const fc = currentFlipCard();
+  if(!slide || !fc) return;
+  // iPhone: motion sensors need a permission asked from a tap — this one
+  try{
+    if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().catch(function(){});
+  }catch(e){}
+  resetTilt();
+  fillSlideBack(viewer.index);
+  const kind = it.foil ? (it.etched ? 'etched' : 'foil') : '';
+  const flipped = fc.classList.contains('flipped');
+  const frontImg = slide.querySelector('.flip-front img');
+  const backEl = slide.querySelector('.flip-back');
+  const backImg = backEl && backEl.querySelector('img');
+  const root = document.getElementById('viewer');
+  const el = document.createElement('div');
+  el.className = 'insp'; el.id = 'insp';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Inspección 3D de '+it.name);
+  el.innerHTML =
+    '<div class="insp-top"><span class="insp-title">'+icon('cube',15)+' Inspección 3D'+(kind ? ' <span class="insp-kind '+kind+'">'+(kind === 'etched' ? 'Etched' : 'Foil')+'</span>' : '')+'</span>'+
+      '<button class="viewer-btn" id="inspClose" aria-label="Salir del 3D">'+icon('x',18)+'</button></div>'+
+    '<div class="insp-card" id="inspCard">'+
+      '<div class="insp-shadow"></div>'+
+      '<div class="insp-rot"><div class="insp-flip'+(flipped ? ' flipped' : '')+'">'+
+        '<div class="insp-face front"><img src="'+esc(frontImg ? (frontImg.currentSrc || frontImg.src) : largeImageUrl(it.img))+'" alt="'+esc(it.name)+'" draggable="false">'+inspFxHTML(kind)+'</div>'+
+        '<div class="insp-face back">'+(backImg ? '<img src="'+esc(backImg.currentSrc || backImg.src)+'" alt="" draggable="false">' : (backEl ? backEl.innerHTML : ''))+
+          inspFxHTML(it.back ? kind : '')+'</div>'+ // the other face of a double-faced card has the same finish
+      '</div></div>'+
+    '</div>'+
+    '<div class="insp-bottom"><div class="insp-name">'+esc(it.name)+'</div>'+
+      '<div class="insp-hint">Arrastra la carta o inclina el móvil · toca para girarla</div>'+
+      '<button class="viewer-chip" id="inspExit">'+icon('x',14)+' <span>Salir del 3D</span></button></div>';
+  root.appendChild(el);
+  root.classList.add('insp-on');
+  const card = el.querySelector('#inspCard');
+  const st = viewer.insp = {
+    el: el, card: card, kind: kind, flipped: flipped,
+    rot: el.querySelector('.insp-rot'), shadow: el.querySelector('.insp-shadow'), flip: el.querySelector('.insp-flip'),
+    glare: el.querySelectorAll('.ifx-glare'), holo: el.querySelectorAll('.ifx-holo'), metal: el.querySelectorAll('.ifx-metal'),
+    cx: 0, cy: 0, vx: 0, vy: 0, drag: null, gyro: null, base: null, press: null, lastMouse: null, raf: 0, last: 0,
+    intro: prefersReducedMotion() ? 0 : performance.now() + 380 // a short sweep shows off the light, unless you touch first
+  };
+  sizeInspect();
+  paintInspect(st);
+  navPush();
+  // grows out of the card in the viewer
+  const S = fc.getBoundingClientRect(), T = card.getBoundingClientRect();
+  slide.style.visibility = 'hidden';
+  if(!prefersReducedMotion() && card.animate && S.width > 4) card.animate([{transform: popTransformFrom(S, T)}, {transform: 'none'}], {duration: 460, easing: 'cubic-bezier(.2,.8,.2,1)'});
+
+  function kick(){ if(!st.raf && viewer && viewer.insp === st) st.raf = requestAnimationFrame(frame); }
+  st.kick = kick;
+  function frame(now){
+    st.raf = 0;
+    if(!viewer || viewer.insp !== st) return;
+    const dt = Math.min(64, now - (st.last || now - 16.7)); st.last = now;
+    // what the card leans towards: your finger, else the intro sweep, else the phone, else flat
+    let tx = 0, ty = 0;
+    if(st.drag){ tx = st.drag.x; ty = st.drag.y; }
+    else if(st.intro){
+      const t = (now - st.intro) / 1700;
+      if(t >= 1) st.intro = 0;
+      else if(t > 0){ const w = Math.sin(t * Math.PI); tx = -.75 * Math.sin(t * Math.PI * 2) * (.6 + .4 * w); ty = -.32 * Math.sin(t * Math.PI * 2) + .18 * w; }
+    }
+    else if(st.gyro){ tx = st.gyro.x; ty = st.gyro.y; }
+    const k = st.drag ? .16 : .075, damp = st.drag ? .68 : .82;
+    for(let n = Math.max(1, Math.min(4, Math.round(dt / 16.7))); n > 0; n--){
+      st.vx = (st.vx + (tx - st.cx) * k) * damp; st.vy = (st.vy + (ty - st.cy) * k) * damp;
+      st.cx += st.vx; st.cy += st.vy;
+    }
+    paintInspect(st);
+    if(st.drag || st.intro || Math.abs(st.vx) + Math.abs(st.vy) > .0004 || Math.abs(tx - st.cx) + Math.abs(ty - st.cy) > .002) kick();
+  }
+  if(st.intro) kick();
+
+  // finger (or mouse): the card leans where you press
+  function setDrag(e){
+    const r = card.getBoundingClientRect();
+    st.drag = {x: clamp1((e.clientX - (r.left + r.width/2)) / (r.width/2)), y: clamp1((e.clientY - (r.top + r.height/2)) / (r.height/2))};
+    kick();
+  }
+  el.addEventListener('pointerdown', function(e){
+    if(e.target.closest('button')) return;
+    st.intro = 0;
+    st.press = {x: e.clientX, y: e.clientY, t: performance.now(), moved: false, onCard: !!e.target.closest('.insp-card')};
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    setDrag(e);
+  });
+  el.addEventListener('pointermove', function(e){
+    if(!st.press){
+      if(e.pointerType !== 'mouse') return;
+      // hovering with a mouse; the browser also sends "moves" when the page changes under a
+      // still pointer — only real movement counts
+      const lm = st.lastMouse; st.lastMouse = [e.clientX, e.clientY];
+      if(!lm || (lm[0] === e.clientX && lm[1] === e.clientY)) return;
+      st.intro = 0; setDrag(e); return;
+    }
+    if(Math.abs(e.clientX - st.press.x) + Math.abs(e.clientY - st.press.y) > 10) st.press.moved = true;
+    setDrag(e);
+  });
+  function release(e){
+    const p = st.press; st.press = null;
+    if(e.pointerType !== 'mouse') st.drag = null; // touch: let go and it springs back (or follows the phone)
+    kick();
+    if(p && !p.moved && performance.now() - p.t < 400 && p.onCard) flipInspect();
+  }
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', function(){ st.press = null; st.drag = null; kick(); });
+  el.addEventListener('pointerleave', function(e){ if(e.pointerType === 'mouse' && !st.press){ st.drag = null; kick(); } });
+  // phone tilt, relative to how you hold it (slowly re-centres if you change your grip)
+  st.orient = function(e){
+    if(e.beta == null || e.gamma == null) return;
+    const ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+    let gx = e.gamma, by = e.beta;
+    if(ang === 90){ gx = e.beta; by = -e.gamma; } else if(ang === -90 || ang === 270){ gx = -e.beta; by = e.gamma; } else if(ang === 180){ gx = -e.gamma; by = -e.beta; }
+    if(!st.base){ st.base = {x: gx, y: by}; return; }
+    st.base.x += (gx - st.base.x) * .006; st.base.y += (by - st.base.y) * .006;
+    const x = clamp1((gx - st.base.x) / 18), y = clamp1((by - st.base.y) / 18);
+    st.gyro = {x: x, y: y};
+    if(st.intro && Math.abs(x) + Math.abs(y) > .25) st.intro = 0; // you're moving the phone: you drive
+    kick();
+  };
+  el.querySelector('#inspClose').addEventListener('click', function(e){ e.stopPropagation(); closeInspect(); });
+  el.querySelector('#inspExit').addEventListener('click', function(e){ e.stopPropagation(); closeInspect(); });
+}
+/* fit the card between the top bar and the bottom text */
+function sizeInspect(){
+  const st = viewer && viewer.insp; if(!st) return;
+  const el = st.el, card = st.card;
+  const W = el.clientWidth, top = el.querySelector('.insp-top').getBoundingClientRect().bottom - el.getBoundingClientRect().top;
+  const bottom = el.querySelector('.insp-bottom').getBoundingClientRect().top - el.getBoundingClientRect().top;
+  const availH = Math.max(180, bottom - top - 28), availW = Math.max(160, W - 40);
+  const w = Math.min(availW, availH * 63/88, 560), h = w * 88/63;
+  card.style.width = w+'px'; card.style.height = h+'px';
+  card.style.left = ((W - w) / 2)+'px'; card.style.top = (top + 14 + (availH - h) / 2)+'px';
+}
+function paintInspect(st){
+  const x = st.cx, y = st.cy, a = Math.min(1, Math.hypot(x, y));
+  const f = function(n){ return n.toFixed(2); };
+  st.rot.style.transform = 'rotateX('+f(-y * 17)+'deg) rotateY('+f(x * 21)+'deg)';
+  st.shadow.style.transform = 'translate3d('+f(-x * 18)+'px,'+f(14 - y * 10)+'px,0) scale('+(1 - a * .05).toFixed(3)+')';
+  st.glare.forEach(function(g){ g.style.transform = 'translate3d('+f(x * 25)+'%,'+f(y * 25)+'%,0)'; g.style.opacity = (.3 + .6 * a).toFixed(3); });
+  st.holo.forEach(function(h){ h.style.transform = 'translate3d('+f(-x * 16)+'%,'+f(-y * 9)+'%,0)'; h.style.opacity = (.14 + .46 * a).toFixed(3); });
+  st.metal.forEach(function(m){ m.style.transform = 'translate3d('+f(-x * 14)+'%,'+f(-y * 8)+'%,0)'; m.style.opacity = (.18 + .5 * a).toFixed(3); });
+}
+function flipInspect(){
+  const st = viewer && viewer.insp; if(!st) return;
+  st.flipped = !st.flipped;
+  st.flip.classList.toggle('flipped', st.flipped);
+}
+function closeInspect(){ if(viewer && viewer.insp) navBack(); }
+/* back to the viewer: the big card flies back into its place */
+function exitInspect(){
+  const st = viewer && viewer.insp; if(!st) return;
+  viewer.insp = null;
+  cancelAnimationFrame(st.raf);
+  const slide = viewer.slides[viewer.index];
+  const fc = currentFlipCard();
+  if(fc && fc.classList.contains('flipped') !== st.flipped){ // same side up as you left it
+    fc.style.transition = 'none'; fc.classList.toggle('flipped', st.flipped); void fc.offsetWidth; fc.style.transition = '';
+  }
+  document.getElementById('viewer').classList.remove('insp-on');
+  updateViewerInfo();
+  let finished = false;
+  const done = function(){ if(finished) return; finished = true; st.el.remove(); if(slide) slide.style.visibility = ''; };
+  st.el.classList.add('leaving');
+  const pop = slide && slide.querySelector('.viewer-pop');
+  if(pop && st.card.animate && !prefersReducedMotion()){
+    st.rot.style.transition = 'transform .32s ease-out'; st.rot.style.transform = 'none';
+    const S = pop.getBoundingClientRect(), T = st.card.getBoundingClientRect();
+    const an = st.card.animate([{transform: 'none'}, {transform: popTransformFrom(S, T)}], {duration: 380, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards'});
+    an.onfinish = done; setTimeout(done, 700);
+  } else done();
 }
 function visibleRect(el){
   if(!el || !el.isConnected) return null;
@@ -2744,6 +2999,8 @@ function animateViewerOpen(){
 }
 function teardownViewer(immediate){
   if(!viewer) return;
+  if(viewer.insp){ cancelAnimationFrame(viewer.insp.raf); viewer.insp = null; }
+  document.documentElement.classList.remove('viewer-open');
   document.removeEventListener('keydown', viewer.onKey);
   window.removeEventListener('deviceorientation', viewer.onOrient);
   window.removeEventListener('resize', viewer.onResize);
@@ -2992,6 +3249,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         quantity: curQty, foil: foilVal, condition: conditionVal, lang: langVal, binderId: binderVal
       });
+      if(card.finishes) existingItem.finishes = card.finishes;
       if(!card._pseudo){ existingItem.imageBack = faceBackUrl(card); existingItem.manaCost = cardManaCost(card); }
       await dbPut('cards', existingItem);
     } else {
@@ -3002,7 +3260,7 @@ function openAddDetailsModal(card, existingItem, overrides, target){
         cmc: card.cmc || 0, typeLine: card.type_line || '', releasedAt: card.released_at || null,
         imageSmall: face.image, imageNormal: face.imageNormal || face.image, prices: prices,
         foil: foilVal, condition: conditionVal, lang: langVal, quantity: curQty, binderId: binderVal,
-        imageBack: faceBackUrl(card), manaCost: cardManaCost(card), addedAt: Date.now()
+        imageBack: faceBackUrl(card), manaCost: cardManaCost(card), addedAt: Date.now(), finishes: card.finishes || null
       };
       await dbPut('cards', item);
       state.cards.push(item);
@@ -6199,7 +6457,7 @@ function applyTopLayer(){
   const lightboxRoot = document.getElementById('lightboxRoot');
   const modalRoot = document.getElementById('modalRoot');
   const detailPanel = document.getElementById('detailPanel');
-  if(!lightboxRoot.hidden && viewer){ dismissLightbox(); return; }
+  if(!lightboxRoot.hidden && viewer){ if(viewer.insp){ exitInspect(); return; } dismissLightbox(); return; }
   if(playtest){ dismissPlaytest(); return; }
   if(wishSel && state.tab === 'wishlist'){ exitWishSelect(true); return; }
   const backdrop = document.getElementById('modalBackdrop');
