@@ -755,7 +755,9 @@
     background:linear-gradient(100deg,#ff8fd0,#ffe680 30%,#8dffc8 55%,#8db6ff 78%,#d9a2ff);}
   .insp-kind.etched{background:linear-gradient(100deg,#9aa3b5,#f4f6fa 45%,#b8c0cf 70%,#eef1f6);}
   .insp-card{position:absolute; transform-origin:0 0; perspective:1300px;}
-  .insp-shadow{position:absolute; left:6%; right:6%; top:7%; bottom:1%; border-radius:7%; background:rgba(0,0,0,.62); filter:blur(22px); will-change:transform;}
+  /* soft shadow drawn once (a wide box-shadow), then only slid around: a live blur() on a moving
+     layer had the phone re-blurring a big area every frame */
+  .insp-shadow{position:absolute; left:7%; right:7%; top:9%; bottom:3%; border-radius:9%; background:rgba(0,0,0,.4); box-shadow:0 0 36px 24px rgba(0,0,0,.4); will-change:transform;}
   .insp-rot{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform;}
   .insp-flip{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .75s cubic-bezier(.3,.75,.25,1);}
   .insp-flip.flipped{transform:rotateY(180deg);}
@@ -767,9 +769,9 @@
   .insp-face .viewer-glare, .insp-face .flip-loading{display:none;}
   .ifx{position:absolute; pointer-events:none; will-change:transform, opacity;}
   /* light on the surface: a soft hot spot where the light hits, a little darker away from it.
-     At most two layers blend per card (light + foil): blending is the expensive part on phones. */
-  .ifx-glare{left:-50%; top:-50%; width:200%; height:200%; mix-blend-mode:overlay; opacity:.35;
-    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.5) 9%, rgba(255,255,255,0) 26%, rgba(0,0,0,.22) 48%, rgba(0,0,0,.35) 70%);}
+     Plain see-through layer; only the foil layer uses a blend mode (that's the costly part). */
+  .ifx-glare{left:-50%; top:-50%; width:200%; height:200%; opacity:.35;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.46) 0%, rgba(255,255,255,.24) 9%, rgba(255,255,255,0) 25%, rgba(0,0,0,.1) 45%, rgba(0,0,0,.2) 70%);}
   /* foil: the whole card shimmers (like real Magic foils): glitter + a soft sheen + bands of
      rainbow, all in one layer so the phone only blends one thing */
   .ifx-holo{left:-100%; top:-100%; width:300%; height:300%; mix-blend-mode:color-dodge; opacity:.2;
@@ -2838,7 +2840,7 @@ function openInspect(){
     el: el, card: card, kind: kind, flipped: flipped,
     rot: el.querySelector('.insp-rot'), shadow: el.querySelector('.insp-shadow'), flip: el.querySelector('.insp-flip'),
     glare: el.querySelectorAll('.ifx-glare'), holo: el.querySelectorAll('.ifx-holo'), metal: el.querySelectorAll('.ifx-metal'),
-    cx: 0, cy: 0, vx: 0, vy: 0, drag: null, gyro: null, base: null, press: null, lastMouse: null, raf: 0, last: 0,
+    cx: 0, cy: 0, vx: 0, vy: 0, px: 0, py: 0, acc: 0, drag: null, gyro: null, base: null, press: null, lastMouse: null, raf: 0, last: 0,
     intro: prefersReducedMotion() ? 0 : performance.now() + 380 // a short sweep shows off the light, unless you touch first
   };
   sizeInspect();
@@ -2849,12 +2851,13 @@ function openInspect(){
   slide.style.visibility = 'hidden';
   if(!prefersReducedMotion() && card.animate && S.width > 4) card.animate([{transform: popTransformFrom(S, T)}, {transform: 'none'}], {duration: 460, easing: 'cubic-bezier(.2,.8,.2,1)'});
 
-  function kick(){ if(!st.raf && viewer && viewer.insp === st) st.raf = requestAnimationFrame(frame); }
+  // cont: the loop keeps going; otherwise it (re)starts and the first step is one normal frame
+  function kick(cont){ if(!st.raf && viewer && viewer.insp === st){ if(cont !== true) st.last = 0; st.raf = requestAnimationFrame(frame); } }
   st.kick = kick;
   function frame(now){
     st.raf = 0;
     if(!viewer || viewer.insp !== st) return;
-    const dt = Math.min(64, now - (st.last || now - 16.7)); st.last = now;
+    const dt = Math.min(100, now - (st.last || now - 16.7)); st.last = now;
     // what the card leans towards: your finger, else the intro sweep, else the phone, else flat
     let tx = 0, ty = 0;
     if(st.drag){ tx = st.drag.x; ty = st.drag.y; }
@@ -2864,13 +2867,23 @@ function openInspect(){
       else if(t > 0){ const w = Math.sin(t * Math.PI); tx = -.75 * Math.sin(t * Math.PI * 2) * (.6 + .4 * w); ty = -.32 * Math.sin(t * Math.PI * 2) + .18 * w; }
     }
     else if(st.gyro){ tx = st.gyro.x; ty = st.gyro.y; }
-    const k = st.drag ? .16 : .075, damp = st.drag ? .68 : .82;
-    for(let n = Math.max(1, Math.min(4, Math.round(dt / 16.7))); n > 0; n--){
-      st.vx = (st.vx + (tx - st.cx) * k) * damp; st.vy = (st.vy + (ty - st.cy) * k) * damp;
-      st.cx += st.vx; st.cy += st.vy;
+    // a real spring (stiffness w, damping z), stepped at a fixed 240 Hz and drawn between the last
+    // two steps: it moves the same on 60, 90 or 120 Hz screens and doesn't stutter if a frame
+    // comes late. Finger: quick, barely overshoots. Phone: smooth. Let go: soft bounce back.
+    const sp = st.drag ? INSP_SPRING.drag : (!st.intro && st.gyro) ? INSP_SPRING.gyro : INSP_SPRING.free;
+    const H = 1 / 240, w2 = sp.w * sp.w, c = 2 * sp.z * sp.w;
+    st.acc += dt / 1000;
+    let n = 0;
+    while(st.acc >= H && n < 48){
+      st.px = st.cx; st.py = st.cy;
+      st.vx += (w2 * (tx - st.cx) - c * st.vx) * H; st.vy += (w2 * (ty - st.cy) - c * st.vy) * H;
+      st.cx += st.vx * H; st.cy += st.vy * H;
+      st.acc -= H; n++;
     }
-    paintInspect(st);
-    if(st.drag || st.intro || Math.abs(st.vx) + Math.abs(st.vy) > .0004 || Math.abs(tx - st.cx) + Math.abs(ty - st.cy) > .002) kick();
+    if(n === 48) st.acc = 0;
+    const f = st.acc / H;
+    paintInspect(st, st.px + (st.cx - st.px) * f, st.py + (st.cy - st.py) * f);
+    if(st.drag || st.intro || Math.abs(st.vx) + Math.abs(st.vy) > .01 || Math.abs(tx - st.cx) + Math.abs(ty - st.cy) > .002) kick(true);
   }
   if(st.intro) kick();
 
@@ -2935,8 +2948,10 @@ function sizeInspect(){
   card.style.width = w+'px'; card.style.height = h+'px';
   card.style.left = ((W - w) / 2)+'px'; card.style.top = (top + 14 + (availH - h) / 2)+'px';
 }
-function paintInspect(st){
-  const x = st.cx, y = st.cy, a = Math.min(1, Math.hypot(x, y));
+const INSP_SPRING = {drag: {w: 24, z: .8}, gyro: {w: 15, z: .85}, free: {w: 14, z: .45}};
+function paintInspect(st, x, y){
+  if(x === undefined){ x = st.cx; y = st.cy; }
+  const a = Math.min(1, Math.hypot(x, y));
   const f = function(n){ return n.toFixed(2); };
   st.rot.style.transform = 'rotateX('+f(-y * 17)+'deg) rotateY('+f(x * 21)+'deg)';
   st.shadow.style.transform = 'translate3d('+f(-x * 18)+'px,'+f(14 - y * 10)+'px,0) scale('+(1 - a * .05).toFixed(3)+')';
