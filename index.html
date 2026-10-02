@@ -791,6 +791,60 @@
   .insp-hint{font-size:.72rem; opacity:.72; text-align:center;}
   .insp.leaving .insp-top, .insp.leaving .insp-bottom{opacity:0; transition:opacity .2s ease; animation:none;}
   .insp.leaving{pointer-events:none;}
+
+  /* ---------- Mazos: format carousel ---------- */
+  .fmt-wrap{position:relative;}
+  .fmt-carousel{display:flex; gap:12px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; overscroll-behavior-x:contain;
+    margin:0 -1rem; padding:.3rem 9% .6rem; scroll-padding:0 9%; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+  .fmt-carousel::-webkit-scrollbar{display:none;}
+  .fmt-slide{position:relative; flex:0 0 82%; height:clamp(330px, 58vh, 540px); scroll-snap-align:center; scroll-snap-stop:always; border-radius:22px; overflow:hidden; cursor:pointer;
+    color:#fff; background:var(--fc); background:radial-gradient(120% 90% at 30% 10%, color-mix(in srgb, var(--fc) 70%, #fff 10%), color-mix(in srgb, var(--fc) 55%, #0b0910) 70%);
+    box-shadow:0 14px 34px rgba(0,0,0,.28), 0 2px 6px rgba(0,0,0,.18); -webkit-tap-highlight-color:transparent; outline-offset:3px; isolation:isolate;}
+  .fmt-art-box{position:absolute; inset:0; overflow:hidden;}
+  .fmt-art{position:absolute; inset:-2% -14%; width:128%; height:104%; object-fit:cover; opacity:0; transition:opacity .45s ease;}
+  .fmt-art.in{opacity:1;}
+  .fmt-shade{position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,6,12,.45) 0%, rgba(8,6,12,0) 22%, rgba(8,6,12,0) 40%, rgba(8,6,12,.55) 66%, rgba(8,6,12,.9) 100%);}
+  .fmt-top{position:absolute; top:.85rem; left:.85rem; right:.85rem; display:flex; gap:.4rem; flex-wrap:wrap;}
+  .fmt-chip{display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:700; padding:.3rem .65rem; border-radius:999px; background:rgba(12,10,18,.55); color:#fff;}
+  .fmt-chip.fmt-val{font-family:var(--font-mono); font-variant-numeric:tabular-nums; color:#8ee3b6;}
+  .fmt-bottom{position:absolute; left:0; right:0; bottom:0; padding:1rem 1.1rem 1rem;}
+  .fmt-name{font-family:var(--font-display); font-size:2.15rem; font-weight:700; line-height:1.05; margin:0; letter-spacing:-.01em; text-shadow:0 2px 14px rgba(0,0,0,.55);}
+  .fmt-blurb{margin:.35rem 0 0; font-size:.8rem; line-height:1.35; opacity:.88; max-width:30ch;}
+  .fmt-open{display:inline-flex; align-items:center; gap:.25rem; margin-top:.75rem; font-size:.78rem; font-weight:700; padding:.42rem .85rem; border-radius:999px; background:#fff; color:#1c1530;}
+  .fmt-credit{margin-top:.6rem; font-size:.6rem; opacity:.6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .fmt-credit:empty{display:none;}
+  .fmt-avatars{display:flex; align-items:center; margin-bottom:.55rem;}
+  .fmt-avatars img, .fmt-avatars .fmt-more{width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.9); margin-right:-9px; background:#2a2433; box-shadow:0 2px 6px rgba(0,0,0,.35);}
+  .fmt-avatars .fmt-more{display:inline-flex; align-items:center; justify-content:center; font-size:.66rem; font-weight:800; font-family:var(--font-mono);}
+  .fmt-dots{display:flex; justify-content:center; gap:.45rem; margin-top:.35rem;}
+  .fmt-dot{width:8px; height:8px; padding:0; border:none; border-radius:999px; background:var(--line); cursor:pointer; transition:width .25s ease, background .25s ease;}
+  .fmt-dot.active{width:22px; background:var(--accent);}
+  .fmt-hint{text-align:center; font-size:.74rem; color:var(--ink-faint); margin:.7rem 0 0;}
+  .fmt-arrow{position:absolute; top:calc(.3rem + clamp(330px, 58vh, 540px) / 2); margin-top:-21px; width:42px; height:42px; border-radius:50%; border:none; display:none; place-items:center; cursor:pointer;
+    background:rgba(255,255,255,.92); color:#1c1530; box-shadow:0 4px 14px rgba(0,0,0,.25); z-index:2;}
+  .fmt-arrow.prev{left:.2rem;} .fmt-arrow.next{right:.2rem;}
+  .fmt-arrow[disabled]{opacity:0; pointer-events:none;}
+  @media (hover:hover) and (pointer:fine){ .fmt-arrow{display:grid;} }
+  /* the side cards sit a little back; the art drifts as you swipe (browsers that support
+     scroll-driven animations; it runs off the main thread) */
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion: no-preference){
+      .fmt-slide{animation:fmtFocus linear both; animation-timeline:view(inline);}
+      .fmt-art{animation:fmtDrift linear both; animation-timeline:view(inline);}
+    }
+  }
+  @keyframes fmtFocus{ 0%{transform:scale(.88);} 50%{transform:scale(1);} 100%{transform:scale(.88);} }
+  @keyframes fmtDrift{ from{transform:translateX(9%);} to{transform:translateX(-9%);} }
+  /* folder page */
+  .fmt-banner{position:relative; height:190px; border-radius:18px; overflow:hidden; color:#fff; margin-bottom:.9rem; isolation:isolate;
+    background:var(--fc); background:radial-gradient(120% 90% at 30% 10%, color-mix(in srgb, var(--fc) 70%, #fff 10%), color-mix(in srgb, var(--fc) 55%, #0b0910) 70%);}
+  .fmt-banner .fmt-art{inset:0; width:100%; height:100%;}
+  .fmt-banner-text{position:absolute; left:0; right:0; bottom:0; padding:.9rem 1rem;}
+  .fmt-banner .fmt-name{font-size:1.7rem;}
+  .fmt-banner-stats{display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.55rem;}
+  .fmt-banner .fmt-credit{margin-top:.45rem;}
+  .fmt-folder-actions{display:flex; gap:.5rem; margin-bottom:1rem;}
+  .fmt-folder-actions .btn{flex:1; justify-content:center;}
   .card-thumb[data-action], .thumb-wrap[data-action]{cursor:zoom-in;}
   .sort-option{display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .1rem; border-bottom:1px solid var(--line);}
   .sort-option:last-child{border-bottom:none;}
@@ -1076,7 +1130,6 @@ window.runSplash = function(el, opts){
     <div id="decksImportProgress" hidden>
       <div class="progress-track"><div class="progress-fill" id="decksImportProgressFill"></div></div>
     </div>
-    <div class="deck-tabs" id="deckTabs" role="tablist" aria-label="Formatos"></div>
     <div id="decksList"></div>
   </section>
 
@@ -3730,36 +3783,198 @@ function deckGridItemHTML(deck){
   );
 }
 /* Mazos tab: "Todos" (grouped by format) or one format at a time, with counts. */
+/* ---------- Mazos: one big card per format, swiped like a carousel ----------
+   Each card shows the format over the art of one of its most characteristic cards (taken
+   from Scryfall and cached), how many decks you have and what they're worth. Tap the
+   centred card to open that format's folder; tap a side card to bring it to the centre.
+   Swiping is the browser's own scroll-snap, so it's as smooth as any native carousel. */
+const FORMAT_ART = {
+  commander: {name: "Atraxa, Praetors' Voice", set: 'c16', color: '#6d4bd8'},
+  modern: {name: 'Tarmogoyf', set: 'fut', color: '#1f6fd0'},
+  pauper: {name: 'Lightning Bolt', set: 'm10', color: '#25865c'},
+  premodern: {name: 'Psychatog', set: 'ody', color: '#b06a26'},
+  '': {name: '', set: '', color: '#5f5871'}
+};
+const FORMAT_ART_KEY = 'mtgFormatArt';
+let formatArtCache = null, formatArtLoading = false;
+function formatArtData(){
+  if(!formatArtCache){ try{ formatArtCache = JSON.parse(localStorage.getItem(FORMAT_ART_KEY) || 'null') || {}; }catch(e){ formatArtCache = {}; } }
+  return formatArtCache;
+}
+function formatArtFor(k){ const d = formatArtData()[k]; return d && d.url ? d : null; }
+/* fetch each format's art once (kept for a month); the slides fill in as it arrives */
+async function ensureFormatArt(){
+  if(formatArtLoading) return;
+  const cache = formatArtData();
+  const todo = DECK_FORMATS.map(function(f){ return f.key; }).filter(function(k){ const d = cache[k]; return !d || !d.url || d.card !== FORMAT_ART[k].name || Date.now() - (d.ts || 0) > 30*DAY_MS; });
+  if(!todo.length) return;
+  formatArtLoading = true;
+  try{
+    for(let i = 0; i < todo.length; i++){
+      const k = todo[i], want = FORMAT_ART[k];
+      let card = null;
+      for(const q of ['&set='+want.set, '']){ // the chosen printing; any printing if that fails
+        try{ const r = await fetch(SCRYFALL+'/cards/named?exact='+encodeURIComponent(want.name)+q); if(r.ok){ card = await r.json(); break; } }catch(e){ break; }
+      }
+      const iu = card && (card.image_uris || (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris));
+      if(iu && iu.art_crop){
+        cache[k] = {url: iu.art_crop, artist: card.artist || '', card: want.name, ts: Date.now()};
+        try{ localStorage.setItem(FORMAT_ART_KEY, JSON.stringify(cache)); }catch(e){}
+        paintFormatArt(k);
+      }
+      await sleep(120);
+    }
+  } finally { formatArtLoading = false; }
+}
+function formatArtImgHTML(k, cls){
+  const a = formatArtFor(k);
+  return a ? '<img class="'+cls+'" src="'+esc(a.url)+'" alt="" decoding="async" draggable="false" onload="this.classList.add(\'in\')" onerror="this.remove()">' : '';
+}
+function formatCreditText(k){ const a = formatArtFor(k); return a ? FORMAT_ART[k].name+(a.artist ? ' · ilustración de '+a.artist : '') : ''; }
+/* art arrived: put it into whatever shows that format right now (slide, folder banner) */
+function paintFormatArt(k){
+  document.querySelectorAll('[data-fmt-art="'+k+'"]').forEach(function(box){
+    if(box.querySelector('.fmt-art')) return;
+    box.insertAdjacentHTML('afterbegin', formatArtImgHTML(k, 'fmt-art'));
+    const cr = box.parentNode && box.parentNode.querySelector('.fmt-credit');
+    if(cr) cr.textContent = formatCreditText(k);
+  });
+}
+function deckCoverUrl(deck){
+  const pick = deck.cards.find(function(c){ return c.commander && (c.imageNormal || c.imageSmall); }) ||
+    deck.cards.filter(function(c){ return (c.imageNormal || c.imageSmall) && !/land/i.test(c.typeLine || ''); })
+      .sort(function(a,b){ return (/creature/i.test(b.typeLine||'') ? 1 : 0) - (/creature/i.test(a.typeLine||'') ? 1 : 0); })[0];
+  if(!pick) return null;
+  const src = pick.imageNormal || pick.imageSmall;
+  return artCropUrl(src) || src;
+}
+function formatKeysShown(){
+  return DECK_FORMATS.map(function(f){ return f.key; }).concat(state.decks.some(function(d){ return !deckFormat(d); }) ? [''] : []);
+}
+function formatStats(k){
+  const list = state.decks.filter(function(d){ return deckFormat(d) === k; });
+  const cur = state.settings.currency;
+  const value = list.reduce(function(a, d){ return a + deckValue(d, cur).value; }, 0);
+  return {list: list, n: list.length, value: Math.round(value*100)/100};
+}
+function fmtCountText(n){ return n === 1 ? '1 mazo' : n+' mazos'; }
+function formatSlideHTML(k, i){
+  const st = formatStats(k), cur = state.settings.currency;
+  const covers = st.list.map(deckCoverUrl).filter(Boolean);
+  const av = covers.slice(0, 4).map(function(u){ return '<img src="'+esc(u)+'" alt="" loading="lazy" decoding="async" draggable="false">'; }).join('')+
+    (st.n > 4 ? '<span class="fmt-more">+'+(st.n - 4)+'</span>' : '');
+  return '<div class="fmt-slide fmt-c-'+(k || 'none')+'" role="button" tabindex="0" data-fmt="'+k+'" data-i="'+i+'" style="--fc:'+FORMAT_ART[k].color+'" aria-label="'+esc(formatLabel(k)+', '+fmtCountText(st.n))+'">'+
+    '<div class="fmt-art-box" data-fmt-art="'+k+'">'+formatArtImgHTML(k, 'fmt-art')+'</div>'+
+    '<div class="fmt-shade"></div>'+
+    '<div class="fmt-top"><span class="fmt-chip">'+icon('layers',13)+' '+fmtCountText(st.n)+'</span>'+(st.value > 0 ? '<span class="fmt-chip fmt-val">'+fmtMoney(st.value, cur)+'</span>' : '')+'</div>'+
+    '<div class="fmt-bottom">'+
+      (av ? '<div class="fmt-avatars">'+av+'</div>' : '')+
+      '<h3 class="fmt-name">'+esc(formatLabel(k))+'</h3>'+
+      '<p class="fmt-blurb">'+esc(k ? FORMAT_BLURB[k] : 'Mazos a los que aún no has puesto formato')+'</p>'+
+      '<span class="fmt-open">'+(st.n ? 'Ver mazos' : 'Empezar')+' '+icon('chevron',14)+'</span>'+
+      '<div class="fmt-credit">'+esc(formatCreditText(k))+'</div>'+
+    '</div>'+
+  '</div>';
+}
+/* which slide is centred, from the scroll position */
+function fmtCarouselIndex(car){
+  const mid = car.scrollLeft + car.clientWidth / 2;
+  let best = 0, bd = Infinity;
+  Array.prototype.forEach.call(car.children, function(sl, i){ const d = Math.abs(sl.offsetLeft + sl.offsetWidth / 2 - mid); if(d < bd){ bd = d; best = i; } });
+  return best;
+}
+function fmtScrollTo(car, i, smooth){
+  const sl = car.children[i]; if(!sl) return;
+  car.scrollTo({left: sl.offsetLeft - (car.clientWidth - sl.offsetWidth) / 2, behavior: smooth && !prefersReducedMotion() ? 'smooth' : 'auto'});
+}
+function fmtSetActive(car, i){
+  Array.prototype.forEach.call(car.children, function(sl, j){ sl.classList.toggle('active', j === i); sl.setAttribute('aria-current', j === i ? 'true' : 'false'); });
+  document.querySelectorAll('#fmtDots .fmt-dot').forEach(function(d, j){ d.classList.toggle('active', j === i); });
+  const prev = document.getElementById('fmtPrev'), next = document.getElementById('fmtNext');
+  if(prev) prev.disabled = i === 0;
+  if(next) next.disabled = i === car.children.length - 1;
+}
 function renderDecks(){
   const el = document.getElementById('decksList');
-  const tabsEl = document.getElementById('deckTabs');
-  const counts = {all: state.decks.length, '': 0};
-  DECK_FORMATS.forEach(function(f){ counts[f.key] = 0; });
-  state.decks.forEach(function(d){ counts[deckFormat(d)]++; });
-  let tab = state.settings.deckTab || 'all';
-  if(tab === 'none' && !counts['']) tab = 'all';
-  const tabs = [{key:'all', label:'Todos', n:counts.all}].concat(DECK_FORMATS.map(function(f){ return {key:f.key, label:f.label, n:counts[f.key]}; }))
-    .concat(counts[''] ? [{key:'none', label:'Sin formato', n:counts['']}] : []);
-  if(tabsEl){
-    tabsEl.hidden = state.decks.length === 0;
-    tabsEl.innerHTML = tabs.map(function(t){ return '<button type="button" role="tab" class="deck-tab'+(t.key === tab ? ' active' : '')+'" data-deck-tab="'+t.key+'" aria-selected="'+(t.key === tab)+'">'+esc(t.label)+'<span class="dt-n">'+t.n+'</span></button>'; }).join('');
+  const keys = formatKeysShown();
+  const old = el.querySelector('.fmt-carousel');
+  const keepScroll = old && old.clientWidth ? old.scrollLeft : null;
+  const want = state.settings.deckTab === 'none' ? '' : state.settings.deckTab;
+  const startIdx = Math.max(0, keys.indexOf(want));
+  el.className = 'fmt-wrap';
+  el.innerHTML =
+    '<div class="fmt-carousel" id="fmtCarousel" aria-label="Formatos de mazo">'+keys.map(formatSlideHTML).join('')+'</div>'+
+    '<button class="fmt-arrow prev" id="fmtPrev" aria-label="Formato anterior">'+icon('back',18)+'</button>'+
+    '<button class="fmt-arrow next" id="fmtNext" aria-label="Formato siguiente">'+icon('chevron',18)+'</button>'+
+    '<div class="fmt-dots" id="fmtDots">'+keys.map(function(k, i){ return '<button class="fmt-dot" data-i="'+i+'" aria-label="'+esc(formatLabel(k))+'"></button>'; }).join('')+'</div>'+
+    '<p class="fmt-hint">'+(state.decks.length ? state.decks.length+' '+(state.decks.length === 1 ? 'mazo' : 'mazos')+' en total · desliza para cambiar de formato' : 'Desliza para elegir formato y tócalo para crear o importar tu primer mazo')+'</p>';
+  const car = el.querySelector('.fmt-carousel');
+  let idx = startIdx;
+  // the panel may be hidden right now (another tab): place the carousel once it has a size
+  const place = function(){
+    if(!car.clientWidth) return false;
+    if(keepScroll != null){ car.scrollLeft = keepScroll; idx = fmtCarouselIndex(car); }
+    else fmtScrollTo(car, startIdx, false);
+    fmtSetActive(car, idx);
+    return true;
+  };
+  fmtSetActive(car, idx);
+  if(!place() && typeof ResizeObserver !== 'undefined'){
+    const ro = new ResizeObserver(function(){ if(!car.isConnected){ ro.disconnect(); return; } if(place()) ro.disconnect(); });
+    ro.observe(car);
   }
-  if(state.decks.length === 0){ el.className=''; el.innerHTML = emptyStateHTML('layers','Todavía no tienes mazos.<br>Crea uno para empezar a planificarlo.'); return; }
-  const byFmt = function(k){ return state.decks.filter(function(d){ return deckFormat(d) === k; }); };
-  if(tab === 'all'){
-    el.className = 'deck-groups';
-    el.innerHTML = DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){
-      const list = byFmt(f.key); if(!list.length) return '';
-      return '<div class="deck-group"><div class="settings-section-title">'+esc(f.label)+' <span class="count-pill">'+list.length+'</span></div>'+
-        '<div class="card-grid">'+list.map(deckGridItemHTML).join('')+'</div></div>';
-    }).join('');
-    return;
-  }
-  const k = tab === 'none' ? '' : tab;
-  const list = byFmt(k);
-  if(!list.length){ el.className=''; el.innerHTML = emptyStateHTML('layers','No tienes mazos de '+esc(formatLabel(k))+' todavía.<br>Crea uno o importa una lista.'); return; }
-  el.className = 'card-grid';
-  el.innerHTML = list.map(deckGridItemHTML).join('');
+  let raf = 0, saveT = 0;
+  car.addEventListener('scroll', function(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      const i = fmtCarouselIndex(car);
+      if(i !== idx){ idx = i; fmtSetActive(car, i); }
+      clearTimeout(saveT);
+      saveT = setTimeout(function(){ const k = keys[idx]; const v = k === '' ? 'none' : k; if(state.settings.deckTab !== v){ state.settings.deckTab = v; saveSettings(); } }, 160);
+    });
+  }, {passive: true});
+  ensureFormatArt();
+}
+/* ---------- Format folder: the decks of one format ----------
+   Opens from the carousel. Opening a deck from here keeps a history step, so "back" from
+   the deck returns to this folder and "back" again to the carousel. */
+let fmtFolderReturn = null; // format to go back to when the deck that's open was opened from its folder
+function openDeckDetailNav(id){
+  const panel = document.getElementById('detailPanel');
+  const key = (!panel.hidden && !panel.classList.contains('leaving') && panel.dataset.key) || '';
+  if(/^fmt:/.test(key)){ fmtFolderReturn = key.slice(4); navPush(); }
+  openDeckDetail(id);
+}
+function openFormatFolder(k){
+  const st = formatStats(k), cur = state.settings.currency;
+  const panel = document.getElementById('detailPanel');
+  const label = formatLabel(k);
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="fmtBackBtn" aria-label="Volver">'+icon('back',18)+'</button><h2>'+esc(label)+'</h2></div>'+
+    '<div class="detail-body">'+
+      '<div class="fmt-banner fmt-c-'+(k || 'none')+'" style="--fc:'+FORMAT_ART[k].color+'">'+
+        '<div class="fmt-art-box" data-fmt-art="'+k+'">'+formatArtImgHTML(k, 'fmt-art')+'</div><div class="fmt-shade"></div>'+
+        '<div class="fmt-banner-text"><h3 class="fmt-name">'+esc(label)+'</h3>'+
+          '<p class="fmt-blurb">'+esc(k ? FORMAT_BLURB[k] : 'Mazos a los que aún no has puesto formato')+'</p>'+
+          '<div class="fmt-banner-stats"><span class="fmt-chip">'+icon('layers',13)+' '+fmtCountText(st.n)+'</span>'+(st.value > 0 ? '<span class="fmt-chip fmt-val">'+fmtMoney(st.value, cur)+'</span>' : '')+'</div>'+
+          '<div class="fmt-credit">'+esc(formatCreditText(k))+'</div></div>'+
+      '</div>'+
+      '<div class="fmt-folder-actions">'+
+        '<button class="btn btn-primary" id="fmtNewDeckBtn">'+icon('plus',15)+' Nuevo mazo</button>'+
+        '<button class="btn btn-secondary" id="fmtImportDeckBtn">'+icon('upload',15)+' Importar lista</button>'+
+      '</div>'+
+      (st.n ? '<div class="card-grid" id="fmtDeckGrid">'+st.list.map(deckGridItemHTML).join('')+'</div>'
+            : emptyStateHTML('layers', k ? 'No tienes mazos de '+esc(label)+' todavía.<br>Crea uno o importa una lista.' : 'No hay mazos sin formato.'))+
+    '</div>';
+  showDetailPanel(panel, 'fmt:'+k);
+  state.settings.deckTab = k === '' ? 'none' : k; saveSettings(); // new decks / imports default to this format
+  document.getElementById('fmtBackBtn').addEventListener('click', navBack);
+  document.getElementById('fmtNewDeckBtn').addEventListener('click', newDeckModal);
+  document.getElementById('fmtImportDeckBtn').addEventListener('click', function(){ document.getElementById('importDeckFileInput').click(); });
+  const grid = document.getElementById('fmtDeckGrid');
+  if(grid) grid.addEventListener('click', function(e){ const t = e.target.closest('[data-action="open-deck"]'); if(t) openDeckDetailNav(t.dataset.id); });
+  ensureFormatArt();
 }
 function ownedQtyForName(name){
   const n = name.toLowerCase();
@@ -4372,7 +4587,7 @@ function newDeckModal(){
     '<h3 class="modal-title">'+icon('layers',20)+' Nuevo mazo</h3>'+
     '<div class="field"><label for="newDeckName">Nombre</label><input id="newDeckName" class="text-input" placeholder="Ej. Comandante Atraxa"></div>'+
     '<div class="field"><label for="newDeckFormat">Formato</label><select id="newDeckFormat" class="text-input">'+
-      DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){ return '<option value="'+f.key+'"'+(f.key === (DECK_FORMATS.some(function(x){ return x.key === state.settings.deckTab; }) ? state.settings.deckTab : 'commander') ? ' selected' : '')+'>'+f.label+'</option>'; }).join('')+
+      DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){ return '<option value="'+f.key+'"'+(f.key === (DECK_FORMATS.some(function(x){ return x.key === state.settings.deckTab; }) ? state.settings.deckTab : (state.settings.deckTab === 'none' ? '' : 'commander')) ? ' selected' : '')+'>'+f.label+'</option>'; }).join('')+
     '</select></div>'+
     '<button class="btn btn-primary btn-block" id="createDeckBtn">'+icon('check',15)+' Crear mazo</button>'
   );
@@ -4382,7 +4597,7 @@ function newDeckModal(){
     const deck = {id:uuid(), name:name, format:document.getElementById('newDeckFormat').value, cards:[], createdAt:Date.now()};
     await dbPut('decks', deck);
     state.decks.push(deck);
-    closeModal(); renderDecks(); openDeckDetail(deck.id);
+    closeModal(); renderDecks(); openDeckDetailNav(deck.id);
   });
 }
 
@@ -4578,7 +4793,10 @@ async function importDeckTxtFile(file){
   if(!entries.length){ toast('No se ha podido leer ninguna carta de ese archivo.'); return; }
 
   const defaultName = file.name.replace(/\.[^.]+$/, '').trim() || 'Mazo importado';
-  const tabFmt = DECK_FORMATS.some(function(f){ return f.key === state.settings.deckTab; }) ? state.settings.deckTab : '';
+  // imported from inside a format's folder → that format; otherwise from the list itself, or we ask
+  const dp = document.getElementById('detailPanel');
+  const folderFmt = (!dp.hidden && /^fmt:/.test(dp.dataset.key || '')) ? dp.dataset.key.slice(4) : '';
+  const tabFmt = DECK_FORMATS.some(function(f){ return f.key === folderFmt; }) ? folderFmt : '';
   const fileFmt = entries.some(function(e){ return e.commander; }) ? 'commander' : (formatKeyFromText(defaultName) || tabFmt);
   const deck = {id:uuid(), name:defaultName, format:fileFmt, cards:[], createdAt:Date.now()};
 
@@ -4640,7 +4858,7 @@ async function importDeckTxtFile(file){
   const total = deck.cards.reduce(function(a,c){ return a+(c.qty||0); }, 0);
   const sideTotal = deck.cards.reduce(function(a,c){ return a+(c.side||0); }, 0);
   await finishImportOverlay('Mazo importado', total+' cartas'+(sideTotal ? ' + '+sideTotal+' banquillo' : '')+(fail ? ' · '+fail+' no encontradas' : ''));
-  openDeckDetail(deck.id);
+  openDeckDetailNav(deck.id);
   if(!deck.format) setTimeout(function(){ openDeckFormatSheet(deck, {title:'¿De qué formato es?'}); }, 350);
   if(fail) toast('Mazo importado: '+total+' cartas, '+fail+' no encontradas');
 }
@@ -5473,16 +5691,16 @@ function commanderPairOk(a, b){
   return false;
 }
 /* ---------- Deck formats ----------
-   Each deck has a format: commander, modern, pauper, standard or '' (sin formato). Older
+   Each deck has a format: commander, modern, pauper, premodern or '' (sin formato). Older
    decks stored free text ("Commander", "EDH"…); they're converted once at start-up. */
-const DECK_FORMATS = [{key:'commander', label:'Commander'}, {key:'modern', label:'Modern'}, {key:'pauper', label:'Pauper'}, {key:'standard', label:'Standard'}];
-const SIXTY_FORMATS = ['modern', 'pauper', 'standard'];
+const DECK_FORMATS = [{key:'commander', label:'Commander'}, {key:'modern', label:'Modern'}, {key:'pauper', label:'Pauper'}, {key:'premodern', label:'Premodern'}];
+const SIXTY_FORMATS = ['modern', 'pauper', 'premodern'];
 function formatKeyFromText(t){
   t = String(t || '').toLowerCase();
   if(/commander|edh/.test(t)) return 'commander';
+  if(/pre-?modern/.test(t)) return 'premodern'; // before "modern", which it contains
   if(/modern/.test(t)) return 'modern';
   if(/pauper/.test(t)) return 'pauper';
-  if(/standard|est[aá]ndar/.test(t)) return 'standard';
   return '';
 }
 function deckFormat(deck){
@@ -5494,12 +5712,17 @@ function formatLabel(k){ const f = DECK_FORMATS.find(function(x){ return x.key =
 function isCommanderDeck(deck){ return deckFormat(deck) === 'commander'; }
 /* old free-text formats → keys (the original text is kept in formatNote if it wasn't one of ours) */
 async function migrateDeckFormats(){
-  const changed = [];
+  const changed = []; let standard = 0;
   state.decks.forEach(function(d){
     const k = deckFormat(d);
-    if(d.format !== k){ if(d.format && !formatKeyFromText(d.format)) d.formatNote = d.format; d.format = k; changed.push(d); }
+    if(d.format !== k){
+      if(d.format && !formatKeyFromText(d.format)){ d.formatNote = /^standard$/i.test(d.format) ? 'Standard' : d.format; if(/^standard$/i.test(d.format)) standard++; }
+      d.format = k; changed.push(d);
+    }
   });
   if(changed.length) await dbPutMany('decks', changed);
+  // Standard was replaced by Premodern: those decks wait in "Sin formato" to be reassigned
+  if(standard) setTimeout(function(){ toast(standard === 1 ? 'Tu mazo de Standard está ahora en «Sin formato»' : 'Tus '+standard+' mazos de Standard están ahora en «Sin formato»', 4200); }, 1200);
 }
 /* "¿De qué formato es?" — used from the deck cover and after importing a deck without one. */
 function openDeckFormatSheet(deck, opts){
@@ -5528,7 +5751,7 @@ const FORMAT_BLURB = {
   commander: '100 cartas, singleton, comandante e identidad de color',
   modern: '60+ cartas, banquillo 15, máx. 4 copias, ediciones desde 8ª',
   pauper: '60+ cartas, banquillo 15, máx. 4 copias, solo comunes',
-  standard: '60+ cartas, banquillo 15, máx. 4 copias, ediciones recientes',
+  premodern: '60+ cartas, banquillo 15, máx. 4 copias, de Cuarta Edición a Azote',
   '': 'Sin comprobar reglas'
 };
 function cardCopies(c){ return (c.qty || 0) + (c.side || 0); }
@@ -5620,10 +5843,11 @@ function computeCommanderLegality(deck){
   const hasWarn = issues.some(function(i){ return i.level === 'warn'; });
   return {status: hasError ? 'illegal' : (hasWarn ? 'warn' : 'legal'), issues: issues, flags: flags, total: total};
 }
-/* Modern / Pauper / Standard: main deck of 60 or more, sideboard of 15 at most, at most 4
+/* Modern / Pauper / Premodern: main deck of 60 or more, sideboard of 15 at most, at most 4
    copies of a card counting main deck + sideboard (basic lands and "any number" cards
    excepted) and every card legal in the format. Scryfall's legalities keep the ban lists,
-   Pauper's commons and Standard's rotation up to date. null while rules data is missing. */
+   Pauper's commons and Premodern's card pool (4th Edition → Scourge) up to date. null while
+   rules data is missing. */
 function maxCopies60(card){ const m = maxCopiesAllowed(card); return m === 1 ? 4 : m; }
 function computeFormatLegality(deck, fmt){
   const names = deck.cards.map(function(c){ return c.name; });
@@ -5648,7 +5872,7 @@ function computeFormatLegality(deck, fmt){
   if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en '+label+'.', cards: banned});
   if(notLegal.length){
     const why = fmt === 'pauper' ? 'solo se permiten cartas que se hayan impreso como comunes'
-      : fmt === 'standard' ? 'no están en las ediciones que forman parte de Standard ahora mismo'
+      : fmt === 'premodern' ? 'solo valen cartas de las ediciones entre Cuarta Edición y Azote (1995–2003)'
       : 'no se han impreso en ninguna edición válida para Modern';
     issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no es legal':'cartas no son legales')+' en '+label+': '+why+'.', cards: notLegal});
   }
@@ -6448,6 +6672,7 @@ function showDetailPanel(panel, key){
 function hideDetailPanel(animated){
   const panel = document.getElementById('detailPanel');
   detailHasEntry = false;
+  fmtFolderReturn = null;
   addPage.printsEntry = false; addPage.prints = null;
   document.body.classList.remove('detail-open');
   panel.classList.remove('entering');
@@ -6478,6 +6703,11 @@ function applyTopLayer(){
   const backdrop = document.getElementById('modalBackdrop');
   if(!modalRoot.hidden && backdrop && !backdrop.classList.contains('closing')){ modalHasEntry = false; dismissModal(); return; }
   if(addPage.printsEntry && !detailPanel.hidden && detailPanel.dataset.key === 'add'){ addPage.printsEntry = false; addBackToResults(); return; }
+  if(fmtFolderReturn !== null && !detailPanel.hidden && !detailPanel.classList.contains('leaving') && /^deck:/.test(detailPanel.dataset.key || '')){
+    const k = fmtFolderReturn; fmtFolderReturn = null;
+    openFormatFolder(k);
+    return;
+  }
   if(!detailPanel.hidden && !detailPanel.classList.contains('leaving')){
     hideDetailPanel(true);
     currentOpenBinderId = null;
@@ -6687,15 +6917,22 @@ async function init(){
     try{ await importDeckTxtFile(file); }
     catch(err){ closeImportOverlay(true); toast(err.message || 'No se pudo importar el archivo'); }
   });
-  document.getElementById('decksList').addEventListener('click', function(e){
-    const row = e.target.closest('[data-action="open-deck"]');
-    if(row) openDeckDetail(row.dataset.id);
+  // carousel: centred card opens its folder, a side card / dot / arrow brings that card to the centre
+  const decksList = document.getElementById('decksList');
+  decksList.addEventListener('click', function(e){
+    const car = document.getElementById('fmtCarousel'); if(!car) return;
+    const dot = e.target.closest('.fmt-dot');
+    if(dot){ fmtScrollTo(car, +dot.dataset.i, true); return; }
+    if(e.target.closest('#fmtPrev')){ fmtScrollTo(car, fmtCarouselIndex(car) - 1, true); return; }
+    if(e.target.closest('#fmtNext')){ fmtScrollTo(car, fmtCarouselIndex(car) + 1, true); return; }
+    const sl = e.target.closest('.fmt-slide'); if(!sl) return;
+    const i = +sl.dataset.i;
+    if(i !== fmtCarouselIndex(car)) fmtScrollTo(car, i, true);
+    else openFormatFolder(sl.dataset.fmt);
   });
-  document.getElementById('deckTabs').addEventListener('click', function(e){
-    const b = e.target.closest('[data-deck-tab]'); if(!b) return;
-    state.settings.deckTab = b.dataset.deckTab; saveSettings(); renderDecks();
-    const act = document.querySelector('#deckTabs .deck-tab.active'); // the buttons were redrawn
-    if(act && act.scrollIntoView) act.scrollIntoView({block:'nearest', inline:'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth'});
+  decksList.addEventListener('keydown', function(e){
+    const sl = e.target.closest && e.target.closest('.fmt-slide');
+    if(sl && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); openFormatFolder(sl.dataset.fmt); }
   });
   document.getElementById('newBinderBtn').addEventListener('click', function(){ openBinderModal(null); });
   document.getElementById('bindersList').addEventListener('click', function(e){
