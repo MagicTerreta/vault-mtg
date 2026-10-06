@@ -845,6 +845,216 @@
   .fmt-banner .fmt-credit{margin-top:.45rem;}
   .fmt-folder-actions{display:flex; gap:.5rem; margin-bottom:1rem;}
   .fmt-folder-actions .btn{flex:1; justify-content:center;}
+
+  /* ---------- Partidas ---------- */
+  :root{--p1:#2a78d6; --p2:#eb6834; --p3:#1baf7a; --p4:#eda100; --p5:#e87ba4; --p6:#008300;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--p1:#3987e5; --p2:#d95926; --p3:#199e70; --p4:#c98500; --p5:#d55181; --p6:#008300;} }
+  :root[data-theme="dark"]{--p1:#3987e5; --p2:#d95926; --p3:#199e70; --p4:#c98500; --p5:#d55181; --p6:#008300;}
+  .tab-btn{min-width:0;} .tab-btn span{white-space:nowrap;}
+  .live-card{display:flex; align-items:center; gap:.75rem; padding:.85rem .95rem; border-radius:var(--radius-m); background:var(--accent); color:var(--on-accent); cursor:pointer; margin-bottom:1rem; box-shadow:var(--shadow);}
+  .live-avs{display:flex;} .live-avs span{width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:.7rem; font-weight:800; color:#fff; background:var(--pc); border:2px solid var(--accent); margin-right:-8px;}
+  .live-main{flex:1; min-width:0; display:flex; flex-direction:column; margin-left:.4rem;} .live-main small{opacity:.85; font-size:.74rem;}
+  .live-go{display:inline-flex; align-items:center; gap:.3rem; font-weight:700; font-size:.8rem; background:rgba(255,255,255,.2); padding:.35rem .7rem; border-radius:999px;}
+  .games-empty{text-align:center; padding:2rem 1rem; color:var(--ink-soft);}
+  .games-empty svg{color:var(--accent);} .games-empty h3{font-family:var(--font-display); color:var(--ink); margin:.6rem 0 .3rem;} .games-empty p{max-width:34ch; margin:0 auto 1.1rem; font-size:.86rem; line-height:1.45;}
+  .segmented.games-period{display:flex; width:100%; margin-bottom:1rem;} .segmented.games-period button{flex:1;}
+  .games-none{text-align:center;}
+  .hl-row{display:grid; grid-template-columns:1fr 1fr; gap:.6rem;}
+  .hl-card{position:relative; overflow:hidden; border-radius:var(--radius-m); padding:.8rem .85rem; min-height:112px; display:flex; flex-direction:column; justify-content:flex-end; gap:2px; background:var(--surface); box-shadow:var(--shadow); isolation:isolate;}
+  .hl-player{background:linear-gradient(160deg, color-mix(in srgb, var(--pc) 22%, var(--surface)), var(--surface) 70%);}
+  .hl-cmd{color:#fff; background:#2a2433;}
+  .hl-cmd img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2;}
+  .hl-shade{position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg, rgba(10,8,14,.15), rgba(10,8,14,.85));}
+  .hl-kicker{display:inline-flex; align-items:center; gap:.3rem; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; opacity:.8; margin-bottom:auto;}
+  .hl-name{font-family:var(--font-display); font-size:1.15rem; line-height:1.15; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+  .hl-sub{font-size:.74rem; opacity:.85;}
+  .rank-list, .gh-list{display:flex; flex-direction:column; gap:.4rem;}
+  .rk-row, .pl-row{display:flex; align-items:center; gap:.65rem; padding:.55rem .7rem; border-radius:var(--radius-m); background:var(--surface);}
+  .rk-pos{width:1.4rem; text-align:center; font-family:var(--font-mono); font-weight:700; font-size:.82rem; color:var(--ink-faint);}
+  .rk-pos.m1{color:#c79a1e;} .rk-pos.m2{color:#8d94a3;} .rk-pos.m3{color:#b0703c;}
+  .rk-av{flex:none; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:.8rem; color:#fff; background:var(--pc, var(--accent));}
+  .rk-art{flex:none; width:44px; height:32px; border-radius:8px; object-fit:cover;}
+  .rk-main{flex:1; min-width:0; display:flex; flex-direction:column;}
+  .rk-main b{font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rk-main small{font-size:.72rem; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rk-streak{color:var(--warn); font-weight:700;}
+  .rk-pct{flex:none; width:58px; display:flex; flex-direction:column; align-items:flex-end; gap:4px;}
+  .rk-pct span{font-family:var(--font-mono); font-weight:700; font-size:.86rem;}
+  .rk-pct i{display:block; width:100%; height:4px; border-radius:4px; background:var(--surface-2); overflow:hidden;}
+  .rk-pct em{display:block; height:100%; border-radius:4px; background:var(--accent);}
+  .gh-row{display:flex; align-items:center; gap:.7rem; padding:.6rem .75rem; border-radius:var(--radius-m); background:var(--surface); cursor:pointer;}
+  .gh-row.flash{animation:rowFlash 1.6s ease;}
+  @keyframes rowFlash{ 0%,40%{box-shadow:0 0 0 2px var(--accent);} 100%{box-shadow:0 0 0 2px transparent;} }
+  .gh-date{flex:none; width:3.7rem; display:flex; flex-direction:column;} .gh-date b{font-size:.8rem;} .gh-date small{font-size:.68rem; color:var(--ink-faint); font-family:var(--font-mono);}
+  .gh-main{flex:1; min-width:0;} .gh-win{display:flex; align-items:center; gap:.25rem; font-size:.86rem; white-space:nowrap; overflow:hidden;} .gh-win svg{color:#c79a1e; flex:none;} .gh-win small{color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis;}
+  .gh-meta{font-size:.72rem; color:var(--ink-soft);}
+  .gh-avs{display:flex; flex:none;} .gh-avs span{width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:.6rem; font-weight:800; color:#fff; background:var(--pc); border:2px solid var(--surface); margin-left:-7px;}
+  .gh-avs span.won{box-shadow:0 0 0 2px #c79a1e;}
+  .games-players-btn{margin-top:1.4rem; justify-content:center;}
+  .pl-list{display:flex; flex-direction:column; gap:.4rem;} .pl-row{background:var(--surface-2);}
+  /* new game */
+  .gs-label{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:1rem 0 .45rem;}
+  .gs-label:first-child{margin-top:.2rem;}
+  .segmented.gs-seg{display:flex; width:100%;} .segmented.gs-seg button{flex:1; padding:.48rem .3rem;}
+  .gs-fmts, .games-fmts{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .gs-fmts button, .games-fmts button{border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); border-radius:999px; padding:.42rem .85rem; font-size:.8rem; cursor:pointer;}
+  .gs-fmts button.active, .games-fmts button.active{background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:600;}
+  .games-fmts{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -1rem .7rem; padding:0 1rem;} .games-fmts::-webkit-scrollbar{display:none;} .games-fmts button{flex:none;}
+  .sv-box{width:100%; margin:.1rem 0 .7rem; padding:.85rem .8rem .8rem; border-radius:18px; background:rgba(255,255,255,.08); display:flex; flex-direction:column; align-items:center; gap:.45rem;}
+  .sv-q{font-size:.95rem;}
+  .sv-label{font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; opacity:.6;}
+  .sv-fmts{display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem;}
+  .sv-fmts button{border:1px solid rgba(255,255,255,.3); background:none; color:#fff; border-radius:999px; padding:.4rem .78rem; font-size:.78rem; cursor:pointer;}
+  .sv-fmts button.active{background:#fff; border-color:#fff; color:#1c1530; font-weight:700;}
+  .sv-actions{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; width:100%; margin-top:.35rem;}
+  .sv-actions .btn{justify-content:center; white-space:nowrap; padding:.7rem .6rem;}
+  .btn.sv-no{background:rgba(255,255,255,.12); color:#fff;}
+  .gs-row2{display:grid; grid-template-columns:1fr 1.25fr; gap:.7rem;}
+  .gs-table{display:flex; align-items:center; gap:.9rem; margin-top:1rem; padding:.75rem; border-radius:var(--radius-m); background:var(--surface);}
+  .gs-table p{margin:0; font-size:.76rem; line-height:1.4; color:var(--ink-soft);}
+  .gs-mini{flex:none; width:58px; height:100px; display:grid; gap:3px; padding:3px; border-radius:10px; background:var(--ink);}
+  .gs-mini span{border-radius:5px; background:var(--pc); display:grid; place-items:center;} .gs-mini b{color:#fff; font-size:.7rem;}
+  .gs-known{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .gs-known button{border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:999px; padding:.38rem .8rem; font-size:.8rem; cursor:pointer;}
+  .gs-seats{display:flex; flex-direction:column; gap:.55rem; margin-top:1rem;}
+  .gs-seat{display:flex; gap:.6rem; align-items:flex-start; padding:.65rem; border-radius:var(--radius-m); background:var(--surface); border-left:4px solid var(--pc);}
+  .gs-num{flex:none; width:26px; height:26px; margin-top:.45rem; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:.78rem; color:#fff; background:var(--pc);}
+  .gs-seat-main{flex:1; min-width:0; display:flex; flex-direction:column; gap:.45rem;}
+  .gs-cmd{display:flex; align-items:center; gap:.55rem; width:100%; padding:.35rem .5rem .35rem .35rem; border-radius:10px; border:1px dashed var(--line); background:none; color:var(--ink); cursor:pointer; text-align:left;}
+  .gs-cmd.has{border-style:solid; background:var(--surface-2);}
+  .gs-cmd img{width:46px; height:32px; border-radius:6px; object-fit:cover; flex:none;}
+  .gs-cmd-ph{width:46px; height:32px; border-radius:6px; display:grid; place-items:center; background:var(--surface-2); color:var(--ink-faint); flex:none;}
+  .gs-cmd-name{font-size:.84rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;} .gs-cmd-empty{color:var(--ink-soft); font-weight:500;}
+  .gs-partner{align-self:flex-start; border:none; background:none; color:var(--accent); font-size:.76rem; font-weight:700; padding:0 .2rem; cursor:pointer;}
+  .gs-warn{display:flex; gap:.35rem; align-items:center; color:var(--warn); margin-top:1rem;}
+  .gs-start{margin-top:1.1rem; justify-content:center; padding:.85rem;}
+  .cp-sub{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:.9rem 0 .4rem;}
+  .cp-list{display:flex; flex-direction:column; gap:.35rem;}
+  .cp-item{display:flex; align-items:center; gap:.65rem; padding:.4rem; border-radius:10px; border:none; background:var(--surface-2); color:var(--ink); cursor:pointer; text-align:left;}
+  .cp-item img, .cp-ph{flex:none; width:56px; height:40px; border-radius:7px; object-fit:cover; display:grid; place-items:center; background:var(--surface-hover); color:var(--ink-faint);}
+  .cp-item span{display:flex; flex-direction:column; min-width:0;} .cp-item b{font-size:.86rem;} .cp-item small{font-size:.72rem; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cp-msg{font-size:.82rem; color:var(--ink-soft); padding:.5rem .2rem;}
+  /* game detail */
+  .gd-hero{position:relative; overflow:hidden; border-radius:18px; min-height:150px; color:#fff; background:#2a2433; display:flex; align-items:flex-end; isolation:isolate;}
+  .gd-hero img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2;}
+  .gd-shade{position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg, rgba(10,8,14,.1), rgba(10,8,14,.88));}
+  .gd-hero-in{padding:.9rem 1rem; display:flex; flex-direction:column; gap:2px;}
+  .gd-kicker{display:inline-flex; align-items:center; gap:.3rem; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#f3cf6b;}
+  .gd-hero-in b{font-family:var(--font-display); font-size:1.6rem; line-height:1.1;} .gd-hero-in small{font-size:.8rem; opacity:.85;}
+  .gd-chips{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.5rem;} .gd-chips span{display:inline-flex; align-items:center; gap:.25rem; font-size:.7rem; font-weight:600; background:rgba(12,10,18,.55); padding:.25rem .55rem; border-radius:999px;}
+  .gd-table{display:flex; flex-direction:column; gap:.4rem;}
+  .gd-row{display:flex; align-items:center; gap:.6rem; padding:.55rem .7rem; border-radius:var(--radius-m); background:var(--surface);}
+  .gd-row.won{box-shadow:inset 0 0 0 2px #c79a1e;}
+  .gd-place{width:1.3rem; text-align:center; font-family:var(--font-mono); font-weight:700; color:var(--ink-faint);}
+  .gd-life{flex:none; display:flex; flex-direction:column; align-items:flex-end; font-family:var(--font-mono); font-weight:700; font-size:1rem;} .gd-life small{font-family:var(--font-body); font-weight:500; font-size:.62rem; color:var(--ink-faint);}
+  .lchart{position:relative; background:var(--surface); border-radius:var(--radius-m); padding:.7rem .6rem .4rem;}
+  .lc-legend{display:flex; flex-wrap:wrap; gap:.3rem .8rem; font-size:.74rem; color:var(--ink-soft); margin:0 .2rem .4rem;}
+  .lc-legend span, .lc-tip span{display:inline-flex; align-items:center; gap:.3rem;}
+  .lc-legend i, .lc-tip i{width:10px; height:3px; border-radius:2px; display:inline-block;}
+  .lc-svg{display:block; width:100%; height:auto; touch-action:pan-y;}
+  .lc-grid{stroke:var(--line); stroke-width:1;} .lc-grid.zero{stroke:var(--ink-faint); stroke-dasharray:3 3;}
+  .lc-tick{font-size:9px; fill:var(--ink-faint); font-family:var(--font-mono);}
+  .lc-name{font-size:10px; fill:var(--ink-soft); font-family:var(--font-body); font-weight:600;}
+  .lc-line{fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round;}
+  .lc-end{stroke:var(--surface); stroke-width:2;}
+  .lc-cross{stroke:var(--ink-faint); stroke-width:1;}
+  .lc-hit{fill:transparent; cursor:crosshair;}
+  .lc-tip{position:absolute; top:2.2rem; z-index:2; pointer-events:none; background:var(--ink); color:var(--paper); border-radius:10px; padding:.45rem .6rem; font-size:.72rem; display:flex; flex-direction:column; gap:.15rem; min-width:120px; box-shadow:var(--shadow);}
+  .lc-tip em{font-style:normal; font-family:var(--font-mono); font-weight:700; margin-left:auto; padding-left:.8rem;}
+  /* ---------- the counter ---------- */
+  #lifeRoot[hidden]{display:none;}
+  html.lc-open, html.lc-open body{overflow:hidden; overscroll-behavior:none;}
+  .lc{position:fixed; inset:0; z-index:66; display:grid; gap:4px; padding:calc(4px + env(safe-area-inset-top)) 4px calc(4px + env(safe-area-inset-bottom)); background:#07060a;
+    color:#fff; font-family:var(--font-body); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; animation:fadeIn .25s ease;}
+  .lc.closing{animation:fadeIn .22s ease reverse both;}
+  .lp{position:relative; overflow:hidden; border-radius:18px; container-type:size; background:var(--pc); transition:box-shadow .25s ease, transform .2s ease;}
+  .lp-inner{position:absolute; left:50%; top:50%; width:100cqw; height:100cqh; transform:translate(-50%, -50%) rotate(var(--rot)); container-type:size;}
+  .lp[data-rot="90"] .lp-inner, .lp[data-rot="270"] .lp-inner{width:100cqh; height:100cqw;}
+  .lp-bg{position:absolute; inset:0; background:var(--pc); background:linear-gradient(150deg, color-mix(in srgb, var(--pc) 88%, #fff), color-mix(in srgb, var(--pc) 45%, #000));}
+  .lp-art{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .lp-art.a{clip-path:polygon(0 0, 62% 0, 38% 100%, 0 100%);} .lp-art.b{clip-path:polygon(62% 0, 100% 0, 100% 100%, 38% 100%);}
+  .lp-shade{position:absolute; inset:0; background:radial-gradient(ellipse 70% 70% at 50% 52%, rgba(6,5,10,.42), rgba(6,5,10,.72)); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--pc) 70%, transparent);}
+  .lp-head{position:absolute; left:16cqw; right:16cqw; top:5cqh; z-index:2; text-align:center; pointer-events:none; line-height:1.15;}
+  .lp-name{display:block; font-weight:800; font-size:clamp(.78rem, 7cqmin, 1.35rem); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);}
+  .lp-cmd{display:block; font-size:clamp(.6rem, 4.6cqmin, .9rem); opacity:.8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .lp-center{position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+  .lp-life{font-size:min(46cqh, 30cqw); font-weight:800; line-height:1; letter-spacing:-.04em; font-variant-numeric:tabular-nums; text-shadow:0 4px 24px rgba(0,0,0,.55);}
+  .lp-life[data-len="3"]{font-size:min(38cqh, 23cqw);} .lp-life[data-len="4"]{font-size:min(30cqh, 17cqw);}
+  .lp-life.bump{animation:lifeBump .22s ease;}
+  @keyframes lifeBump{ 40%{transform:scale(1.08);} }
+  .lp.low .lp-life{color:#ffb3a8;}
+  .lp-delta{position:absolute; left:50%; top:calc(50% - min(23cqh, 15cqw) - min(10cqh, 7cqw)); transform:translateX(-50%); font-weight:800; font-size:min(11cqh, 7.5cqw); font-variant-numeric:tabular-nums;}
+  .lp-delta.up{color:#8ef0b8;} .lp-delta.down{color:#ffb0a0;}
+  .lp-badges{position:absolute; left:18cqw; right:18cqw; bottom:6cqh; z-index:2; display:flex; justify-content:center; gap:.35rem; pointer-events:none;}
+  .lpb{display:inline-flex; align-items:center; gap:3px; font-size:clamp(.66rem, 4.4cqmin, .85rem); font-weight:800; padding:2px 7px; border-radius:999px; background:rgba(0,0,0,.45);}
+  .lpb.hot{background:#b3261e;}
+  .lp-zone{position:absolute; top:0; bottom:0; width:50%; z-index:1; border:none; background:none; padding:0 7cqw; display:flex; align-items:center; color:rgba(255,255,255,.5); font-size:min(15cqh, 10cqw); font-weight:300; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:none;}
+  .lp-zone.minus{left:0; justify-content:flex-start;} .lp-zone.plus{right:0; justify-content:flex-end;}
+  .lp-zone::after{content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.2), rgba(255,255,255,0) 70%); opacity:0; transition:opacity .3s ease;}
+  .lp-zone.down::after{opacity:1; transition:none;}
+  .lp-more, .lp-pass{position:absolute; z-index:3; bottom:4cqh; border:none; color:#fff; background:rgba(0,0,0,.42); cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  .lp-more{left:4cqw; width:clamp(34px, 12cqmin, 46px); height:clamp(34px, 12cqmin, 46px); border-radius:50%; display:grid; place-items:center;}
+  .lp-pass{right:4cqw; display:none; align-items:center; gap:2px; font-size:clamp(.66rem, 4.2cqmin, .82rem); font-weight:700; padding:.42rem .6rem .42rem .75rem; border-radius:999px; background:#fff; color:#1c1530;}
+  .lp.active .lp-pass{display:inline-flex;}
+  .lp.active{box-shadow:inset 0 0 0 3px #fff, 0 0 22px rgba(255,255,255,.28);}
+  .lp.spin{transform:scale(.97); box-shadow:inset 0 0 0 4px #ffe27a;}
+  .lp-out{position:absolute; inset:0; z-index:5; background:rgba(8,6,12,.8); display:flex; align-items:center; justify-content:center; text-align:center;}
+  .lpo-in{display:flex; flex-direction:column; align-items:center; gap:.25rem; padding:0 6cqw; max-height:100%; overflow:auto;}
+  .lpo-in > b{font-size:clamp(.9rem, 8cqmin, 1.5rem);} .lpo-in > span{font-size:clamp(.66rem, 4.6cqmin, .9rem); opacity:.85;}
+  .lpo-ask{margin-top:.35rem;} .lpo-ask small{font-size:.7rem; opacity:.8;}
+  .lpo-chips{display:flex; flex-wrap:wrap; justify-content:center; gap:.3rem; margin-top:.3rem;}
+  .lpo-chips button{border:none; border-radius:999px; padding:.32rem .65rem; font-size:.72rem; font-weight:700; color:#fff; background:var(--pc, #4a4458); cursor:pointer;}
+  .lpo-undo{margin-top:.45rem; display:inline-flex; align-items:center; gap:.3rem; border:1px solid rgba(255,255,255,.35); background:none; color:#fff; border-radius:999px; padding:.34rem .75rem; font-size:.74rem; cursor:pointer;}
+  .lp-sub{position:absolute; inset:0; z-index:6; background:rgba(14,11,20,.95); display:flex; flex-direction:column; padding:3cqh 4cqw 2.5cqh;}
+  .lps-head{display:flex; align-items:center; justify-content:space-between; gap:.5rem; font-size:clamp(.72rem, 4.6cqmin, .9rem);}
+  .lps-close{width:34px; height:34px; border-radius:50%; border:none; background:#fff; color:#1c1530; display:grid; place-items:center; cursor:pointer; flex:none;}
+  .lps-rows{flex:1; min-height:0; overflow:auto; margin:.3rem 0; touch-action:pan-y;}
+  .lps-row{display:flex; align-items:center; gap:.4rem; padding:.22rem 0; font-size:clamp(.7rem, 4.4cqmin, .88rem);}
+  .lps-label{flex:1; min-width:0; display:flex; align-items:center; gap:.4rem;}
+  .lps-who{display:flex; flex-direction:column; min-width:0; line-height:1.15;} .lps-who small{font-size:.66rem; opacity:.7; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .lps-dot{width:9px; height:9px; border-radius:50%; flex:none;}
+  .lps-row button{flex:none; width:clamp(30px, 10cqmin, 40px); height:clamp(30px, 10cqmin, 40px); border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:1.1rem; font-weight:700; cursor:pointer;}
+  .lps-val{width:2.2em; text-align:center; font-weight:800; font-variant-numeric:tabular-nums; font-size:1.05em;}
+  .lps-row.warn .lps-val{color:#ffc56b;} .lps-row.lethal .lps-val{color:#ff8a7a;}
+  .lps-concede{align-self:center; display:inline-flex; align-items:center; gap:.3rem; border:none; background:none; color:rgba(255,255,255,.7); font-size:.72rem; cursor:pointer; padding:.2rem .5rem;}
+  .lc-hub{position:absolute; z-index:10; width:60px; height:60px; margin:-30px 0 0 -30px; border-radius:50%; border:4px solid #07060a; background:#262036; color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,.5); background-image:radial-gradient(circle at 50% 35%, #3a3150, #1d1829);}
+  .lc-hub-turn{font-size:.72rem; font-weight:800; line-height:1;} .lc-hub-time{font-size:.62rem; opacity:.75; font-family:var(--font-mono); line-height:1;}
+  .lc-hub-turn:empty{display:none;}
+  .lc-layer{position:absolute; inset:0; z-index:20; display:none;}
+  .lc-layer.open{display:block;}
+  .lc-sheet-back{position:absolute; inset:0; background:rgba(0,0,0,.6); animation:fadeIn .2s ease;}
+  .lc-sheet{position:absolute; left:50%; top:50%; width:min(92vw, 380px); max-height:86vh; overflow:auto; transform:translate(-50%, -50%); background:#1f1b2b; border-radius:24px; padding:1.1rem; box-shadow:0 20px 60px rgba(0,0,0,.6); animation:sheetPop .26s cubic-bezier(.2,.9,.3,1.2);}
+  @keyframes sheetPop{ from{transform:translate(-50%, -46%) scale(.94); opacity:0;} }
+  .lcm-head{display:flex; flex-direction:column; gap:2px; margin-bottom:.8rem;} .lcm-head b{font-size:1rem;} .lcm-head small{font-size:.76rem; opacity:.7;}
+  .lcm-grid{display:grid; grid-template-columns:1fr 1fr; gap:.5rem;}
+  .lcm-btn{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem; min-height:76px; padding:.6rem; border:none; border-radius:16px; background:rgba(255,255,255,.08); color:#fff; font-size:.8rem; font-weight:600; cursor:pointer; text-align:center;}
+  .lcm-btn:disabled{opacity:.35;} .lcm-btn.confirm{background:#b3261e;}
+  .lcm-btn.small{min-height:48px;}
+  .dice-out{display:grid; place-items:center; min-height:110px; font-size:3.2rem; font-weight:800; text-align:center; line-height:1.1; word-break:break-word;}
+  .dice-out.rolling{opacity:.6;} .dice-out.pop{animation:lifeBump .3s ease;}
+  .dice-row{display:grid; grid-template-columns:1fr 1fr; gap:.5rem;}
+  .end-list{display:flex; flex-direction:column; gap:.4rem;}
+  .end-item{display:flex; align-items:center; gap:.65rem; padding:.55rem .7rem; border:none; border-radius:14px; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; text-align:left;}
+  .end-item > span:nth-child(2){flex:1; display:flex; flex-direction:column;} .end-item small{font-size:.72rem; opacity:.7;} .end-item svg{color:#f3cf6b;}
+  .end-item.out{opacity:.55;}
+  .lcm-link{display:block; width:100%; margin-top:.6rem; padding:.55rem; border:none; background:none; color:rgba(255,255,255,.75); font-size:.8rem; cursor:pointer; border-radius:10px;}
+  .lcm-link.danger{color:#ff9b8c;} .lcm-link.confirm{background:#b3261e; color:#fff;}
+
+  .vic-art{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+  .vic-shade{position:absolute; inset:0; background:linear-gradient(180deg, color-mix(in srgb, var(--pc) 35%, transparent), rgba(12,10,18,.92) 62%);}
+  .vic-in{position:relative; display:flex; flex-direction:column; align-items:center; gap:.2rem; padding:1.8rem 1.1rem 1rem;}
+  .vic-in > svg{color:#f3cf6b; filter:drop-shadow(0 2px 10px rgba(243,207,107,.5));}
+  .vic-kicker{font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#f3cf6b;}
+  .vic-name{font-family:var(--font-display); font-size:2.2rem; line-height:1.1;}
+  .vic-cmd{font-size:.86rem; opacity:.85;} .vic-meta{font-size:.76rem; opacity:.7; margin:.3rem 0 .8rem;}
+  .lc-sheet.victory, .lc-sheet.save{padding:0; overflow:auto; text-align:center;}
+  .vic-in .btn-primary{background:#fff; color:#1c1530; justify-content:center;}
+  .vic-keep{background:none; color:#fff; justify-content:center;}
+  .lc-flash{position:absolute; left:50%; top:50%; z-index:15; transform:translate(-50%, -50%); background:rgba(10,8,14,.88); color:#fff; padding:.65rem 1.1rem; border-radius:999px; font-weight:700; font-size:.92rem; pointer-events:none; white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;}
+  .lc-flash.show{animation:flashInOut 1.7s ease both;}
+  @keyframes flashInOut{ 0%{opacity:0; transform:translate(-50%, -40%);} 12%,78%{opacity:1; transform:translate(-50%, -50%);} 100%{opacity:0;} }
+  @media (prefers-reduced-motion: reduce){ .lp-life.bump, .lc-sheet, .lc{animation:none;} }
   .card-thumb[data-action], .thumb-wrap[data-action]{cursor:zoom-in;}
   .sort-option{display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.65rem .1rem; border-bottom:1px solid var(--line);}
   .sort-option:last-child{border-bottom:none;}
@@ -1133,6 +1343,14 @@ window.runSplash = function(el, opts){
     <div id="decksList"></div>
   </section>
 
+  <section class="tab-panel" data-tab="games" hidden>
+    <div class="panel-head">
+      <h2>Partidas</h2>
+      <button class="btn btn-primary" id="newGameBtn"></button>
+    </div>
+    <div id="gamesView"></div>
+  </section>
+
   <section class="tab-panel" data-tab="wishlist" hidden>
     <div class="panel-head" id="wishHead">
       <h2>Lista de deseos</h2>
@@ -1157,7 +1375,7 @@ window.runSplash = function(el, opts){
     <div class="settings-section-title">Copia de seguridad</div>
     <div class="settings-list">
       <div class="settings-row backup-status" id="backupStatusRow">
-        <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub">Incluye cartas, mazos, carpetas, deseos y ajustes</div></div>
+        <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub">Incluye cartas, mazos, carpetas, deseos, partidas y ajustes</div></div>
       </div>
       <div class="settings-row">
         <div><div class="srlabel">Crear copia</div><div class="srsub">Guárdala fuera del móvil (Drive, correo, PC…)</div></div>
@@ -1226,6 +1444,7 @@ window.runSplash = function(el, opts){
   <button class="tab-btn active" data-tab="collection"></button>
   <button class="tab-btn" data-tab="scan"></button>
   <button class="tab-btn" data-tab="decks"></button>
+  <button class="tab-btn" data-tab="games"></button>
   <button class="tab-btn" data-tab="wishlist"></button>
   <button class="tab-btn" data-tab="binders"></button>
   <button class="tab-btn" data-tab="settings"></button>
@@ -1234,6 +1453,7 @@ window.runSplash = function(el, opts){
 <div id="detailPanel" hidden></div>
 <div id="modalRoot" hidden></div>
 <div id="playRoot" hidden></div>
+<div id="lifeRoot" hidden></div>
 <div id="lightboxRoot" hidden></div>
 <div id="toastRoot"></div>
 
@@ -1245,6 +1465,19 @@ const ICONS = {
   search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
   camera:'<path d="M4 8h3l1.6-2h6.8L17 8h3v11H4z"/><circle cx="12" cy="14" r="3.4"/>',
   layers:'<polygon points="12 3 21 8 12 13 3 8 12 3"/><polyline points="3 13 12 18 21 13"/>',
+  heart:'<path d="M12 20.3s-7.4-4.5-9.1-9.3C1.7 7.6 3.9 4.6 7.2 4.6c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.5 3 4.3 6.4-1.7 4.8-9.1 9.3-9.1 9.3z"/>',
+  swords:'<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" y1="14" x2="9" y2="18"/><line x1="7" y1="17" x2="4" y2="20"/><line x1="3" y1="19" x2="5" y2="21"/>',
+  skull:'<path d="M12 3a8 8 0 0 0-8 8c0 2.6 1.3 4.6 3 5.8V20h10v-3.2c1.7-1.2 3-3.2 3-5.8a8 8 0 0 0-8-8z"/><circle cx="9" cy="11.5" r="1.6"/><circle cx="15" cy="11.5" r="1.6"/><line x1="10" y1="20" x2="10" y2="17.6"/><line x1="14" y1="20" x2="14" y2="17.6"/>',
+  drop:'<path d="M12 3.2s6 6.5 6 10.9a6 6 0 0 1-12 0c0-4.4 6-10.9 6-10.9z"/>',
+  dice:'<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.1" fill="currentColor"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+  flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><polyline points="20 4 20 11 13 11"/>',
+  exit:'<path d="M15 4h4v16h-4"/><path d="M10 17l-5-5 5-5"/><line x1="5" y1="12" x2="15" y2="12"/>',
+  play:'<polygon points="7 4 19 12 7 20 7 4"/>',
   cube:'<path d="M12 2.8 20.4 7.4v9.2L12 21.2l-8.4-4.6V7.4z"/><polyline points="3.6 7.4 12 12 20.4 7.4"/><line x1="12" y1="12" x2="12" y2="21.2"/>',
   folder:'<path d="M3 6.2A2.2 2.2 0 0 1 5.2 4h4l2 2.2h7.6A2.2 2.2 0 0 1 21 8.4V18a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 18z"/>',
   sliders:'<line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="var(--paper)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--paper)"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="7" cy="18" r="2" fill="var(--paper)"/>',
@@ -1406,7 +1639,7 @@ function parseCSV(text){
 }
 
 /* ---------- IndexedDB ---------- */
-const DB_NAME = 'mtgLedgerDB', DB_VERSION = 3;
+const DB_NAME = 'mtgLedgerDB', DB_VERSION = 4;
 let dbPromise = null;
 function openDB(){
   if(dbPromise) return dbPromise;
@@ -1420,6 +1653,8 @@ function openDB(){
       if(!db.objectStoreNames.contains('binders')) db.createObjectStore('binders', {keyPath:'id'});
       if(!db.objectStoreNames.contains('wishlist')) db.createObjectStore('wishlist', {keyPath:'id'});
       if(!db.objectStoreNames.contains('valueHistory')) db.createObjectStore('valueHistory', {keyPath:'date'});
+      if(!db.objectStoreNames.contains('games')) db.createObjectStore('games', {keyPath:'id'});     // finished games (life counter)
+      if(!db.objectStoreNames.contains('players')) db.createObjectStore('players', {keyPath:'id'}); // people you play with
     };
     req.onsuccess = function(){
       const db = req.result;
@@ -1533,6 +1768,8 @@ const state = {
   tab: 'collection',
   cards: [],
   decks: [],
+  games: [],
+  players: [],
   binders: [],
   wishlist: [],
   scanQueue: loadScanQueue(),
@@ -6451,7 +6688,7 @@ const BACKUP_REMIND_EVERY_DAYS = 7;
 const DAY_MS = 86400000;
 function loadBackupMeta(){ try{ return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{}') || {}; }catch(e){ return {}; } }
 function saveBackupMeta(m){ try{ localStorage.setItem(BACKUP_META_KEY, JSON.stringify(m)); }catch(e){} }
-function hasAnyData(){ return state.cards.length > 0 || state.decks.length > 0 || state.binders.length > 0 || state.wishlist.length > 0; }
+function hasAnyData(){ return state.cards.length > 0 || state.decks.length > 0 || state.binders.length > 0 || state.wishlist.length > 0 || state.games.length > 0; }
 function backupIsOverdue(){
   if(!hasAnyData()) return false;
   const last = loadBackupMeta().lastBackupAt;
@@ -6487,6 +6724,7 @@ function buildBackup(){
     createdAt: new Date().toISOString(),
     counts: { cards: state.cards.length, decks: state.decks.length, binders: state.binders.length, wishlist: state.wishlist.length },
     cards: state.cards, decks: state.decks, binders: state.binders, wishlist: state.wishlist,
+    games: state.games, players: state.players,
     valueHistory: historyTotalsCache.slice(),
     settings: state.settings,
     scanQueue: state.scanQueue || []
@@ -6506,6 +6744,7 @@ function backupSummaryText(b){
   const copies = b.cards.reduce(function(t, c){ return t + (Number(c.quantity) || 1); }, 0);
   const parts = [n(copies,'carta','cartas'), n(b.decks.length,'mazo','mazos'), n(b.binders.length,'carpeta','carpetas')];
   if(Array.isArray(b.wishlist)) parts.push(n(b.wishlist.length,'deseo','deseos'));
+  if(Array.isArray(b.games) && b.games.length) parts.push(n(b.games.length,'partida','partidas'));
   return parts.slice(0,-1).join(', ')+' y '+parts[parts.length-1];
 }
 function downloadBackup(){
@@ -6559,6 +6798,8 @@ function validateBackup(b){
   const bad = function(arr){ return arr.some(function(x){ return !x || typeof x !== 'object' || !x.id; }); };
   if(bad(b.cards) || bad(b.decks) || bad(b.binders)) throw new Error('La copia está incompleta o dañada');
   if(b.wishlist !== undefined && (!Array.isArray(b.wishlist) || bad(b.wishlist))) throw new Error('La copia está incompleta o dañada');
+  if(b.games !== undefined && (!Array.isArray(b.games) || bad(b.games))) throw new Error('La copia está incompleta o dañada');
+  if(b.players !== undefined && (!Array.isArray(b.players) || bad(b.players))) throw new Error('La copia está incompleta o dañada');
   if(b.valueHistory !== undefined && (!Array.isArray(b.valueHistory) || b.valueHistory.some(function(h){ return !h || typeof h.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(h.date); }))) throw new Error('La copia está incompleta o dañada');
   return b;
 }
@@ -6570,7 +6811,9 @@ async function dbReplaceAll(data){
     // Backups made before the wishlist existed have no "wishlist": leave the current one alone.
     const stores = ['cards','decks','binders']
       .concat(Array.isArray(data.wishlist) ? ['wishlist'] : [])
-      .concat(Array.isArray(data.valueHistory) ? ['valueHistory'] : []);
+      .concat(Array.isArray(data.valueHistory) ? ['valueHistory'] : [])
+      .concat(Array.isArray(data.games) ? ['games'] : [])     // older backups: keep the games you have
+      .concat(Array.isArray(data.players) ? ['players'] : []);
     const tx = db.transaction(stores, 'readwrite');
     stores.forEach(function(store){
       const os = tx.objectStore(store);
@@ -6606,6 +6849,8 @@ async function restoreBackupFile(file){
   }
   state.cards = b.cards; state.decks = b.decks; state.binders = b.binders;
   if(Array.isArray(b.wishlist)) state.wishlist = b.wishlist;
+  if(Array.isArray(b.games)) state.games = b.games;
+  if(Array.isArray(b.players)) state.players = b.players;
   if(Array.isArray(b.valueHistory)) historyTotalsCache = b.valueHistory.map(stripHistoryItems).sort(function(x,y){ return x.date < y.date ? -1 : 1; });
   if(b.settings && typeof b.settings === 'object'){
     state.settings = Object.assign({}, state.settings, b.settings);
@@ -6614,7 +6859,7 @@ async function restoreBackupFile(file){
   if(Array.isArray(b.scanQueue)){ state.scanQueue = b.scanQueue; saveScanQueue(); renderScanQueue(); }
   // Restoring a file counts as having that backup on hand.
   const m = loadBackupMeta(); m.lastBackupAt = b.createdAt ? Math.min(Date.parse(b.createdAt) || Date.now(), Date.now()) : Date.now(); saveBackupMeta(m);
-  renderCollection(); renderStats(); renderDecks(); renderBinders(); renderWishlist(); renderBackupStatus();
+  renderCollection(); renderStats(); renderDecks(); renderBinders(); renderWishlist(); renderBackupStatus(); renderGames();
   toast('Copia restaurada: '+backupSummaryText(b), 3400);
 }
 /* At most once a week, nudge on launch when the last backup is older than two weeks. */
@@ -6698,6 +6943,10 @@ function applyTopLayer(){
   const modalRoot = document.getElementById('modalRoot');
   const detailPanel = document.getElementById('detailPanel');
   if(!lightboxRoot.hidden && viewer){ if(viewer.insp){ exitInspect(); return; } dismissLightbox(); return; }
+  if(lc){ // life counter: an open sheet first, then the counter (the game is kept to carry on later)
+    if(lc.sheet){ lcDismissSheet(); if(lc.afterSheet){ const f = lc.afterSheet; lc.afterSheet = null; setTimeout(f, 0); } return; }
+    dismissLifeCounter(); return;
+  }
   if(playtest){ dismissPlaytest(); return; }
   if(wishSel && state.tab === 'wishlist'){ exitWishSelect(true); return; }
   const backdrop = document.getElementById('modalBackdrop');
@@ -6738,8 +6987,1027 @@ window.addEventListener('popstate', function(e){
   }
 });
 
+/* =====================================================================
+   Partidas: contador de vidas (al estilo de LifeTap) + estadísticas
+   ---------------------------------------------------------------------
+   The phone lies in the middle of the table; each player gets a panel turned to face them,
+   with their commander's art behind. Tap the right half for +1, the left half for −1; hold
+   for ±10. Commander damage (with partners), poison and commander tax per player; turns,
+   dice, undo. A player is out at 0 life, 10 poison or 21 damage from one commander; the
+   last one standing wins (or you pick the winner when you end the game). Finished games are
+   saved with who played, with which commander, the order they fell and their life over time,
+   and turned into a ranking. The game in progress is kept in localStorage, so closing the
+   app (or a call coming in) never loses it.
+   ===================================================================== */
+const LIVE_GAME_KEY = 'mtgLiveGame';
+const PC_DARK = ['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300']; // player colours on the dark counter
+/* a game's format: the app's deck formats (+ "Otro"); Commander tracks commander damage */
+const GAME_FORMATS = {commander: {label: 'Commander', life: 40, cmd: true}, modern: {label: 'Modern', life: 20}, pauper: {label: 'Pauper', life: 20},
+  premodern: {label: 'Premodern', life: 20}, other: {label: 'Otro', life: 20}};
+const GAME_FMT_ORDER = ['commander', 'modern', 'pauper', 'premodern', 'other'];
+function gameFmt(x){ const f = x && typeof x === 'object' ? x.format : x; return GAME_FORMATS[f] ? f : 'other'; } // older "60 cartas" games count as Otro
+function gameFmtLabel(x){ return GAME_FORMATS[gameFmt(x)].label; }
+let gamesFormat = 'all';
+/* where each seat sits (clockwise from the bottom) and which way it faces */
+const LC_LAYOUTS = {
+  2: {cols: 1, rows: 2, hub: [50, 50], seats: [{r: '2', c: '1', rot: 0}, {r: '1', c: '1', rot: 180}]},
+  3: {cols: 2, rows: 2, hub: [50, 50], seats: [{r: '2', c: '1 / span 2', rot: 0}, {r: '1', c: '1', rot: 90}, {r: '1', c: '2', rot: 270}]},
+  4: {cols: 2, rows: 2, hub: [50, 50], seats: [{r: '2', c: '1', rot: 90}, {r: '1', c: '1', rot: 90}, {r: '1', c: '2', rot: 270}, {r: '2', c: '2', rot: 270}]},
+  5: {cols: 2, rows: 3, hub: [50, 66.667], seats: [{r: '3', c: '1 / span 2', rot: 0}, {r: '2', c: '1', rot: 90}, {r: '1', c: '1', rot: 90}, {r: '1', c: '2', rot: 270}, {r: '2', c: '2', rot: 270}]},
+  6: {cols: 2, rows: 3, hub: [50, 50], seats: [{r: '3', c: '1', rot: 90}, {r: '2', c: '1', rot: 90}, {r: '1', c: '1', rot: 90}, {r: '1', c: '2', rot: 270}, {r: '2', c: '2', rot: 270}, {r: '3', c: '2', rot: 270}]}
+};
+let liveGame = null;   // the game being played
+let lc = null;         // the counter on screen
+let gameSetup = null;  // the "Nueva partida" form
+let gamesPeriod = 'all';
+let gamesShown = 20;
+function loadLiveGame(){
+  try{ const g = JSON.parse(localStorage.getItem(LIVE_GAME_KEY) || 'null'); liveGame = g && Array.isArray(g.players) && g.players.length >= 2 ? g : null; }catch(e){ liveGame = null; }
+}
+const saveLiveGame = debounce(function(){
+  try{ if(liveGame) localStorage.setItem(LIVE_GAME_KEY, JSON.stringify(liveGame)); else localStorage.removeItem(LIVE_GAME_KEY); }catch(e){}
+}, 250);
+function clearLiveGame(){ liveGame = null; try{ localStorage.removeItem(LIVE_GAME_KEY); }catch(e){} }
+function playerById(id){ return id ? (state.players.find(function(p){ return p.id === id; }) || null) : null; }
+function playerName(pid, fallback){ const p = playerById(pid); return p ? p.name : (fallback || 'Jugador'); }
+function shortCardName(n){ return String(n || '').split(' // ')[0].split(',')[0]; }
+function cmdNames(cmds){ return (cmds || []).map(function(c){ return c.name; }).join(' + '); }
+/* a stable colour per saved player (for rankings), from the same palette as the seats */
+function playerColorIdx(pid){ const i = state.players.slice().sort(function(a,b){ return (a.createdAt||0) - (b.createdAt||0); }).findIndex(function(p){ return p.id === pid; }); return i < 0 ? 0 : i % 6; }
+function initialOf(name){ return (String(name || '?').trim()[0] || '?').toUpperCase(); }
+function fmtDuration(sec){
+  sec = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  return h ? h+' h '+String(m).padStart(2, '0')+' min' : Math.max(1, m)+' min';
+}
+function fmtGameDate(ts, withTime){
+  const d = new Date(ts), now = new Date();
+  const same = d.toDateString() === now.toDateString();
+  const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString() === d.toDateString();
+  const time = d.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+  const day = same ? 'Hoy' : yest ? 'Ayer' : d.toLocaleDateString('es-ES', {day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric'});
+  return withTime ? day+' · '+time : day;
+}
+
+/* ---------------- Stats ---------------- */
+function gamesInPeriod(period){
+  const now = new Date();
+  const from = period === 'month' ? new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+    : period === 'year' ? new Date(now.getFullYear(), 0, 1).getTime() : 0;
+  return state.games.filter(function(g){ return (g.endedAt || 0) >= from; });
+}
+function computePlayerStats(games){
+  const map = {};
+  games.slice().sort(function(a,b){ return a.endedAt - b.endedAt; }).forEach(function(g){
+    g.players.forEach(function(p, i){
+      if(!p.pid) return; // "Jugador 3" without a name isn't anybody
+      const s = map[p.pid] || (map[p.pid] = {pid: p.pid, name: p.name, games: 0, wins: 0, streak: 0, best: 0});
+      s.games++;
+      if(g.winner === i){ s.wins++; s.streak++; s.best = Math.max(s.best, s.streak); } else s.streak = 0;
+      s.name = playerName(p.pid, p.name);
+    });
+  });
+  return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a,b){
+    return b.wins - a.wins || (b.wins / b.games) - (a.wins / a.games) || b.games - a.games || a.name.localeCompare(b.name);
+  });
+}
+function computeCommanderStats(games){
+  const map = {};
+  games.forEach(function(g){
+    if(g.format !== 'commander') return;
+    g.players.forEach(function(p, i){
+      if(!p.commanders || !p.commanders.length) return;
+      const names = p.commanders.map(function(c){ return c.name; });
+      const key = names.slice().sort().join(' + ').toLowerCase();
+      const s = map[key] || (map[key] = {key: key, name: names.join(' + '), art: (p.commanders.find(function(c){ return c.art; }) || {}).art || null, games: 0, wins: 0, by: {}});
+      s.games++;
+      if(g.winner === i) s.wins++;
+      const who = p.pid ? playerName(p.pid, p.name) : p.name;
+      s.by[who] = (s.by[who] || 0) + 1;
+    });
+  });
+  return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a,b){
+    return b.wins - a.wins || (b.wins / b.games) - (a.wins / a.games) || b.games - a.games;
+  });
+}
+function joinNames(arr){ return arr.length <= 1 ? (arr[0] || '') : arr.slice(0, -1).join(', ')+' y '+arr[arr.length - 1]; }
+
+/* ---------------- Partidas tab ---------------- */
+function renderGames(){
+  const el = document.getElementById('gamesView'); if(!el) return;
+  let html = '';
+  if(liveGame){
+    const g = liveGame;
+    html += '<div class="live-card" role="button" tabindex="0" id="liveResume">'+
+      '<div class="live-avs">'+g.players.map(function(p){ return '<span style="--pc:'+PC_DARK[p.color]+'">'+esc(initialOf(p.name))+'</span>'; }).join('')+'</div>'+
+      '<div class="live-main"><b>Partida en curso</b><small>'+g.players.length+' jugadores · empezó hace '+fmtDuration((Date.now() - g.startedAt)/1000)+(g.active != null ? ' · turno '+g.turn : '')+'</small></div>'+
+      '<span class="live-go">'+icon('play',13)+' Seguir</span></div>';
+  }
+  if(!state.games.length){
+    el.innerHTML = html + '<div class="games-empty">'+icon('heart',38)+
+      '<h3>Contador de vidas</h3><p>Pon el móvil en el centro de la mesa: cada jugador tiene su parte, con su nombre y la ilustración de su comandante. Al terminar se guarda quién ha ganado y aquí verás el ranking y el historial.</p>'+
+      (liveGame ? '' : '<button class="btn btn-primary" id="gamesEmptyStart">'+icon('play',14)+' Empezar una partida</button>')+'</div>';
+    bindGamesView(el);
+    return;
+  }
+  const present = GAME_FMT_ORDER.filter(function(f){ return state.games.some(function(g){ return gameFmt(g) === f; }); });
+  if(gamesFormat !== 'all' && present.indexOf(gamesFormat) < 0) gamesFormat = 'all';
+  const games = gamesInPeriod(gamesPeriod).filter(function(g){ return gamesFormat === 'all' || gameFmt(g) === gamesFormat; });
+  if(present.length > 1) html += '<div class="games-fmts" id="gamesFormats">'+['all'].concat(present).map(function(f){ return '<button data-gfmt="'+f+'" class="'+(gamesFormat === f ? 'active' : '')+'">'+(f === 'all' ? 'Todos los formatos' : GAME_FORMATS[f].label)+'</button>'; }).join('')+'</div>';
+  html += '<div class="segmented games-period" id="gamesPeriod">'+[['all','Siempre'],['year','Este año'],['month','Este mes']].map(function(x){ return '<button data-period="'+x[0]+'" class="'+(gamesPeriod === x[0] ? 'active' : '')+'">'+x[1]+'</button>'; }).join('')+'</div>';
+  if(!games.length){
+    html += '<p class="section-note games-none">Ninguna partida'+(gamesFormat !== 'all' ? ' de '+GAME_FORMATS[gamesFormat].label : '')+(gamesPeriod === 'month' ? ' este mes' : gamesPeriod === 'year' ? ' este año' : '')+' todavía.</p>';
+  } else {
+    const ps = computePlayerStats(games), cs = computeCommanderStats(games);
+    // highlights: the player and the commander with most wins
+    const topP = ps.length && ps[0].wins ? ps.filter(function(x){ return x.wins === ps[0].wins && x.games === ps[0].games; }) : [];
+    const topC = cs.length && cs[0].wins ? cs[0] : null;
+    if(topP.length || topC){
+      html += '<div class="hl-row">';
+      if(topP.length){
+        const t = topP[0];
+        html += '<div class="hl-card hl-player" style="--pc:var(--p'+(playerColorIdx(t.pid) + 1)+')"><span class="hl-kicker">'+icon('trophy',13)+' Más victorias</span>'+
+          '<b class="hl-name">'+esc(joinNames(topP.map(function(x){ return x.name; })))+'</b>'+
+          '<span class="hl-sub">'+t.wins+' '+(t.wins === 1 ? 'victoria' : 'victorias')+' · '+Math.round(t.wins / t.games * 100)+'%</span></div>';
+      }
+      if(topC){
+        html += '<div class="hl-card hl-cmd">'+(topC.art ? '<img src="'+esc(topC.art)+'" alt="" loading="lazy">' : '')+'<div class="hl-shade"></div>'+
+          '<span class="hl-kicker">'+icon('crown',13)+' Comandante top</span><b class="hl-name">'+esc(topC.name)+'</b>'+
+          '<span class="hl-sub">'+topC.wins+' '+(topC.wins === 1 ? 'victoria' : 'victorias')+' de '+topC.games+'</span></div>';
+      }
+      html += '</div>';
+    }
+    // player ranking
+    if(ps.length){
+      html += '<div class="settings-section-title">Ranking de jugadores</div><div class="rank-list">'+ps.map(function(x, i){
+        const pct = Math.round(x.wins / x.games * 100);
+        return '<div class="rk-row" style="--pc:var(--p'+(playerColorIdx(x.pid) + 1)+')"><span class="rk-pos'+(i < 3 && x.wins ? ' m'+(i + 1) : '')+'">'+(i + 1)+'</span>'+
+          '<span class="rk-av">'+esc(initialOf(x.name))+'</span>'+
+          '<div class="rk-main"><b>'+esc(x.name)+'</b><small>'+x.wins+' de '+x.games+' '+(x.games === 1 ? 'partida' : 'partidas')+(x.streak >= 2 ? ' · <span class="rk-streak">'+x.streak+' seguidas</span>' : '')+'</small></div>'+
+          '<div class="rk-pct"><span>'+pct+'%</span><i><em style="width:'+pct+'%"></em></i></div></div>';
+      }).join('')+'</div>';
+    }
+    // commanders
+    if(cs.length){
+      html += '<div class="settings-section-title">Comandantes con más victorias</div><div class="rank-list">'+cs.slice(0, 8).map(function(x, i){
+        const pct = Math.round(x.wins / x.games * 100);
+        const by = Object.keys(x.by).sort(function(a,b){ return x.by[b] - x.by[a]; });
+        return '<div class="rk-row rk-cmd"><span class="rk-pos'+(i < 3 && x.wins ? ' m'+(i + 1) : '')+'">'+(i + 1)+'</span>'+
+          (x.art ? '<img class="rk-art" src="'+esc(x.art)+'" alt="" loading="lazy">' : '<span class="rk-av">'+icon('crown',14)+'</span>')+
+          '<div class="rk-main"><b>'+esc(x.name)+'</b><small>'+x.wins+' de '+x.games+' · '+esc(joinNames(by.slice(0, 3)))+'</small></div>'+
+          '<div class="rk-pct"><span>'+pct+'%</span><i><em style="width:'+pct+'%"></em></i></div></div>';
+      }).join('')+'</div>';
+    }
+    // history
+    const hist = games.slice().sort(function(a,b){ return b.endedAt - a.endedAt; });
+    html += '<div class="settings-section-title">Historial <span class="count-pill">'+hist.length+'</span></div><div class="gh-list">'+hist.slice(0, gamesShown).map(gameRowHTML).join('')+'</div>'+
+      (hist.length > gamesShown ? '<button class="btn btn-secondary btn-block" id="gamesMore">Ver más partidas</button>' : '');
+  }
+  html += '<button class="btn btn-secondary btn-block games-players-btn" id="gamesPlayersBtn">'+icon('users',15)+' Jugadores guardados <span class="count-pill">'+state.players.length+'</span></button>';
+  el.innerHTML = html;
+  bindGamesView(el);
+}
+function gameRowHTML(g){
+  const w = g.winner != null ? g.players[g.winner] : null;
+  return '<div class="gh-row" role="button" tabindex="0" data-game="'+esc(g.id)+'">'+
+    '<div class="gh-date"><b>'+esc(fmtGameDate(g.endedAt))+'</b><small>'+new Date(g.startedAt).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})+'</small></div>'+
+    '<div class="gh-main"><div class="gh-win">'+(w ? icon('crown',13)+' <b>'+esc(playerName(w.pid, w.name))+'</b>'+(w.commanders && w.commanders.length ? ' <small>· '+esc(shortCardName(w.commanders[0].name))+'</small>' : '') : '<b>Sin ganador</b>')+'</div>'+
+      '<div class="gh-meta">'+gameFmtLabel(g)+' · '+g.players.length+' jugadores · '+fmtDuration(g.durationSec)+(g.turns ? ' · '+g.turns+' turnos' : '')+'</div></div>'+
+    '<div class="gh-avs">'+g.players.map(function(p, i){ return '<span class="'+(g.winner === i ? 'won' : '')+'" style="--pc:var(--p'+(p.color + 1)+')">'+esc(initialOf(playerName(p.pid, p.name)))+'</span>'; }).join('')+'</div></div>';
+}
+function bindGamesView(el){
+  const on = function(id, fn){ const b = document.getElementById(id); if(b) b.addEventListener('click', fn); };
+  on('liveResume', openLifeCounter);
+  on('gamesEmptyStart', openGameSetup);
+  on('gamesPlayersBtn', openPlayersManager);
+  on('gamesMore', function(){ gamesShown += 20; renderGames(); });
+  const per = document.getElementById('gamesPeriod');
+  if(per) per.addEventListener('click', function(e){ const b = e.target.closest('[data-period]'); if(!b) return; gamesPeriod = b.dataset.period; gamesShown = 20; renderGames(); });
+  const fm = document.getElementById('gamesFormats');
+  if(fm) fm.addEventListener('click', function(e){ const b = e.target.closest('[data-gfmt]'); if(!b) return; gamesFormat = b.dataset.gfmt; gamesShown = 20; renderGames(); });
+  el.querySelectorAll('[data-game]').forEach(function(r){
+    r.addEventListener('click', function(){ openGameDetail(r.dataset.game); });
+    r.addEventListener('keydown', function(e){ if(e.key === 'Enter') openGameDetail(r.dataset.game); });
+  });
+}
+
+/* ---------------- Saved players ---------------- */
+function openPlayersManager(){
+  const counts = {};
+  state.games.forEach(function(g){ g.players.forEach(function(p){ if(p.pid) counts[p.pid] = (counts[p.pid] || 0) + 1; }); });
+  const list = state.players.slice().sort(function(a,b){ return (b.lastPlayedAt||0) - (a.lastPlayedAt||0); });
+  openModal('<h3 class="modal-title">'+icon('users',20)+' Jugadores</h3>'+
+    (list.length ? '<p class="section-note" style="margin-top:-.3rem;">Se guardan al empezar una partida. Cambiar un nombre lo cambia en todo el historial.</p><div class="pl-list">'+list.map(function(p){
+      return '<div class="pl-row" style="--pc:var(--p'+(playerColorIdx(p.id) + 1)+')"><span class="rk-av">'+esc(initialOf(p.name))+'</span>'+
+        '<div class="rk-main"><b>'+esc(p.name)+'</b><small>'+(counts[p.id] || 0)+' '+((counts[p.id] || 0) === 1 ? 'partida' : 'partidas')+(p.lastCommanders && p.lastCommanders.length ? ' · '+esc(cmdNames(p.lastCommanders)) : '')+'</small></div>'+
+        '<button class="icon-btn" data-pl-edit="'+esc(p.id)+'" title="Cambiar nombre">'+icon('edit',15)+'</button>'+
+        '<button class="icon-btn" data-pl-del="'+esc(p.id)+'" title="Borrar">'+icon('trash',15)+'</button></div>';
+    }).join('')+'</div>' : '<p class="section-note">Todavía no hay jugadores: se guardan solos al empezar una partida con sus nombres.</p>'));
+  const box = document.querySelector('#modalRoot .modal-sheet');
+  box.addEventListener('click', async function(e){
+    const ed = e.target.closest('[data-pl-edit]'), del = e.target.closest('[data-pl-del]');
+    if(ed){
+      const p = playerById(ed.dataset.plEdit); if(!p) return;
+      const nm = (prompt('Nuevo nombre para '+p.name+':', p.name) || '').trim();
+      if(!nm || nm === p.name) return;
+      if(state.players.some(function(x){ return x !== p && x.name.toLowerCase() === nm.toLowerCase(); })){ toast('Ya hay un jugador que se llama '+nm); return; }
+      p.name = nm; await dbPut('players', p);
+      closeModalThen(function(){ renderGames(); openPlayersManager(); });
+    } else if(del){
+      const p = playerById(del.dataset.plDel); if(!p) return;
+      if(!confirm('¿Borrar a '+p.name+' de tus jugadores?\n\nSus partidas se quedan en el historial con su nombre, pero ya no saldrá en el ranking.')) return;
+      state.players = state.players.filter(function(x){ return x !== p; });
+      state.games.forEach(function(g){ g.players.forEach(function(q){ if(q.pid === p.id){ q.name = p.name; q.pid = null; } }); });
+      await dbDelete('players', p.id); await dbPutMany('games', state.games);
+      closeModalThen(function(){ renderGames(); openPlayersManager(); });
+    }
+  });
+}
+
+/* ---------------- New game ---------------- */
+function defaultSetup(){
+  const last = state.games.slice().sort(function(a,b){ return b.endedAt - a.endedAt; })[0];
+  if(last){
+    return {format: gameFmt(last), life: last.startLife || 40, n: last.players.length,
+      seats: last.players.map(function(p){ return {name: p.pid ? playerName(p.pid, p.name) : '', commanders: (p.commanders || []).slice(), deckId: p.deckId || null}; })};
+  }
+  const known = state.players.slice().sort(function(a,b){ return (b.lastPlayedAt||0) - (a.lastPlayedAt||0); }).slice(0, 4);
+  return {format: 'commander', life: 40, n: 4, seats: known.map(function(p){ return {name: p.name, commanders: (p.lastCommanders || []).slice(), deckId: p.lastDeckId || null}; })};
+}
+function openGameSetup(){
+  gameSetup = defaultSetup();
+  renderGameSetup();
+}
+function setupSeat(i){
+  const s = gameSetup;
+  while(s.seats.length <= i) s.seats.push({name: '', commanders: [], deckId: null});
+  return s.seats[i];
+}
+function miniLayoutHTML(n){
+  const L = LC_LAYOUTS[n];
+  return '<div class="gs-mini" style="grid-template-columns:repeat('+L.cols+',1fr); grid-template-rows:repeat('+L.rows+',1fr)">'+L.seats.map(function(pos, i){
+    return '<span style="grid-row:'+pos.r+'; grid-column:'+pos.c+'; --pc:var(--p'+(i + 1)+')"><b style="transform:rotate('+pos.rot+'deg)">'+(i + 1)+'</b></span>';
+  }).join('')+'</div>';
+}
+function renderGameSetup(){
+  const s = gameSetup, isCmd = s.format === 'commander';
+  for(let i = 0; i < s.n; i++) setupSeat(i);
+  const usedNames = {}; s.seats.slice(0, s.n).forEach(function(x){ if(x.name.trim()) usedNames[x.name.trim().toLowerCase()] = true; });
+  const known = state.players.slice().sort(function(a,b){ return (b.lastPlayedAt||0) - (a.lastPlayedAt||0); }).filter(function(p){ return !usedNames[p.name.toLowerCase()]; }).slice(0, 10);
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="gsBack" aria-label="Volver">'+icon('back',18)+'</button><h2>Nueva partida</h2></div>'+
+    '<div class="detail-body gs">'+
+      '<div class="gs-label">Formato</div>'+
+      '<div class="gs-fmts" id="gsFormat">'+GAME_FMT_ORDER.map(function(f){ return '<button data-fmt="'+f+'" class="'+(s.format === f ? 'active' : '')+'">'+GAME_FORMATS[f].label+'</button>'; }).join('')+'</div>'+
+      '<div class="gs-row2"><div><div class="gs-label">Vidas</div><div class="segmented gs-seg" id="gsLife">'+[20, 25, 30, 40].map(function(v){ return '<button data-life="'+v+'" class="'+(s.life === v ? 'active' : '')+'">'+v+'</button>'; }).join('')+'</div></div>'+
+        '<div><div class="gs-label">Jugadores</div><div class="segmented gs-seg" id="gsN">'+[2, 3, 4, 5, 6].map(function(v){ return '<button data-n="'+v+'" class="'+(s.n === v ? 'active' : '')+'">'+v+'</button>'; }).join('')+'</div></div></div>'+
+      '<div class="gs-table">'+miniLayoutHTML(s.n)+'<p>Sentaos alrededor del móvil en este orden, empezando por abajo y en el sentido de las agujas del reloj. Cada uno verá su parte de frente.'+(isCmd ? ' Se lleva el daño de comandante.' : '')+'</p></div>'+
+      (known.length ? '<div class="gs-label">Jugadores guardados</div><div class="gs-known" id="gsKnown">'+known.map(function(p){ return '<button data-known="'+esc(p.id)+'">'+esc(p.name)+'</button>'; }).join('')+'</div>' : '')+
+      '<datalist id="gsPlayersList">'+state.players.map(function(p){ return '<option value="'+esc(p.name)+'">'; }).join('')+'</datalist>'+
+      '<div class="gs-seats" id="gsSeats">'+s.seats.slice(0, s.n).map(function(seat, i){
+        const c = seat.commanders || [];
+        return '<div class="gs-seat" data-seat="'+i+'" style="--pc:var(--p'+(i + 1)+')">'+
+          '<span class="gs-num">'+(i + 1)+'</span>'+
+          '<div class="gs-seat-main">'+
+            '<input class="text-input gs-name" data-seat-name="'+i+'" list="gsPlayersList" placeholder="Jugador '+(i + 1)+'" value="'+esc(seat.name)+'" autocomplete="off" enterkeyhint="next">'+
+            '<button class="gs-cmd'+(c.length ? ' has' : '')+'" data-seat-cmd="'+i+'">'+
+              (c.length ? (c[0].art ? '<img src="'+esc(c[0].art)+'" alt="">' : '<span class="gs-cmd-ph">'+icon('crown',14)+'</span>')+'<span class="gs-cmd-name">'+esc(c.map(function(x){ return shortCardName(x.name); }).join(' + '))+'</span>'
+                : '<span class="gs-cmd-ph">'+icon(isCmd ? 'crown' : 'layers',14)+'</span><span class="gs-cmd-name gs-cmd-empty">'+(isCmd ? 'Elegir comandante' : 'Elegir mazo (opcional)')+'</span>')+
+            '</button>'+
+            (isCmd && c.length === 1 ? '<button class="gs-partner" data-seat-partner="'+i+'">+ Partner</button>' : '')+
+          '</div></div>';
+      }).join('')+'</div>'+
+      (liveGame ? '<p class="section-note gs-warn">'+icon('alert',13)+' Tienes una partida a medias: si empiezas otra, aquella se descarta.</p>' : '')+
+      '<button class="btn btn-primary btn-block gs-start" id="gsStart">'+icon('play',15)+' Empezar partida</button>'+
+    '</div>';
+  showDetailPanel(panel, 'game:setup');
+  document.getElementById('gsBack').addEventListener('click', navBack);
+  const body = panel.querySelector('.gs');
+  body.addEventListener('click', function(e){
+    const t = e.target.closest('button'); if(!t) return;
+    if(t.dataset.fmt){
+      if(s.format === t.dataset.fmt) return;
+      const wasCmd = s.format === 'commander';
+      s.format = t.dataset.fmt; s.life = GAME_FORMATS[s.format].life;
+      if(wasCmd !== (s.format === 'commander')){ // commanders don't carry over to 60-card games (or back)
+        s.n = s.format === 'commander' ? 4 : 2;
+        s.seats.forEach(function(x){ x.commanders = []; x.deckId = null; });
+      }
+      renderGameSetup();
+    }
+    else if(t.dataset.life){ s.life = +t.dataset.life; renderGameSetup(); }
+    else if(t.dataset.n){ s.n = +t.dataset.n; renderGameSetup(); }
+    else if(t.dataset.known){
+      const p = playerById(t.dataset.known); if(!p) return;
+      let i = s.seats.slice(0, s.n).findIndex(function(x){ return !x.name.trim(); });
+      if(i < 0){ toast('Todos los sitios tienen nombre: borra uno o añade un jugador'); return; }
+      s.seats[i].name = p.name;
+      if(!s.seats[i].commanders.length && p.lastCommanders && p.lastCommanders.length && (s.format === 'commander') === (!p.lastFormat || p.lastFormat === 'commander')){ s.seats[i].commanders = p.lastCommanders.slice(); s.seats[i].deckId = p.lastDeckId || null; }
+      renderGameSetup();
+    }
+    else if(t.dataset.seatCmd !== undefined) openCommanderPicker(+t.dataset.seatCmd, false);
+    else if(t.dataset.seatPartner !== undefined) openCommanderPicker(+t.dataset.seatPartner, true);
+    else if(t.id === 'gsStart') startGameFromSetup();
+  });
+  body.querySelectorAll('[data-seat-name]').forEach(function(inp){
+    const i = +inp.dataset.seatName;
+    inp.addEventListener('input', function(){ setupSeat(i).name = inp.value; });
+    inp.addEventListener('change', function(){
+      // a known name brings back that player's last commander
+      const seat = setupSeat(i), p = state.players.find(function(x){ return x.name.toLowerCase() === inp.value.trim().toLowerCase(); });
+      if(p && !seat.commanders.length && p.lastCommanders && p.lastCommanders.length && (s.format === 'commander') === (!p.lastFormat || p.lastFormat === 'commander')){
+        seat.name = p.name; seat.commanders = p.lastCommanders.slice(); seat.deckId = p.lastDeckId || null; renderGameSetup();
+      }
+    });
+  });
+}
+function openCommanderPicker(i, partner){
+  const s = gameSetup, seat = setupSeat(i), isCmd = s.format === 'commander';
+  const who = seat.name.trim() || 'Jugador '+(i + 1);
+  const decks = partner ? [] : state.decks.filter(function(d){ const f = deckFormat(d); return isCmd ? f === 'commander' : (s.format === 'other' ? f !== 'commander' : f === s.format); });
+  openModal('<h3 class="modal-title">'+icon(isCmd ? 'crown' : 'layers',20)+' '+(isCmd ? (partner ? 'Segundo comandante' : 'Comandante') : 'Mazo')+' de '+esc(who)+'</h3>'+
+    '<input class="text-input" id="cpSearch" placeholder="'+(isCmd ? 'Busca un comandante…' : 'Busca una carta de ese mazo…')+'" autocomplete="off" enterkeyhint="search">'+
+    (decks.length ? '<div class="cp-sub">Tus mazos</div><div class="cp-list">'+decks.map(function(d){
+      const cm = d.cards.filter(function(c){ return c.commander; });
+      const art = deckCoverUrl(d);
+      return '<button class="cp-item" data-cp-deck="'+esc(d.id)+'">'+(art ? '<img src="'+esc(art)+'" alt="" loading="lazy">' : '<span class="cp-ph">'+icon('layers',16)+'</span>')+
+        '<span><b>'+esc(d.name)+'</b><small>'+esc(cm.length ? cmdNames(cm) : formatLabel(deckFormat(d)))+'</small></span></button>';
+    }).join('')+'</div>' : '')+
+    '<div class="cp-sub" id="cpResTitle" hidden>'+(isCmd ? 'Comandantes' : 'Cartas')+'</div><div class="cp-list" id="cpResults"></div>'+
+    ((partner ? seat.commanders.length > 1 : seat.commanders.length) ? '<button class="btn btn-secondary btn-block" id="cpClear" style="margin-top:.8rem;">'+icon('x',14)+' Quitar '+(partner ? 'el segundo comandante' : (isCmd ? 'comandante' : 'mazo'))+'</button>' : '')
+  );
+  const box = document.querySelector('#modalRoot .modal-sheet');
+  const res = document.getElementById('cpResults'), title = document.getElementById('cpResTitle');
+  let found = [], seq = 0;
+  const done = function(){ closeModalThen(function(){ renderGameSetup(); }); };
+  const search = debounce(async function(q){
+    const my = ++seq;
+    if(q.length < 2){ res.innerHTML = ''; title.hidden = true; return; }
+    title.hidden = false; res.innerHTML = '<div class="cp-msg">Buscando…</div>';
+    try{
+      const r = await fetch(SCRYFALL+'/cards/search?order=edhrec&unique=cards&q='+encodeURIComponent((isCmd ? 'is:commander ' : '')+q));
+      if(my !== seq) return;
+      const j = r.ok ? await r.json() : {data: []};
+      found = (j.data || []).slice(0, 10);
+      res.innerHTML = found.length ? found.map(function(c, k){
+        const face = (c.image_uris || (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris) || {});
+        return '<button class="cp-item" data-cp-card="'+k+'">'+(face.art_crop ? '<img src="'+esc(face.art_crop)+'" alt="" loading="lazy">' : '<span class="cp-ph">'+icon('crown',16)+'</span>')+
+          '<span><b>'+esc(c.name)+'</b><small>'+esc(c.type_line || '')+'</small></span></button>';
+      }).join('') : '<div class="cp-msg">No se ha encontrado nada con «'+esc(q)+'».</div>';
+    }catch(e){ if(my === seq) res.innerHTML = '<div class="cp-msg">Sin conexión: elige uno de tus mazos o inténtalo luego.</div>'; }
+  }, 280);
+  document.getElementById('cpSearch').addEventListener('input', function(e){ search(e.target.value.trim()); });
+  box.addEventListener('click', function(e){
+    const dk = e.target.closest('[data-cp-deck]'), cd = e.target.closest('[data-cp-card]');
+    if(e.target.closest('#cpClear')){ if(partner) seat.commanders = seat.commanders.slice(0, 1); else { seat.commanders = []; seat.deckId = null; } done(); return; }
+    if(dk){
+      const d = state.decks.find(function(x){ return x.id === dk.dataset.cpDeck; }); if(!d) return;
+      const cm = d.cards.filter(function(c){ return c.commander; });
+      seat.deckId = d.id;
+      seat.commanders = isCmd && cm.length
+        ? cm.slice(0, 2).map(function(c){ const src = c.imageNormal || c.imageSmall; return {name: c.name, art: artCropUrl(src) || src || null}; })
+        : [{name: d.name, art: deckCoverUrl(d), deck: true}];
+      done();
+    } else if(cd){
+      const c = found[+cd.dataset.cpCard]; if(!c) return;
+      const face = (c.image_uris || (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris) || {});
+      const pick = {name: c.name, art: face.art_crop || null};
+      if(partner) seat.commanders = [seat.commanders[0], pick];
+      else { seat.commanders = [pick]; seat.deckId = null; }
+      done();
+    }
+  });
+}
+async function startGameFromSetup(){
+  const s = gameSetup;
+  const seats = s.seats.slice(0, s.n);
+  const names = seats.map(function(x){ return x.name.trim(); });
+  const dup = names.find(function(nm, i){ return nm && names.findIndex(function(o){ return o.toLowerCase() === nm.toLowerCase(); }) !== i; });
+  if(dup){ toast('«'+dup+'» está dos veces en la mesa'); return; }
+  if(liveGame && !confirm('Tienes una partida a medias. ¿Descartarla y empezar esta?')) return;
+  const now = Date.now(), changed = [];
+  seats.forEach(function(seat, i){
+    const nm = names[i];
+    if(!nm){ seat.pid = null; return; }
+    let p = state.players.find(function(x){ return x.name.toLowerCase() === nm.toLowerCase(); });
+    if(!p){ p = {id: uuid(), name: nm, createdAt: now + i}; state.players.push(p); }
+    p.lastPlayedAt = now; p.lastCommanders = seat.commanders.slice(0, 2); p.lastDeckId = seat.deckId || null; p.lastFormat = s.format;
+    seat.pid = p.id; changed.push(p);
+  });
+  if(changed.length) await dbPutMany('players', changed).catch(function(){});
+  liveGame = {
+    id: uuid(), startedAt: now, format: s.format, cmd: s.format === 'commander', startLife: s.life,
+    turn: 1, active: null, firstSeat: null, outSeq: 0, log: [],
+    players: seats.map(function(seat, i){
+      return {pid: seat.pid, name: names[i] || 'Jugador '+(i + 1), color: i, commanders: (seat.commanders || []).slice(0, 2), deckId: seat.deckId || null,
+        life: s.life, poison: 0, cmd: {}, tax: [0, 0], out: null, conceded: false, lastCmdFrom: null};
+    })
+  };
+  saveLiveGame();
+  closeDetailThen(function(){ openLifeCounter(); });
+}
+
+/* ---------------- The counter ---------------- */
+function lcPanelHTML(i){
+  const g = liveGame, p = g.players[i], pos = LC_LAYOUTS[g.players.length].seats[i];
+  const arts = p.commanders.filter(function(c){ return c.art; });
+  const bg = arts.length >= 2 ? '<img class="lp-art a" src="'+esc(arts[0].art)+'" alt="" draggable="false"><img class="lp-art b" src="'+esc(arts[1].art)+'" alt="" draggable="false">'
+    : arts.length ? '<img class="lp-art" src="'+esc(arts[0].art)+'" alt="" draggable="false">' : '';
+  return '<div class="lp" data-seat="'+i+'" data-rot="'+pos.rot+'" style="grid-row:'+pos.r+'; grid-column:'+pos.c+'; --pc:'+PC_DARK[p.color]+'; --rot:'+pos.rot+'deg">'+
+    '<div class="lp-inner">'+
+      '<div class="lp-bg">'+bg+'</div><div class="lp-shade"></div>'+
+      '<div class="lp-head"><span class="lp-name">'+esc(p.name)+'</span>'+(p.commanders.length ? '<span class="lp-cmd">'+esc(p.commanders.map(function(c){ return shortCardName(c.name); }).join(' + '))+'</span>' : '')+'</div>'+
+      '<div class="lp-center"><span class="lp-delta" data-delta></span><span class="lp-life" data-life></span></div>'+
+      '<div class="lp-badges" data-badges></div>'+
+      '<button class="lp-zone minus" data-seat="'+i+'" data-sign="-1" aria-label="Restar vida a '+esc(p.name)+'"><span>−</span></button>'+
+      '<button class="lp-zone plus" data-seat="'+i+'" data-sign="1" aria-label="Sumar vida a '+esc(p.name)+'"><span>+</span></button>'+
+      '<button class="lp-more" data-more="'+i+'" aria-label="'+(g.cmd ? 'Daño de comandante y contadores' : 'Contadores')+'">'+icon(g.cmd ? 'swords' : 'drop',17)+'</button>'+
+      '<button class="lp-pass" data-pass="'+i+'">Pasar turno '+icon('chevron',13)+'</button>'+
+      '<div class="lp-sub" data-sub hidden></div>'+
+      '<div class="lp-out" data-out hidden></div>'+
+    '</div></div>';
+}
+function openLifeCounter(){
+  if(!liveGame || lc) return;
+  const g = liveGame, L = LC_LAYOUTS[g.players.length];
+  const root = document.getElementById('lifeRoot');
+  root.innerHTML = '<div class="lc" id="lc" style="grid-template-columns:repeat('+L.cols+',1fr); grid-template-rows:repeat('+L.rows+',1fr)" role="application" aria-label="Contador de vidas">'+
+    g.players.map(function(p, i){ return lcPanelHTML(i); }).join('')+
+    '<button class="lc-hub" id="lcHub" style="left:'+L.hub[0]+'%; top:'+L.hub[1]+'%" aria-label="Menú de la partida"><span class="lc-hub-turn" id="lcHubTurn"></span><span class="lc-hub-time" id="lcHubTime"></span></button>'+
+    '<div class="lc-layer" id="lcLayer"></div><div class="lc-flash" id="lcFlash" hidden></div>'+
+  '</div>';
+  root.hidden = false;
+  document.documentElement.classList.add('lc-open');
+  navPush();
+  lc = {el: document.getElementById('lc'), holds: {}, pend: {}, undo: [], snapKey: '', snapT: 0, sheet: null, afterSheet: null, victorySeat: null, victoryT: 0,
+    tick: setInterval(lcPaintHub, 15000), wake: null, onVis: null};
+  lcBind();
+  lcAfter(true);
+  lcRequestWake();
+  lc.onVis = function(){ if(lc && document.visibilityState === 'visible') lcRequestWake(); };
+  document.addEventListener('visibilitychange', lc.onVis);
+}
+function closeLifeCounter(){ if(lc) navBack(); }
+function dismissLifeCounter(){
+  if(!lc) return;
+  Object.keys(lc.pend).forEach(function(k){ clearTimeout(lc.pend[k].t); lcSettle(+k, true); });
+  Object.keys(lc.holds).forEach(function(k){ clearTimeout(lc.holds[k].t); });
+  clearInterval(lc.tick); clearTimeout(lc.victoryT); clearTimeout(lc.flashT); (lc.spinT || []).forEach(clearTimeout);
+  try{ if(lc.wake) lc.wake.release(); }catch(e){}
+  document.removeEventListener('visibilitychange', lc.onVis);
+  const saved = lc.saved, discarded = lc.discarded;
+  lc = null;
+  if(liveGame){ try{ localStorage.setItem(LIVE_GAME_KEY, JSON.stringify(liveGame)); }catch(e){} }
+  const root = document.getElementById('lifeRoot');
+  document.documentElement.classList.remove('lc-open');
+  const el = document.getElementById('lc');
+  if(el && !prefersReducedMotion()){ el.classList.add('closing'); setTimeout(function(){ if(!lc){ root.hidden = true; root.innerHTML = ''; } }, 220); }
+  else { root.hidden = true; root.innerHTML = ''; }
+  if(state.tab !== 'games' && saved) switchTab('games');
+  renderGames();
+  if(discarded){
+    snackbar('Partida no guardada', 'Deshacer', function(){
+      liveGame = JSON.parse(discarded.game); saveLiveGame(); renderGames();
+      openLifeCounter();
+      if(lc){ clearTimeout(lc.victoryT); lc.victorySeat = discarded.auto ? discarded.winner : null; lcOpenSaveSheet(discarded.winner, discarded.auto, discarded.fmt); } // same question, same answers so far
+    }, 7000);
+  }
+  if(saved){
+    const w = saved.winner != null ? saved.players[saved.winner] : null;
+    toast((w ? 'Partida guardada · gana '+w.name : 'Partida guardada')+' · '+gameFmtLabel(saved), 3200);
+    setTimeout(function(){ const r = document.querySelector('.gh-row[data-game="'+saved.id+'"]'); if(r){ r.classList.add('flash'); r.scrollIntoView({block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth'}); } }, 350);
+  }
+}
+async function lcRequestWake(){ // keep the screen on while the phone lies on the table
+  try{ if(lc && 'wakeLock' in navigator && !(lc.wake && !lc.wake.released)) lc.wake = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+function lcBind(){
+  const el = lc.el;
+  el.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  el.addEventListener('pointerdown', function(e){
+    const z = e.target.closest('.lp-zone'); if(!z || !lc) return;
+    e.preventDefault();
+    const seat = +z.dataset.seat, sign = +z.dataset.sign;
+    const r = z.getBoundingClientRect();
+    const h = {seat: seat, sign: sign, fired: false, z: z};
+    h.t = setTimeout(function rep(){ if(!lc) return; h.fired = true; lcLife(seat, 10 * sign); lcBuzz(12); h.t = setTimeout(rep, 650); }, 480);
+    lc.holds[e.pointerId] = h;
+    z.classList.add('down');
+  });
+  const end = function(commit){ return function(e){
+    const h = lc && lc.holds[e.pointerId]; if(!h) return;
+    clearTimeout(h.t); delete lc.holds[e.pointerId];
+    h.z.classList.remove('down');
+    if(commit && !h.fired) lcLife(h.seat, h.sign);
+  }; };
+  el.addEventListener('pointerup', end(true));
+  el.addEventListener('pointercancel', end(false));
+  el.addEventListener('click', function(e){
+    if(!lc) return;
+    const t = e.target;
+    const more = t.closest('[data-more]'), pass = t.closest('[data-pass]'), subClose = t.closest('[data-subclose]');
+    const inc = t.closest('[data-sub-d]'), concede = t.closest('[data-concede]'), by = t.closest('[data-by]');
+    if(t.closest('#lcHub')){ lcOpenMenu(); return; }
+    if(more){ lcToggleSub(+more.dataset.more, true); return; }
+    if(subClose){ lcToggleSub(+subClose.dataset.subclose, false); return; }
+    if(pass){ lcPassTurn(); return; }
+    if(inc){ lcSubChange(+inc.dataset.seat, inc.dataset.kind, +inc.dataset.from, +inc.dataset.k, +inc.dataset.subD); return; }
+    if(concede){ lcConcede(+concede.dataset.concede); return; }
+    if(by){ const a = by.dataset.by.split(':'); const p = liveGame.players[+a[0]]; if(p.out){ p.out.by = +a[1]; lcAfter(); } return; }
+    if(t.closest('[data-undo]')){ lcUndo(); return; }
+    const act = t.closest('[data-lc]'); if(act) lcAction(act.dataset.lc, act);
+    if(t.closest('[data-sheet-close]')) lcCloseSheet();
+  });
+}
+function lcBuzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+/* one undo step per burst of taps on the same thing */
+function lcSnapshot(key){
+  const now = Date.now();
+  if(key === lc.snapKey && now - lc.snapT < 1500){ lc.snapT = now; return; }
+  lc.snapKey = key; lc.snapT = now;
+  const g = liveGame;
+  lc.undo.push(JSON.stringify({players: g.players, turn: g.turn, active: g.active, firstSeat: g.firstSeat, outSeq: g.outSeq, logLen: g.log.length}));
+  if(lc.undo.length > 80) lc.undo.shift();
+}
+function lcUndo(){
+  const raw = lc.undo.pop();
+  if(!raw){ lcFlash('No hay nada que deshacer'); return; }
+  const o = JSON.parse(raw), g = liveGame;
+  g.players = o.players; g.turn = o.turn; g.active = o.active; g.firstSeat = o.firstSeat; g.outSeq = o.outSeq;
+  g.log.length = Math.min(g.log.length, o.logLen);
+  Object.keys(lc.pend).forEach(function(k){ clearTimeout(lc.pend[k].t); });
+  lc.pend = {}; lc.snapKey = '';
+  lc.el.querySelectorAll('.lp-sub:not([hidden])').forEach(function(sub){ lcToggleSub(+sub.closest('.lp').dataset.seat, true); });
+  lcAfter();
+  lcFlash('Deshecho');
+}
+function lcLife(seat, d){
+  const p = liveGame.players[seat];
+  lcSnapshot('life:'+seat);
+  p.life += d; p.lastCmdFrom = null;
+  lcPend(seat, d);
+  lcAfter();
+}
+/* the "+3" / "−5" next to the number while you keep tapping; logged once it settles */
+function lcPend(seat, d){
+  const r = lc.pend[seat] || (lc.pend[seat] = {sum: 0});
+  r.sum += d;
+  clearTimeout(r.t);
+  r.t = setTimeout(function(){ lcSettle(seat); }, 1700);
+}
+function lcSettle(seat, quiet){
+  if(!liveGame) return;
+  const g = liveGame, p = g.players[seat];
+  if(lc) delete lc.pend[seat];
+  const t = Math.round((Date.now() - g.startedAt) / 1000);
+  const last = g.log.length ? g.log[g.log.length - 1] : null;
+  if(last && last[0] === t && last[1] === seat) last[2] = p.life; else g.log.push([t, seat, p.life]);
+  saveLiveGame();
+  if(!quiet && lc) lcPaintSeat(seat);
+}
+function lcLoseCause(p){
+  if(p.conceded) return {kind: 'concede', by: null};
+  if(liveGame.cmd){
+    for(const from in p.cmd){ const arr = p.cmd[from] || []; for(let k = 0; k < arr.length; k++) if(arr[k] >= 21) return {kind: 'commander', by: +from, k: k}; }
+  }
+  if(p.poison >= 10) return {kind: 'poison', by: null};
+  if(p.life <= 0) return {kind: 'life', by: p.lastCmdFrom != null ? p.lastCmdFrom : null};
+  return null;
+}
+function lcAfter(initial){
+  const g = liveGame; if(!g || !lc) return;
+  const t = Math.round((Date.now() - g.startedAt) / 1000);
+  g.players.forEach(function(p){
+    const c = lcLoseCause(p);
+    if(c && !p.out){ p.out = {at: t, turn: g.active != null ? g.turn : null, cause: c.kind, by: c.by, k: c.k || 0, order: ++g.outSeq}; if(!initial) lcBuzz([30, 40, 30]); }
+    else if(c && p.out && p.out.cause !== c.kind && c.kind === 'commander'){ p.out.cause = c.kind; p.out.by = c.by; p.out.k = c.k || 0; }
+    else if(!c && p.out) p.out = null; // back above 0 (a correction): back in the game
+  });
+  // whoever's turn it was is out: the next one plays
+  if(g.active != null && g.players[g.active].out && g.players.some(function(p){ return !p.out; })) lcAdvanceTurn();
+  lcPaintAll();
+  saveLiveGame();
+  lcVictoryCheck(initial);
+}
+function lcPaintAll(){ liveGame.players.forEach(function(p, i){ lcPaintSeat(i); }); lcPaintHub(); }
+function lcPaintSeat(i){
+  if(!lc) return;
+  const g = liveGame, p = g.players[i];
+  const el = lc.el.querySelector('.lp[data-seat="'+i+'"]'); if(!el) return;
+  const lifeEl = el.querySelector('[data-life]');
+  const txt = String(p.life).replace('-', '−');
+  if(lifeEl.textContent !== txt){
+    lifeEl.textContent = txt; lifeEl.dataset.len = String(Math.min(4, txt.length));
+    lifeEl.classList.remove('bump'); void lifeEl.offsetWidth; lifeEl.classList.add('bump');
+  }
+  const pend = lc.pend[i];
+  const dEl = el.querySelector('[data-delta]');
+  dEl.textContent = pend && pend.sum ? (pend.sum > 0 ? '+' : '−')+Math.abs(pend.sum) : '';
+  dEl.className = 'lp-delta'+(pend && pend.sum ? (pend.sum > 0 ? ' up' : ' down') : '');
+  let maxCmd = 0;
+  Object.keys(p.cmd).forEach(function(j){ (p.cmd[j] || []).forEach(function(v){ maxCmd = Math.max(maxCmd, v); }); });
+  const tax = (p.tax || []).reduce(function(a, v){ return a + v; }, 0);
+  el.querySelector('[data-badges]').innerHTML =
+    (p.poison ? '<span class="lpb'+(p.poison >= 7 ? ' hot' : '')+'">'+icon('drop',12)+p.poison+'</span>' : '')+
+    (maxCmd ? '<span class="lpb'+(maxCmd >= 15 ? ' hot' : '')+'">'+icon('swords',12)+maxCmd+'</span>' : '')+
+    (tax ? '<span class="lpb">'+icon('crown',12)+'+'+(2 * tax)+'</span>' : '');
+  el.classList.toggle('active', g.active === i && !p.out);
+  el.classList.toggle('low', !p.out && p.life <= (g.startLife >= 30 ? 10 : 5));
+  el.classList.toggle('is-out', !!p.out);
+  const outEl = el.querySelector('[data-out]');
+  if(p.out){ outEl.hidden = false; outEl.innerHTML = lcOutHTML(i); }
+  else if(!outEl.hidden){ outEl.hidden = true; outEl.innerHTML = ''; }
+  const sub = el.querySelector('[data-sub]');
+  if(!sub.hidden) sub.innerHTML = lcSubHTML(i);
+}
+function lcPaintHub(){
+  if(!lc || !liveGame) return;
+  const g = liveGame;
+  const m = Math.floor((Date.now() - g.startedAt) / 60000);
+  const time = document.getElementById('lcHubTime'), turn = document.getElementById('lcHubTurn');
+  if(time) time.textContent = m < 60 ? m+'′' : Math.floor(m / 60)+'h'+String(m % 60).padStart(2, '0');
+  if(turn) turn.textContent = g.active != null ? 'T'+g.turn : '';
+}
+function lcOutHTML(i){
+  const g = liveGame, p = g.players[i], o = p.out;
+  const killer = o.by != null && o.by >= 0 ? g.players[o.by] : null;
+  let cause = o.cause === 'commander' ? '21 de daño de '+shortCardName(((killer && killer.commanders[o.k]) || {}).name || 'comandante')
+    : o.cause === 'poison' ? '10 contadores de veneno' : o.cause === 'concede' ? 'Se ha rendido' : 'Sin vidas';
+  const ask = (o.cause === 'life' || o.cause === 'poison') && o.by == null;
+  return '<div class="lpo-in">'+icon('skull',30)+'<b>Eliminado</b><span>'+esc(cause)+(killer && o.cause !== 'commander' ? ' · por '+esc(killer.name) : (killer ? ' ('+esc(killer.name)+')' : ''))+'</span>'+
+    (ask ? '<div class="lpo-ask"><small>¿Quién le ha eliminado?</small><div class="lpo-chips">'+g.players.map(function(q, j){ return j === i ? '' : '<button data-by="'+i+':'+j+'" style="--pc:'+PC_DARK[q.color]+'">'+esc(q.name)+'</button>'; }).join('')+'<button data-by="'+i+':-1">Nadie</button></div></div>' : '')+
+    '<button class="lpo-undo" data-undo>'+icon('undo',14)+' Deshacer</button></div>';
+}
+function lcToggleSub(i, open){
+  const el = lc.el.querySelector('.lp[data-seat="'+i+'"] [data-sub]'); if(!el) return;
+  el.hidden = !open;
+  el.innerHTML = open ? lcSubHTML(i) : '';
+}
+function lcSubHTML(i){
+  const g = liveGame, p = g.players[i];
+  const row = function(kind, from, k, label, val, cls){
+    const a = 'data-seat="'+i+'" data-kind="'+kind+'" data-from="'+from+'" data-k="'+k+'"';
+    return '<div class="lps-row '+(cls || '')+'"><span class="lps-label">'+label+'</span>'+
+      '<button '+a+' data-sub-d="-1" aria-label="Menos">−</button><span class="lps-val">'+val+'</span><button '+a+' data-sub-d="1" aria-label="Más">+</button></div>';
+  };
+  const rows = [];
+  if(g.cmd){
+    g.players.forEach(function(o, j){
+      if(j === i) return;
+      const cm = o.commanders.length ? o.commanders : [{name: 'Comandante'}];
+      cm.forEach(function(c, k){
+        const v = (p.cmd[j] || [])[k] || 0;
+        rows.push(row('cmd', j, k, '<i class="lps-dot" style="background:'+PC_DARK[o.color]+'"></i><span class="lps-who">'+esc(o.name)+'<small>'+esc(shortCardName(c.name))+'</small></span>', v, v >= 21 ? 'lethal' : v >= 15 ? 'warn' : ''));
+      });
+    });
+  }
+  rows.push(row('poison', -1, 0, icon('drop',14)+'<span class="lps-who">Veneno</span>', p.poison, p.poison >= 10 ? 'lethal' : p.poison >= 7 ? 'warn' : ''));
+  if(g.cmd){
+    (p.commanders.length ? p.commanders : [{name: 'Comandante'}]).forEach(function(c, k){
+      const n = (p.tax || [])[k] || 0;
+      rows.push(row('tax', -1, k, icon('crown',14)+'<span class="lps-who">Impuesto<small>'+esc(shortCardName(c.name))+' · '+n+' '+(n === 1 ? 'vez' : 'veces')+'</small></span>', '+'+(2 * n), ''));
+    });
+  }
+  return '<div class="lps-head"><b>'+(g.cmd ? 'Daño de comandante recibido' : 'Contadores')+'</b><button class="lps-close" data-subclose="'+i+'" aria-label="Cerrar">'+icon('check',17)+'</button></div>'+
+    '<div class="lps-rows">'+rows.join('')+'</div>'+
+    '<button class="lps-concede" data-concede="'+i+'">'+(p.conceded ? 'Volver a la partida' : icon('flag',13)+' Rendirse')+'</button>';
+}
+function lcSubChange(i, kind, from, k, d){
+  const g = liveGame, p = g.players[i];
+  lcSnapshot(kind+':'+i+':'+from+':'+k);
+  if(kind === 'cmd'){
+    const arr = p.cmd[from] || (p.cmd[from] = [0, 0]);
+    const before = arr[k] || 0, now = Math.max(0, before + d), real = now - before;
+    if(!real) return;
+    arr[k] = now;
+    p.life -= real;            // commander damage is damage: it comes off the life total too
+    p.lastCmdFrom = real > 0 ? from : p.lastCmdFrom;
+    lcPend(i, -real);
+  } else if(kind === 'poison'){
+    p.poison = Math.max(0, p.poison + d);
+  } else if(kind === 'tax'){
+    p.tax = p.tax || [0, 0];
+    p.tax[k] = Math.max(0, (p.tax[k] || 0) + d);
+  }
+  lcAfter();
+}
+function lcConcede(i){
+  const p = liveGame.players[i];
+  lcSnapshot('concede:'+i);
+  p.conceded = !p.conceded;
+  lcToggleSub(i, false);
+  lcAfter();
+}
+/* ---- turns ---- */
+function lcAdvanceTurn(){
+  const g = liveGame, n = g.players.length;
+  let i = g.active, crossed = false;
+  for(let step = 0; step < n; step++){
+    i = (i + 1) % n;
+    if(i === g.firstSeat) crossed = true;
+    if(!g.players[i].out) break;
+  }
+  if(crossed) g.turn++;
+  g.active = i;
+}
+function lcPassTurn(){
+  const g = liveGame; if(g.active == null) return;
+  lcSnapshot('turn:'+Date.now());
+  lcAdvanceTurn();
+  lcAfter();
+  lcFlash('Turno de '+g.players[g.active].name+(g.turn > 1 ? ' · ronda '+g.turn : ''));
+}
+function lcFlash(text){
+  const f = document.getElementById('lcFlash'); if(!f) return;
+  f.textContent = text; f.hidden = false;
+  f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+  clearTimeout(lc.flashT); lc.flashT = setTimeout(function(){ f.hidden = true; }, 1700);
+}
+/* ---- sheets in the middle of the table (menu, dice, end of game) ---- */
+function lcOpenSheet(html, cls){
+  const layer = document.getElementById('lcLayer');
+  layer.innerHTML = '<div class="lc-sheet-back" data-sheet-close></div><div class="lc-sheet '+(cls || '')+'">'+html+'</div>';
+  layer.classList.add('open');
+  if(!lc.sheet) navPush();
+  lc.sheet = cls || 'sheet';
+}
+function lcCloseSheet(then){ if(lc && lc.sheet){ lc.afterSheet = then || null; navBack(); } else if(then) then(); }
+function lcDismissSheet(){
+  const layer = document.getElementById('lcLayer');
+  if(layer){ layer.classList.remove('open'); layer.innerHTML = ''; }
+  if(lc) lc.sheet = null;
+}
+function lcOpenMenu(){
+  const g = liveGame;
+  const btn = function(act, ic, label, extra){ return '<button class="lcm-btn" data-lc="'+act+'"'+(extra || '')+'>'+icon(ic,18)+'<span>'+label+'</span></button>'; };
+  lcOpenSheet(
+    '<div class="lcm-head"><b>'+gameFmtLabel(g)+' · '+g.players.length+' jugadores</b><small>'+fmtDuration((Date.now() - g.startedAt) / 1000)+(g.active != null ? ' · ronda '+g.turn+' · juega '+esc(g.players[g.active].name) : '')+'</small></div>'+
+    '<div class="lcm-grid">'+
+      (g.active != null ? btn('pass', 'chevron', 'Pasar turno') : btn('first', 'shuffle', '¿Quién empieza?'))+
+      btn('dice', 'dice', 'Dados y moneda')+
+      btn('undo', 'undo', 'Deshacer', lc.undo.length ? '' : ' disabled')+
+      btn('reset', 'refresh', 'Reiniciar')+
+      btn('end', 'trophy', 'Terminar partida')+
+      btn('exit', 'exit', 'Salir y seguir luego')+
+    '</div>', 'lcm');
+}
+function lcAction(a, b){
+  const g = liveGame;
+  if(a === 'pass'){ lcCloseSheet(lcPassTurn); }
+  else if(a === 'first'){ lcCloseSheet(lcWhoStarts); }
+  else if(a === 'undo'){ lcCloseSheet(lcUndo); }
+  else if(a === 'exit'){ lcCloseSheet(closeLifeCounter); }
+  else if(a === 'dice'){ lcOpenDice(); }
+  else if(a === 'roll'){ lcRoll(b.dataset.die); }
+  else if(a === 'reset'){
+    if(!b.classList.contains('confirm')){ b.classList.add('confirm'); b.querySelector('span').textContent = 'Toca otra vez: vidas a '+g.startLife; return; }
+    lcSnapshot('reset:'+Date.now());
+    g.players.forEach(function(p){ p.life = g.startLife; p.poison = 0; p.cmd = {}; p.tax = [0, 0]; p.out = null; p.conceded = false; p.lastCmdFrom = null; });
+    g.turn = 1; g.active = null; g.firstSeat = null; g.outSeq = 0; g.log = []; g.startedAt = Date.now();
+    lc.victorySeat = null;
+    lcCloseSheet(function(){ lcAfter(true); lcFlash('Nueva partida con la misma mesa'); });
+  }
+  else if(a === 'end'){ lcOpenEnd(); }
+  else if(a === 'win'){ lcOpenSaveSheet(b.dataset.seat === '' ? null : +b.dataset.seat, false); }
+  else if(a === 'savefmt'){
+    lc.saveFmt = b.dataset.fmt;
+    b.parentNode.querySelectorAll('button').forEach(function(x){ const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', String(on)); });
+  }
+  else if(a === 'save'){ lcSave(lc.saveWinner); }
+  else if(a === 'keep'){ lcCloseSheet(); }
+  else if(a === 'nosave'){
+    // not saved — but a mis-tap is easy to undo for a few seconds
+    lc.discarded = {game: JSON.stringify(liveGame), winner: lc.saveWinner, fmt: lc.saveFmt, auto: lc.saveAuto};
+    clearLiveGame();
+    lcCloseSheet(closeLifeCounter);
+  }
+}
+function lcOpenDice(){
+  lcOpenSheet('<div class="lcm-head"><b>Dados</b></div><div class="dice-out" id="diceOut">'+icon('dice',40)+'</div>'+
+    '<div class="dice-row">'+[['d6','D6'],['d20','D20'],['coin','Moneda'],['player','Jugador al azar']].map(function(d){ return '<button class="lcm-btn small" data-lc="roll" data-die="'+d[0]+'"><span>'+d[1]+'</span></button>'; }).join('')+'</div>', 'lcm');
+}
+function lcRoll(die){
+  const out = document.getElementById('diceOut'); if(!out) return;
+  const g = liveGame;
+  const pick = function(){
+    if(die === 'd6') return String(1 + Math.floor(Math.random() * 6));
+    if(die === 'd20') return String(1 + Math.floor(Math.random() * 20));
+    if(die === 'coin') return Math.random() < .5 ? 'Cara' : 'Cruz';
+    const alive = g.players.filter(function(p){ return !p.out; });
+    return (alive[Math.floor(Math.random() * alive.length)] || g.players[0]).name;
+  };
+  let n = 0;
+  out.classList.add('rolling');
+  const step = function(){
+    out.textContent = pick();
+    if(++n < (prefersReducedMotion() ? 1 : 9)) setTimeout(step, 45 + n * 12);
+    else { out.classList.remove('rolling'); out.classList.remove('pop'); void out.offsetWidth; out.classList.add('pop'); lcBuzz(15); }
+  };
+  step();
+}
+/* random first player: a light runs around the table and stops on someone */
+function lcWhoStarts(){
+  const g = liveGame, n = g.players.length;
+  const target = Math.floor(Math.random() * n);
+  const total = prefersReducedMotion() ? 1 : n * 2 + target + 1;
+  lc.spinT = [];
+  let t = 0;
+  for(let k = 0; k < total; k++){
+    const seat = k % n; t += 70 + k * k * 1.6;
+    lc.spinT.push(setTimeout(function(){
+      if(!lc) return;
+      lc.el.querySelectorAll('.lp.spin').forEach(function(x){ x.classList.remove('spin'); });
+      const el = lc.el.querySelector('.lp[data-seat="'+seat+'"]'); if(el) el.classList.add('spin');
+    }, t));
+  }
+  lc.spinT.push(setTimeout(function(){
+    if(!lc) return;
+    lc.el.querySelectorAll('.lp.spin').forEach(function(x){ x.classList.remove('spin'); });
+    lcSnapshot('first');
+    g.firstSeat = target; g.active = target; g.turn = 1;
+    lcAfter(); lcBuzz(25);
+    lcFlash('Empieza '+g.players[target].name);
+  }, t + 380));
+}
+function lcVictoryCheck(initial){
+  const g = liveGame;
+  const alive = g.players.map(function(p, i){ return i; }).filter(function(i){ return !g.players[i].out; });
+  if(alive.length === 1){
+    if(lc.victorySeat !== alive[0]){
+      lc.victorySeat = alive[0];
+      clearTimeout(lc.victoryT);
+      lc.victoryT = setTimeout(function(){ if(lc && lc.victorySeat === alive[0]) lcShowVictory(alive[0]); }, initial ? 200 : 800);
+    }
+  } else {
+    lc.victorySeat = null; clearTimeout(lc.victoryT);
+    if(lc.sheet === 'victory') lcCloseSheet();
+  }
+}
+function lcShowVictory(i){
+  lcBuzz([40, 60, 40, 60, 80]);
+  lcOpenSaveSheet(i, true);
+}
+/* End of the game (last one standing, or you picked the winner): who won, and the question —
+   save it or not, and as which format (preselected from the start; changeable here). */
+function lcOpenSaveSheet(w, auto, fmt){
+  const g = liveGame, p = w != null ? g.players[w] : null;
+  lc.saveWinner = w; lc.saveFmt = GAME_FORMATS[fmt] ? fmt : gameFmt(g); lc.saveAuto = !!auto;
+  const art = p && (p.commanders.find(function(c){ return c.art; }) || {}).art;
+  const meta = fmtDuration((Date.now() - g.startedAt) / 1000)+(g.active != null ? ' · '+g.turn+' '+(g.turn === 1 ? 'ronda' : 'rondas') : '')+(p ? ' · '+p.life+' vidas' : '');
+  lcOpenSheet((art ? '<img class="vic-art" src="'+esc(art)+'" alt="">' : '')+'<div class="vic-shade" style="--pc:'+(p ? PC_DARK[p.color] : '#4a4458')+'"></div>'+
+    '<div class="vic-in">'+
+      (p ? icon('crown',34)+'<span class="vic-kicker">¡Victoria!</span><b class="vic-name">'+esc(p.name)+'</b>'+(p.commanders.length ? '<span class="vic-cmd">'+esc(cmdNames(p.commanders))+'</span>' : '')
+         : icon('flag',30)+'<span class="vic-kicker">Partida terminada</span><b class="vic-name">Sin ganador</b>')+
+      '<span class="vic-meta">'+meta+'</span>'+
+      '<div class="sv-box"><b class="sv-q">¿Quieres guardar la partida?</b>'+
+        '<span class="sv-label">Formato</span>'+
+        '<div class="sv-fmts" role="radiogroup" aria-label="Formato de la partida">'+GAME_FMT_ORDER.map(function(f){ return '<button role="radio" aria-checked="'+(f === lc.saveFmt)+'" data-lc="savefmt" data-fmt="'+f+'" class="'+(f === lc.saveFmt ? 'active' : '')+'">'+GAME_FORMATS[f].label+'</button>'; }).join('')+'</div>'+
+        '<div class="sv-actions"><button class="btn sv-no" data-lc="nosave">'+icon('x',14)+' No guardar</button>'+
+        '<button class="btn btn-primary" data-lc="save">'+icon('check',15)+' Guardar</button></div></div>'+
+      '<button class="btn vic-keep btn-block" data-lc="keep">'+(auto ? 'Seguir jugando' : 'Volver a la partida')+'</button></div>', auto ? 'victory' : 'save');
+}
+function lcOpenEnd(){
+  const g = liveGame;
+  const order = g.players.map(function(p, i){ return i; }).sort(function(a, b){ return (g.players[a].out ? 1 : 0) - (g.players[b].out ? 1 : 0) || g.players[b].life - g.players[a].life; });
+  lcOpenSheet('<div class="lcm-head"><b>¿Quién ha ganado?</b><small>Después eliges si guardarla y su formato</small></div>'+
+    '<div class="end-list">'+order.map(function(i){ const p = g.players[i]; return '<button class="end-item'+(p.out ? ' out' : '')+'" data-lc="win" data-seat="'+i+'" style="--pc:'+PC_DARK[p.color]+'"><span class="rk-av">'+esc(initialOf(p.name))+'</span><span><b>'+esc(p.name)+'</b><small>'+(p.out ? 'Eliminado' : p.life+' vidas')+(p.commanders.length ? ' · '+esc(shortCardName(p.commanders[0].name)) : '')+'</small></span>'+icon('crown',16)+'</button>'; }).join('')+'</div>'+
+    '<button class="lcm-link" data-lc="win" data-seat="">Sin ganador (empate)</button>'+
+    '<button class="lcm-link" data-lc="keep">Volver a la partida</button>', 'lcm');
+}
+async function lcSave(winner){
+  const g = liveGame; if(!g) return;
+  Object.keys(lc.pend).forEach(function(k){ clearTimeout(lc.pend[k].t); lcSettle(+k, true); });
+  const ended = Date.now();
+  const outs = g.players.map(function(p, i){ return {i: i, o: p.out}; }).filter(function(x){ return x.o && x.i !== winner; }).sort(function(a, b){ return b.o.order - a.o.order; });
+  const place = {}; let k = 1;
+  if(winner != null) place[winner] = k++;
+  outs.forEach(function(x){ place[x.i] = k++; });
+  const rec = {
+    id: g.id, startedAt: g.startedAt, endedAt: ended, durationSec: Math.round((ended - g.startedAt) / 1000),
+    format: GAME_FORMATS[lc.saveFmt] ? lc.saveFmt : gameFmt(g), startLife: g.startLife, turns: g.firstSeat != null ? g.turn : null, firstSeat: g.firstSeat, winner: winner,
+    players: g.players.map(function(p, i){
+      let cmdTaken = 0; Object.keys(p.cmd).forEach(function(j){ (p.cmd[j] || []).forEach(function(v){ cmdTaken += v; }); });
+      return {pid: p.pid, name: p.name, color: p.color, commanders: p.commanders, deckId: p.deckId, life: p.life, poison: p.poison, cmdTaken: cmdTaken, tax: p.tax,
+        out: p.out ? {at: p.out.at, turn: p.out.turn, cause: p.out.cause, by: p.out.by} : null, place: place[i] || null};
+    }),
+    log: g.log.slice(-2000)
+  };
+  try{ await dbPut('games', rec); }catch(e){ lcFlash('No se pudo guardar la partida'); return; }
+  state.games.push(rec);
+  clearLiveGame();
+  lc.saved = rec;
+  lcCloseSheet(closeLifeCounter);
+}
+
+/* ---------------- One game, in detail ---------------- */
+function openGameDetail(id){
+  const g = state.games.find(function(x){ return x.id === id; }); if(!g) return;
+  const panel = document.getElementById('detailPanel');
+  const w = g.winner != null ? g.players[g.winner] : null;
+  const wArt = w && (w.commanders || []).find(function(c){ return c.art; });
+  const order = g.players.map(function(p, i){ return i; }).sort(function(a, b){ return (g.players[a].place || 99) - (g.players[b].place || 99); });
+  const causeTxt = function(p){
+    if(!p.out) return g.winner != null && g.players[g.winner] === p ? 'Ganador' : 'Seguía en pie';
+    const by = p.out.by != null && p.out.by >= 0 ? g.players[p.out.by] : null;
+    const c = p.out.cause === 'commander' ? 'Daño de comandante' : p.out.cause === 'poison' ? 'Veneno' : p.out.cause === 'concede' ? 'Se rindió' : 'Sin vidas';
+    return c+(by ? ' · '+playerName(by.pid, by.name) : '')+(p.out.turn ? ' · ronda '+p.out.turn : ' · min '+Math.max(1, Math.round(p.out.at / 60)));
+  };
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="gdBack" aria-label="Volver">'+icon('back',18)+'</button><h2>'+esc(fmtGameDate(g.endedAt, true))+'</h2>'+
+      '<button class="icon-btn" id="gdDelete" title="Borrar partida">'+icon('trash',16)+'</button></div>'+
+    '<div class="detail-body">'+
+      '<div class="gd-hero">'+(wArt ? '<img src="'+esc(wArt.art)+'" alt="">' : '')+'<div class="gd-shade"></div>'+
+        '<div class="gd-hero-in">'+(w ? '<span class="gd-kicker">'+icon('crown',13)+' Ganó</span><b>'+esc(playerName(w.pid, w.name))+'</b>'+(w.commanders && w.commanders.length ? '<small>'+esc(cmdNames(w.commanders))+'</small>' : '') : '<b>Sin ganador</b>')+
+        '<div class="gd-chips"><span>'+icon('clock',12)+' '+fmtDuration(g.durationSec)+'</span>'+(g.turns ? '<span>'+g.turns+' rondas</span>' : '')+'<span>'+gameFmtLabel(g)+' · '+g.startLife+' vidas</span></div></div></div>'+
+      '<div class="settings-section-title">Clasificación</div>'+
+      '<div class="gd-table" role="table">'+order.map(function(i){
+        const p = g.players[i];
+        return '<div class="gd-row'+(g.winner === i ? ' won' : '')+'" role="row" style="--pc:var(--p'+(p.color + 1)+')"><span class="gd-place" role="cell">'+(p.place || '–')+'</span>'+
+          '<span class="rk-av" role="cell">'+esc(initialOf(playerName(p.pid, p.name)))+'</span>'+
+          '<div class="rk-main" role="cell"><b>'+esc(playerName(p.pid, p.name))+'</b><small>'+(p.commanders && p.commanders.length ? esc(cmdNames(p.commanders))+' · ' : '')+esc(causeTxt(p))+'</small></div>'+
+          '<span class="gd-life" role="cell">'+p.life+'<small>vidas</small></span></div>';
+      }).join('')+'</div>'+
+      (g.log && g.log.length ? '<div class="settings-section-title">Vidas durante la partida</div>'+lifeChartHTML(g) : '')+
+    '</div>';
+  showDetailPanel(panel, 'gamedetail:'+id);
+  document.getElementById('gdBack').addEventListener('click', navBack);
+  document.getElementById('gdDelete').addEventListener('click', async function(){
+    if(!confirm('¿Borrar esta partida del historial? Dejará de contar en el ranking.')) return;
+    await dbDelete('games', g.id);
+    state.games = state.games.filter(function(x){ return x !== g; });
+    navBack(); toast('Partida borrada');
+  });
+  bindLifeChart(panel.querySelector('.lchart'), g);
+}
+/* life over time: one stepped line per player (life only changes in jumps), legend always,
+   names at the line ends for up to 4 players, hover / touch shows everyone's life at that moment */
+function lifeSeries(g){
+  const dur = Math.max(g.durationSec || 0, 1);
+  return g.players.map(function(p, i){
+    const pts = [[0, g.startLife]];
+    g.log.forEach(function(e){ if(e[1] === i) pts.push([Math.min(e[0], dur), e[2]]); });
+    const endT = p.out ? Math.min(p.out.at, dur) : dur;
+    pts.push([Math.max(endT, pts[pts.length - 1][0]), p.life]);
+    return {i: i, name: playerName(p.pid, p.name), color: p.color, pts: pts, out: !!p.out};
+  });
+}
+function lifeAt(series, t){ let v = series.pts[0][1]; for(let k = 0; k < series.pts.length; k++){ if(series.pts[k][0] <= t) v = series.pts[k][1]; else break; } return v; }
+function lifeChartHTML(g){
+  const S = lifeSeries(g), dur = Math.max(g.durationSec || 0, 1);
+  const labels = S.length <= 4;
+  const W = 340, H = 190, L = 30, R = labels ? 70 : 12, T = 10, B = 24;
+  let lo = 0, hi = g.startLife;
+  S.forEach(function(s){ s.pts.forEach(function(p){ lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); }); });
+  hi = Math.ceil(hi / 5) * 5; lo = Math.floor(lo / 5) * 5;
+  const x = function(t){ return L + (W - L - R) * t / dur; }, y = function(v){ return T + (H - T - B) * (hi - v) / Math.max(1, hi - lo); };
+  const ticksY = [lo, 0, g.startLife, hi].filter(function(v, k, a){ return a.indexOf(v) === k; }).sort(function(a, b){ return a - b; });
+  const minutes = Math.max(1, Math.round(dur / 60));
+  let svg = '<svg viewBox="0 0 '+W+' '+H+'" class="lc-svg" role="img" aria-label="Vidas de cada jugador durante la partida">';
+  ticksY.forEach(function(v){ svg += '<line class="lc-grid'+(v === 0 ? ' zero' : '')+'" x1="'+L+'" x2="'+(W - R)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/><text class="lc-tick" x="'+(L - 6)+'" y="'+(y(v) + 3.5).toFixed(1)+'" text-anchor="end">'+v+'</text>'; });
+  [[0, '0'], [dur / 2, Math.round(minutes / 2)+' min'], [dur, minutes+' min']].forEach(function(t, k){ svg += '<text class="lc-tick" x="'+x(t[0]).toFixed(1)+'" y="'+(H - 6)+'" text-anchor="'+(k === 0 ? 'start' : k === 2 ? 'end' : 'middle')+'">'+t[1]+'</text>'; });
+  S.forEach(function(s){
+    let d = 'M'+x(s.pts[0][0]).toFixed(1)+' '+y(s.pts[0][1]).toFixed(1);
+    for(let k = 1; k < s.pts.length; k++) d += 'H'+x(s.pts[k][0]).toFixed(1)+'V'+y(s.pts[k][1]).toFixed(1);
+    svg += '<path class="lc-line" d="'+d+'" style="stroke:var(--p'+(s.color + 1)+')"/>';
+    const last = s.pts[s.pts.length - 1];
+    svg += '<circle class="lc-end" cx="'+x(last[0]).toFixed(1)+'" cy="'+y(last[1]).toFixed(1)+'" r="3.2" style="fill:var(--p'+(s.color + 1)+')"/>';
+  });
+  if(labels){ // names at the end of the lines, nudged apart so they never overlap
+    const ends = S.map(function(s){ return {s: s, y: y(s.pts[s.pts.length - 1][1])}; }).sort(function(a, b){ return a.y - b.y; });
+    for(let k = 1; k < ends.length; k++) if(ends[k].y - ends[k - 1].y < 12) ends[k].y = ends[k - 1].y + 12;
+    ends.forEach(function(e){ svg += '<text class="lc-name" x="'+(W - R + 7)+'" y="'+(e.y + 3.5).toFixed(1)+'">'+esc(e.s.name.length > 10 ? e.s.name.slice(0, 9)+'…' : e.s.name)+'</text>'; });
+  }
+  svg += '<line class="lc-cross" x1="0" x2="0" y1="'+T+'" y2="'+(H - B)+'" hidden/><rect class="lc-hit" x="'+L+'" y="0" width="'+(W - L - R)+'" height="'+H+'"/></svg>';
+  return '<div class="lchart" data-w="'+W+'" data-l="'+L+'" data-r="'+R+'">'+
+    '<div class="lc-legend">'+S.map(function(s){ return '<span><i style="background:var(--p'+(s.color + 1)+')"></i>'+esc(s.name)+'</span>'; }).join('')+'</div>'+
+    svg+'<div class="lc-tip" hidden></div></div>';
+}
+function bindLifeChart(box, g){
+  if(!box) return;
+  const S = lifeSeries(g), dur = Math.max(g.durationSec || 0, 1);
+  const svg = box.querySelector('svg'), hit = box.querySelector('.lc-hit'), cross = box.querySelector('.lc-cross'), tip = box.querySelector('.lc-tip');
+  const W = +box.dataset.w, L = +box.dataset.l, R = +box.dataset.r;
+  const move = function(e){
+    const r = svg.getBoundingClientRect();
+    const vx = (e.clientX - r.left) * W / r.width;
+    const t = Math.max(0, Math.min(dur, (vx - L) / (W - L - R) * dur));
+    const px = L + (W - L - R) * t / dur;
+    cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.removeAttribute('hidden');
+    const rows = S.map(function(s){ return {s: s, v: lifeAt(s, t)}; }).sort(function(a, b){ return b.v - a.v; });
+    tip.innerHTML = '<b>Minuto '+Math.round(t / 60)+'</b>'+rows.map(function(r){ return '<span><i style="background:var(--p'+(r.s.color + 1)+')"></i>'+esc(r.s.name)+'<em>'+r.v+'</em></span>'; }).join('');
+    tip.hidden = false;
+    const left = (px / W) * r.width;
+    tip.style.left = Math.max(0, Math.min(r.width - tip.offsetWidth, left + 12 > r.width - tip.offsetWidth ? left - tip.offsetWidth - 12 : left + 12))+'px';
+  };
+  const leave = function(){ cross.setAttribute('hidden', ''); tip.hidden = true; };
+  hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerdown', move);
+  hit.addEventListener('pointerleave', leave);
+}
+
 /* ---------- Tabs & init ---------- */
-const TAB_ORDER = ['collection','scan','decks','wishlist','binders','settings'];
+const TAB_ORDER = ['collection','scan','decks','games','wishlist','binders','settings'];
 // we manage scroll per tab ourselves; the browser's own restore on back/forward fights it
 try{ history.scrollRestoration = 'manual'; }catch(e){}
 const tabScroll = {};
@@ -6781,6 +8049,7 @@ function switchTab(tab, fromNav){
   if(tab !== 'scan') stopCamera();
   if(tab === 'collection') renderCollection();
   if(tab === 'decks') renderDecks();
+  if(tab === 'games') renderGames();
   if(tab === 'binders') renderBinders();
   if(tab === 'wishlist'){ renderWishlist(); refreshWishlistPricesIfStale(); }
   if(tab === 'settings') renderSettings();
@@ -6801,8 +8070,8 @@ function switchTab(tab, fromNav){
 
 async function init(){
   document.querySelectorAll('.tab-btn').forEach(function(b, i){
-    const map = {collection:'search', scan:'camera', decks:'layers', wishlist:'star', binders:'folder', settings:'sliders'};
-    const labels = {collection:'Colección', scan:'Escanear', decks:'Mazos', wishlist:'Deseos', binders:'Carpetas', settings:'Ajustes'};
+    const map = {collection:'search', scan:'camera', decks:'layers', games:'heart', wishlist:'star', binders:'folder', settings:'sliders'};
+    const labels = {collection:'Colección', scan:'Escanear', decks:'Mazos', games:'Partidas', wishlist:'Deseos', binders:'Carpetas', settings:'Ajustes'};
     b.innerHTML = icon(map[b.dataset.tab],21) + '<span>' + labels[b.dataset.tab] + '</span>';
     b.addEventListener('click', function(){ switchTab(b.dataset.tab); });
   });
@@ -6819,12 +8088,16 @@ async function init(){
   document.getElementById('newDeckBtn').innerHTML = icon('plus',15)+' Nuevo mazo';
   document.getElementById('importDeckBtn').innerHTML = icon('upload',15)+' Importar mazo';
   document.getElementById('newBinderBtn').innerHTML = icon('plus',15)+' Nueva carpeta';
+  document.getElementById('newGameBtn').innerHTML = icon('play',14)+' Nueva partida';
+  document.getElementById('newGameBtn').addEventListener('click', openGameSetup);
+  loadLiveGame();
 
   applyTheme();
   try{
     const [cards, decks, binders] = await Promise.all([dbGetAll('cards'), dbGetAll('decks'), dbGetAll('binders')]);
     state.cards = cards; state.decks = decks; state.binders = binders;
     state.wishlist = await dbGetAll('wishlist');
+    state.games = await dbGetAll('games'); state.players = await dbGetAll('players');
     historyTotalsCache = (await dbGetAll('valueHistory')).map(stripHistoryItems).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
     historyReady = true;
   }catch(e){ toast('Tu navegador no soporta almacenamiento local: los datos no se guardarán.'); }
