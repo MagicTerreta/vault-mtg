@@ -502,12 +502,23 @@
   .deck-legal-badge.ok{background:var(--good); color:#fff;}
   .deck-legal-badge.bad{background:var(--danger); color:#fff;}
   /* Collection value history */
-  .vh-hero{display:flex; flex-direction:column; gap:.2rem; margin-bottom:.7rem;}
-  .vh-hero .vh-value{font-size:1.9rem; font-weight:600; line-height:1.1;}
+  .vh-hero{display:flex; flex-direction:column; gap:.2rem; margin-bottom:.8rem;}
+  .vh-hero .vh-value{font-size:3rem; font-weight:600; line-height:1.05; letter-spacing:-.02em;}
+  /* Estadísticas: one summary card at the top (value, chart and the collection's figures) */
+  .sum-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-l); padding:1rem 1rem 0; box-shadow:var(--shadow); overflow:hidden;}
+  .sum-kicker{font-size:.78rem; font-weight:600; color:var(--ink-soft);}
+  .vh-breakdown{display:grid; grid-template-columns:repeat(auto-fit, minmax(0, 1fr)); gap:1px; margin:.55rem 0 .2rem; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-s); overflow:hidden;}
+  .vh-breakdown > div{background:var(--surface); padding:.4rem .5rem; display:flex; flex-direction:column; gap:1px; min-width:0;}
+  .vh-breakdown span{font-size:.68rem; color:var(--ink-soft); line-height:1.25;}
+  .vh-breakdown b{font-size:.84rem; font-weight:600; color:var(--ink); white-space:nowrap;}
+  .sum-metrics{display:grid; grid-template-columns:repeat(3, 1fr); margin:.9rem -1rem 0; border-top:1px solid var(--line);}
+  .sum-metric{padding:.7rem .4rem .75rem; text-align:center; border-right:1px solid var(--line); border-bottom:1px solid var(--line); min-width:0;}
+  .sum-metric:nth-child(3n){border-right:none;} .sum-metric:nth-last-child(-n+3){border-bottom:none;}
+  .sum-metric b{display:block; font-size:1.15rem; font-weight:600; color:var(--ink); line-height:1.2; white-space:nowrap;}
+  .sum-metric span{display:block; font-size:.7rem; color:var(--ink-soft); margin-top:2px; line-height:1.25;}
   .vh-delta{display:inline-flex; align-items:center; gap:.3rem; font-size:.85rem; font-weight:600;}
   .vh-delta.up{color:var(--good);} .vh-delta.down{color:var(--danger);} .vh-delta.flat{color:var(--ink-soft);}
   .vh-delta .vh-period{color:var(--ink-soft); font-weight:400;}
-  .vh-breakdown{font-size:.74rem; color:var(--ink-soft);}
   .segmented.vh-range{display:flex; width:100%; margin-bottom:.6rem;}
   .segmented.vh-range button{flex:1; padding:.35rem .2rem;}
   .vh-chart{position:relative; touch-action:pan-y; user-select:none; -webkit-user-select:none;}
@@ -532,6 +543,7 @@
   .mover-impact.up{color:var(--good);} .mover-impact.down{color:var(--danger);}
   .mover-impact small{font-weight:400; color:var(--ink-soft); font-size:.66rem;}
   .movers-cols h4{font-size:.8rem; margin:.9rem 0 .25rem; display:flex; align-items:center; gap:.35rem;}
+  .movers-cols h4:first-child{margin-top:0;}
   .backup-actions{display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end;}
   .backup-status .srlabel{display:flex; align-items:center; gap:.45rem;}
   .backup-status.ok .srlabel::before, .backup-status.overdue .srlabel::before{content:''; flex:none; width:8px; height:8px; border-radius:50%;}
@@ -1964,6 +1976,7 @@ async function openStatsPanel(){
   const valuables = pricedItems.map(function(c){ return {c:c, unit:itemPrice(c,currency), qty:c.quantity, deck:null}; });
   state.decks.forEach(function(d){ (d.cards || []).forEach(function(c){ const real = cardCopies(c) - proxyCount(c); const p = deckCardPrice(c); if(p != null && real > 0) valuables.push({c:c, unit:p, qty:real, deck:d}); }); });
   const topValuable = valuables.sort(function(a,b){ return b.unit - a.unit; }).slice(0, 10);
+  const nf = function(n){ return Number(n).toLocaleString('es-ES'); };
   const deckRows = state.decks.map(function(d){ const v = deckValue(d, currency); return {id:d.id, name:d.name, value:v.value, copies:v.copies, unpriced:v.unpriced, proxies:v.proxies, proxyValue:v.proxyValue}; })
     .sort(function(a,b){ return b.value - a.value; });
   const deckSum = deckRows.reduce(function(a,r){ return a + r.value; }, 0);
@@ -1982,14 +1995,12 @@ async function openStatsPanel(){
   panel.innerHTML =
     '<div class="detail-header"><button class="icon-btn" id="statsBackBtn">'+icon('back',18)+'</button><h2>Estadísticas</h2></div>'+
     '<div class="detail-body">'+
-      '<div class="stat-section"><h3>Evolución del valor</h3><div id="valueHistorySection">'+(vh ? valueHistoryHTML(vh, currency) : '')+'</div></div>'+
-      '<div class="stat-section"><div class="stat-grid-tiles">'+
-        '<div class="stat-tile"><div class="value">'+totalQty+'</div><div class="label">Cartas</div></div>'+
-        '<div class="stat-tile"><div class="value">'+cards.length+'</div><div class="label">Únicas</div></div>'+
-        '<div class="stat-tile"><div class="value">'+fmtMoney(avgPrice, currency)+'</div><div class="label">Precio medio</div></div>'+
-        '<div class="stat-tile"><div class="value">'+uniqueSets+'</div><div class="label">Ediciones distintas</div></div>'+
-        '<div class="stat-tile"><div class="value">'+foilQty+'</div><div class="label">Cartas foil</div></div>'+
-        '<div class="stat-tile"><div class="value">'+(totalQty ? Math.round((foilQty/totalQty)*100) : 0)+'%</div><div class="label">De tu colección es foil</div></div>'+
+      '<div class="stat-section"><h3>Resumen</h3><div class="sum-card">'+
+        '<div id="valueHistorySection">'+(vh ? valueHistoryHTML(vh, currency) : '')+'</div>'+
+        '<div class="sum-metrics">'+[
+          [nf(totalQty), 'Cartas'], [nf(cards.length), 'Únicas'], [nf(uniqueSets), 'Ediciones'],
+          [fmtMoney(avgPrice, currency), 'Precio medio'], [nf(foilQty), 'Foil'], [(totalQty ? Math.round((foilQty/totalQty)*100) : 0)+' %', 'Son foil']
+        ].map(function(x){ return '<div class="sum-metric"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'; }).join('')+'</div>'+
       '</div></div>'+
       (topValuable.length ? (
         '<div class="stat-section"><h3>Las más valiosas</h3>'+
@@ -2003,6 +2014,7 @@ async function openStatsPanel(){
             '<div class="top-price">'+fmtMoney(unit, currency)+(r.qty > 1 ? '<small>×'+r.qty+' = '+fmtMoney(unit*r.qty, currency)+'</small>' : '')+'</div></div>';
         }).join('')+'</div>'
       ) : '')+
+      '<div class="stat-section" id="moversSection" hidden><h3>Subidas y bajadas</h3><div class="movers-body"></div></div>'+
       (deckRows.length ? (
         '<div class="stat-section"><h3>Mazos <span class="h3-sum">'+fmtMoney(deckSum, currency)+'</span></h3>'+
         deckRows.map(function(r){
@@ -5717,7 +5729,7 @@ function moverRowHTML(r, currency){
   const img = c.imageSmall ? '<img class="card-thumb" src="'+esc(c.imageSmall)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',14)+'</div>';
   return '<div class="mover-row" data-id="'+esc(c.id)+'">'+img+
     '<div class="card-info"><div class="card-name">'+esc(c.name)+'</div>'+
-      '<div class="mover-prices">'+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'')+' · '+fmtMoney(r.p0, currency)+' → '+fmtMoney(r.p1, currency)+'</div></div>'+
+      '<div class="mover-prices">'+setIconSpanHTML(c.setCode, c.rarity)+' '+esc((c.setCode||'').toUpperCase())+(c.foil?' · foil':'')+' · '+fmtMoney(r.p0, currency)+' → '+fmtMoney(r.p1, currency)+'</div></div>'+
     '<div class="mover-impact '+(up?'up':'down')+'">'+signedMoney(r.impact, currency)+
       '<small>'+(r.pct!=null ? (up?'+':'−')+Math.abs(r.pct).toFixed(0)+' %' : '')+(c.quantity>1 ? ' · ×'+c.quantity : '')+'</small></div>'+
   '</div>';
@@ -5776,12 +5788,14 @@ function valueHistoryHTML(m, currency){
     if(baseSnap && !base.live && Math.abs(d) >= 0.01){
       const pe = priceEffect(baseSnap, currency);
       const dDecks = (last.decks || 0) - (base.decks || 0);
-      breakdownHTML = '<div class="vh-breakdown">Por cambios de precio: '+signedMoney(pe, currency)+' · Por cartas añadidas o quitadas: '+signedMoney(d - dDecks - pe, currency)+
-        (Math.abs(dDecks) >= 0.01 ? ' · Mazos: '+signedMoney(dDecks, currency) : '')+'</div>';
+      breakdownHTML = '<div class="vh-breakdown" aria-label="De dónde viene el cambio">'+
+        '<div><span>Cambios de precio</span><b>'+signedMoney(pe, currency)+'</b></div>'+
+        '<div><span>Cartas añadidas o quitadas</span><b>'+signedMoney(d - dDecks - pe, currency)+'</b></div>'+
+        (Math.abs(dDecks) >= 0.01 ? '<div><span>Mazos</span><b>'+signedMoney(dDecks, currency)+'</b></div>' : '')+'</div>';
     }
   }
   let html =
-    '<div class="vh-hero"><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+
+    '<div class="vh-hero"><span class="sum-kicker">Valor total</span><div class="vh-value">'+fmtMoney(last.v, currency)+'</div>'+
       (state.decks.length ? '<div class="vh-split">Colección '+fmtMoney(last.coll, currency)+' · Mazos '+fmtMoney(last.decks, currency)+'</div>' : '')+
       deltaHTML+breakdownHTML+'</div>';
   if(all.length < 2){
@@ -5793,29 +5807,37 @@ function valueHistoryHTML(m, currency){
     '<details class="vh-details"><summary>Ver datos</summary><table class="vh-table">'+
       pts.slice().reverse().map(function(p){ return '<tr><td>'+esc(new Date(p.t).toLocaleDateString('es-ES',{weekday:'short', day:'numeric', month:'short', year:'numeric'}))+(p.live?' (ahora)':'')+'</td><td>'+fmtMoney(p.v, currency)+'</td></tr>'; }).join('')+
     '</table></details>';
-  // movers
-  const moverSnap = m.moverBase && m.snaps[m.moverBase.date];
-  if(moverSnap){
-    const mv = computeMovers(moverSnap, currency);
-    const since = 'desde el '+fmtShortDate(new Date(m.moverBase.t));
-    html += '<div class="movers-cols">'+
-      '<h4>'+icon('trendUp',14)+' Las que más han subido <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
-      (mv.up.length ? mv.up.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha subido de precio en este periodo.</div>')+
-      '<h4>'+icon('trendDown',14)+' Las que más han bajado <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
-      (mv.down.length ? mv.down.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha bajado de precio en este periodo.</div>')+
-    '</div>';
-  }
   return html;
+}
+/* "Las que más han subido / bajado" since the start of the chosen period (its own section, lower down) */
+function moversHTML(m, currency){
+  const moverSnap = m.all.length > 1 && m.moverBase && m.snaps[m.moverBase.date];
+  if(!moverSnap) return '';
+  const mv = computeMovers(moverSnap, currency);
+  const since = 'desde el '+fmtShortDate(new Date(m.moverBase.t));
+  return '<div class="movers-cols">'+
+    '<h4>'+icon('trendUp',14)+' Las que más han subido <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
+    (mv.up.length ? mv.up.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha subido de precio en este periodo.</div>')+
+    '<h4>'+icon('trendDown',14)+' Las que más han bajado <span class="vh-period" style="font-weight:400;color:var(--ink-soft);">'+esc(since)+'</span></h4>'+
+    (mv.down.length ? mv.down.map(function(r){ return moverRowHTML(r, currency); }).join('') : '<div class="vh-empty">Ninguna carta ha bajado de precio en este periodo.</div>')+
+  '</div>';
+}
+function fillMovers(m, currency){
+  const sec = document.getElementById('moversSection'); if(!sec) return;
+  const html = moversHTML(m, currency);
+  sec.hidden = !html;
+  sec.querySelector('.movers-body').innerHTML = html;
+  sec.querySelectorAll('.mover-row').forEach(function(row){ row.addEventListener('click', function(){ openEditCardModal(row.dataset.id); }); });
 }
 /* once the section is on screen: draw the chart (needs its width) and wire it up */
 function bindValueHistory(box, m, currency){
+  fillMovers(m, currency);
   if(m.all.length < 2) return;
   drawValueChart(document.getElementById('vhChart'), m.pts, currency);
   document.getElementById('vhRangeSeg').addEventListener('click', function(e){
     const b = e.target.closest('button[data-range]'); if(!b) return;
     vhRange = b.dataset.range; renderValueHistorySection();
   });
-  box.querySelectorAll('.mover-row').forEach(function(row){ row.addEventListener('click', function(){ openEditCardModal(row.dataset.id); }); });
 }
 async function renderValueHistorySection(){
   if(!document.getElementById('valueHistorySection')) return;
