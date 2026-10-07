@@ -2,7 +2,8 @@
 // being stuck behind a stale cached copy. Only truly static assets (icons, manifest)
 // are cache-first, since those rarely change and are safe to serve instantly.
 // v3: MagicTerreta rename — new name clears the old cached icons/manifest on activate.
-const CACHE = 'magicterreta-shell-v3';
+// v4: Terreta TCG rename.
+const CACHE = 'terreta-shell-v4';
 const STATIC_ASSETS = ['./manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {

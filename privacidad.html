@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Política de privacidad — Terreta TCG</title>
+<meta name="description" content="Qué datos usa Terreta TCG y a qué servicios se conecta.">
+<meta name="theme-color" content="#5a3fae">
+<link rel="icon" href="./icons/icon-192.png">
+<style>
+  :root{color-scheme:light dark; --paper:#f6f2ea; --surface:#ffffff; --ink:#211d2b; --soft:#5f5871; --line:#ddd2ba; --accent:#5a3fae;}
+  @media (prefers-color-scheme:dark){ :root{--paper:#14121a; --surface:#1d1a25; --ink:#f1eef7; --soft:#b6adc9; --line:#2f2a3a; --accent:#a48ef0;} }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; line-height:1.6; -webkit-text-size-adjust:100%;}
+  main{max-width:720px; margin:0 auto; padding:calc(24px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom));}
+  header{display:flex; align-items:center; gap:14px; margin-bottom:8px;}
+  header img{width:52px; height:52px; border-radius:13px;}
+  h1{font-size:1.5rem; line-height:1.2; margin:0;}
+  .updated{color:var(--soft); font-size:.88rem; margin:0 0 20px;}
+  h2{font-size:1.08rem; margin:28px 0 6px;}
+  p, li{color:var(--soft);}
+  strong{color:var(--ink);}
+  a{color:var(--accent); font-weight:600; overflow-wrap:anywhere;}
+  ul{padding-left:1.2rem;}
+  li{margin:.3rem 0;}
+  .box{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin:16px 0;}
+  .box p{margin:0; color:var(--ink);}
+  footer{margin-top:36px; padding-top:16px; border-top:1px solid var(--line); font-size:.8rem; color:var(--soft);}
+</style>
+</head>
+<body>
+<main>
+  <header><img src="./icons/icon-192.png" alt=""><h1>Política de privacidad de Terreta TCG</h1></header>
+  <p class="updated">Última actualización: 6 de octubre de 2026</p>
+
+  <div class="box"><p><strong>En resumen:</strong> Terreta TCG no tiene cuentas ni servidores propios, no recoge datos personales, no usa analítica ni publicidad y no vende ni comparte nada. Todo lo que guardas se queda en tu dispositivo.</p></div>
+
+  <h2>Quién es el responsable</h2>
+  <p>Terreta TCG es una app gratuita hecha por un aficionado. Para cualquier duda sobre esta política puedes escribir a <a href="mailto:CORREO_DE_LA_APP">CORREO_DE_LA_APP</a>.</p>
+
+  <h2>Qué guarda la app y dónde</h2>
+  <p>Tu colección, tus mazos, carpetas y lista de deseos, las partidas del contador de vidas, los nombres de los jugadores que escribas y tus ajustes se guardan <strong>solo en el almacenamiento de la app en tu dispositivo</strong> (IndexedDB y almacenamiento local del navegador). Nunca se envían al desarrollador ni a nadie más.</p>
+  <p>Los nombres de jugadores son los que tú escribas (pueden ser apodos). Si apuntas a tus amigos, esos nombres también se quedan solo en tu dispositivo.</p>
+  <p>Las <strong>copias de seguridad</strong> y las exportaciones CSV son archivos que creas tú y guardas donde tú elijas (por ejemplo, tu Drive o tu correo). A partir de ahí, se rigen por las condiciones del servicio en el que los guardes.</p>
+
+  <h2>A qué servicios se conecta</h2>
+  <p>Para funcionar, la app hace peticiones a estos servicios. Como cualquier web, reciben la dirección IP de tu conexión y los datos técnicos del navegador; la app no les envía nada que te identifique.</p>
+  <ul>
+    <li><strong>Scryfall</strong> (api.scryfall.com, cards.scryfall.io, backs.scryfall.io): para buscar cartas, mostrar sus imágenes y actualizar precios. Se envía el texto que buscas o el identificador de las cartas. <a href="https://scryfall.com/docs/privacy" target="_blank" rel="noopener">Privacidad de Scryfall</a>.</li>
+    <li><strong>GitHub Pages</strong>: es donde está alojada la app; GitHub registra las visitas en sus servidores. <a href="https://docs.github.com/es/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Privacidad de GitHub</a>.</li>
+    <li><strong>Escáner de cartas</strong> (solo si lo usas): la primera vez descarga el lector de texto Tesseract.js desde cdnjs.cloudflare.com y cdn.jsdelivr.net, y sus datos de idioma desde tessdata.projectnaptha.com. La lectura se hace en tu propio dispositivo.</li>
+  </ul>
+  <p>Las fuentes de letra y los símbolos de maná y de expansión van incluidos con la app, así que no se piden a Google ni a otros servicios.</p>
+
+  <h2>Cámara</h2>
+  <p>La app solo pide la cámara cuando abres el escáner. Las imágenes se analizan en el dispositivo para leer el nombre de la carta y no se guardan ni se envían a ningún sitio; solo el nombre leído se usa para buscar la carta en Scryfall.</p>
+
+  <h2>Otros permisos</h2>
+  <p>Durante una partida, la app puede mantener la pantalla encendida y hacer vibrar el móvil al tocar los contadores. En la vista «Ver en 3D» puede leer la inclinación del móvil (giroscopio) para mover la carta; ese dato se usa al momento y no se guarda. No se usa la ubicación, los contactos, el micrófono ni ningún otro dato del dispositivo.</p>
+
+  <h2>Cookies, analítica y publicidad</h2>
+  <p>No hay cookies de seguimiento, ni herramientas de analítica, ni publicidad, ni compras dentro de la app.</p>
+
+  <h2>Menores</h2>
+  <p>La app no recoge datos de nadie, tampoco de menores. Es apta para todos los públicos.</p>
+
+  <h2>Tus datos y cómo borrarlos</h2>
+  <p>Como todo está en tu dispositivo, tú tienes el control: puedes exportarlo (Ajustes › Copia de seguridad o Exportar CSV) y borrarlo cuando quieras con Ajustes › Vaciar colección, borrando los datos de la app en los ajustes del móvil o desinstalándola. El desarrollador no tiene ninguna copia de tus datos.</p>
+
+  <h2>Cambios</h2>
+  <p>Si esta política cambia, se publicará aquí con su nueva fecha.</p>
+
+  <footer>
+    Terreta TCG es contenido de fans no oficial permitido por la Política de contenido de fans de Wizards of the Coast. No está aprobada ni respaldada por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.
+    <br>Datos e imágenes de cartas: Scryfall. Terreta TCG no está asociada con Scryfall.
+  </footer>
+</main>
+</body>
+</html>

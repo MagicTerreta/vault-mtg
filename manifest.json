@@ -1,7 +1,7 @@
 {
-  "name": "MagicTerreta — Colección Magic",
-  "short_name": "MagicTerreta",
-  "description": "Lleva el control de tu colección de cartas de Magic: The Gathering, tus mazos y tus carpetas.",
+  "name": "Terreta TCG",
+  "short_name": "Terreta TCG",
+  "description": "Organiza tu colección de cartas, tus mazos, tus carpetas y tus partidas. App de fans no oficial.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -28,5 +28,10 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "id": "./index.html",
+  "categories": [
+    "entertainment",
+    "utilities"
   ]
 }
