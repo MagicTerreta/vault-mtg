@@ -3,8 +3,25 @@
 // are cache-first, since those rarely change and are safe to serve instantly.
 // v3: MagicTerreta rename — new name clears the old cached icons/manifest on activate.
 // v4: Terreta TCG rename.
-const CACHE = 'terreta-shell-v4';
-const STATIC_ASSETS = ['./manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
+// v5: fonts and set/mana symbols come from ./vendor/ (no Google Fonts, no CDN) and work offline.
+const CACHE = 'terreta-shell-v5';
+const STATIC_ASSETS = ['./manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
+  './vendor/LICENSES.txt',
+  './vendor/fonts.css',
+  './vendor/fraunces-latin-ext.woff2',
+  './vendor/fraunces-latin.woff2',
+  './vendor/ibm-plex-mono-400-latin-ext.woff2',
+  './vendor/ibm-plex-mono-400-latin.woff2',
+  './vendor/ibm-plex-mono-500-latin-ext.woff2',
+  './vendor/ibm-plex-mono-500-latin.woff2',
+  './vendor/ibm-plex-mono-600-latin-ext.woff2',
+  './vendor/ibm-plex-mono-600-latin.woff2',
+  './vendor/keyrune.min.css',
+  './vendor/keyrune.woff2',
+  './vendor/mana.min.css',
+  './vendor/mana.woff2',
+  './vendor/public-sans-latin-ext.woff2',
+  './vendor/public-sans-latin.woff2'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(STATIC_ASSETS)));
@@ -20,7 +37,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (url.origin !== location.origin) return; // Scryfall API, card images, fonts: always network
+  if (url.origin !== location.origin) return; // Scryfall API and card images: always network
 
   const isHTML = e.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/');
 

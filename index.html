@@ -23,13 +23,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Terreta TCG">
 <meta name="application-name" content="Terreta TCG">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://cdn.jsdelivr.net/npm/keyrune@3.19.0/css/keyrune.css" rel="stylesheet">
-<!-- Mana symbols font (same author as Keyrune): https://mana.andrewgioia.com -->
-<link id="manaFontCss" href="https://cdn.jsdelivr.net/npm/mana-font@1.18.0/css/mana.min.css" rel="stylesheet">
+<!-- Fonts and symbols travel with the app (./vendor): nothing is asked from Google Fonts or a CDN.
+     Fraunces, Public Sans, IBM Plex Mono (SIL OFL 1.1); Keyrune 3.19.0 and Mana 1.18.0 by Andrew Gioia
+     (https://keyrune.andrewgioia.com · https://mana.andrewgioia.com; fonts OFL 1.1, CSS MIT). -->
+<link rel="preload" href="./vendor/public-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="./vendor/fonts.css" rel="stylesheet">
+<link href="./vendor/keyrune.min.css" rel="stylesheet">
+<link id="manaFontCss" href="./vendor/mana.min.css" rel="stylesheet">
 <style>
   :root{
     --paper:#f6f2ea; --surface:#ffffff; --surface-2:#ede6d8; --surface-hover:#e4dbc5;

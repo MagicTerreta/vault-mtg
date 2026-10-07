@@ -1,18 +1,68 @@
 TERRETA TCG — LICENCIAS DE TERCEROS / THIRD-PARTY LICENSES
 ============================================================
 
-* Fraunces — Copyright 2020 The Fraunces Project Authors (https://github.com/undercasetype/Fraunces) — SIL Open Font License 1.1
-* Public Sans — Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans) — SIL Open Font License 1.1
-* IBM Plex Mono — Copyright © 2017 IBM Corp. with Reserved Font Name "Plex" — SIL Open Font License 1.1
-* Keyrune 3.19.0 y/and Mana 1.18.0 — Copyright (c) Andrew Gioia (https://keyrune.andrewgioia.com · https://mana.andrewgioia.com)
-  Fuentes / fonts: SIL Open Font License 1.1 · CSS: MIT
+Terreta TCG incluye las siguientes fuentes y hojas de estilo, que se distribuyen sin modificar
+salvo la ruta a los archivos de fuente (Keyrune y Mana) y la división por alfabetos (latin /
+latin-ext) de las fuentes de texto, tal como las sirve Google Fonts.
+Terreta TCG bundles the following fonts and stylesheets, unmodified except for the font file paths
+(Keyrune, Mana) and the latin / latin-ext subsetting of the text fonts as served by Google Fonts.
+
+* Fraunces
+  Archivos / files: fraunces-latin-ext.woff2, fraunces-latin.woff2
+  Copyright 2020 The Fraunces Project Authors (github.com/undercasetype/Fraunces)
+  Version 1.000;[b76b70a41]
+  Licencia / license: SIL Open Font License 1.1 (texto completo más abajo / full text below)
+  https://github.com/undercasetype/Fraunces
+
+* Public Sans
+  Archivos / files: public-sans-latin-ext.woff2, public-sans-latin.woff2
+  Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)
+  Version 2.001
+  Licencia / license: SIL Open Font License 1.1 (texto completo más abajo / full text below)
+  https://github.com/uswds/public-sans
+
+* IBM Plex Mono
+  Archivos / files: ibm-plex-mono-400-latin-ext.woff2, ibm-plex-mono-400-latin.woff2, ibm-plex-mono-500-latin-ext.woff2, ibm-plex-mono-500-latin.woff2, ibm-plex-mono-600-latin-ext.woff2, ibm-plex-mono-600-latin.woff2
+  Copyright 2017 IBM Corp. All rights reserved.
+  Reserved Font Name "Plex"
+  Version 2.3
+  Licencia / license: SIL Open Font License 1.1 (texto completo más abajo / full text below)
+  https://github.com/IBM/plex
+
+* Keyrune (fuente / font)
+  Archivos / files: keyrune.woff2
+  Copyright (c) Andrew Gioia
+  Version 3.19
+  Licencia / license: SIL Open Font License 1.1 (texto completo más abajo / full text below)
+  https://keyrune.andrewgioia.com
+
+* Mana (fuente / font)
+  Archivos / files: mana.woff2
+  Copyright (c) Andrew Gioia
+  Version 1.18
+  Licencia / license: SIL Open Font License 1.1 (texto completo más abajo / full text below)
+  https://mana.andrewgioia.com
+
+* Keyrune CSS (keyrune.min.css)
+  Copyright (c) Andrew Gioia
+  Licencia / license: MIT (texto completo más abajo / full text below)
+  https://github.com/andrewgioia/keyrune
+
+* Mana CSS (mana.min.css)
+  Copyright (c) Andrew Gioia
+  Licencia / license: MIT (texto completo más abajo / full text below)
+  https://github.com/andrewgioia/mana
+
 * Tesseract.js 5.1.1 — Apache License 2.0 — https://github.com/naptha/tesseract.js
-  Se descarga solo al usar el escáner. / Downloaded only when the scanner is used.
+  No va incluido: se descarga de cdnjs.cloudflare.com / cdn.jsdelivr.net solo al usar el escáner.
+  Not bundled: downloaded from cdnjs.cloudflare.com / cdn.jsdelivr.net only when the scanner is used.
 
 Los símbolos de expansión y de maná, los nombres, textos e ilustraciones de las cartas son
-™ & © Wizards of the Coast LLC. Terreta TCG is unofficial Fan Content permitted under the Fan Content
-Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of
-the Coast. ©Wizards of the Coast LLC.
+™ & © Wizards of the Coast LLC. Terreta TCG es contenido de fans no oficial permitido por la
+Política de contenido de fans. / Set and mana symbols, card names, text and art are ™ & © Wizards
+of the Coast LLC. Terreta TCG is unofficial Fan Content permitted under the Fan Content Policy.
+Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the
+Coast. ©Wizards of the Coast LLC.
 
 ------------------------------------------------------------
 SIL OPEN FONT LICENSE
