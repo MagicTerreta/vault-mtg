@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MagicTerreta — Colección Magic</title>
-<meta name="description" content="Lleva el control de tu colección de cartas de Magic: The Gathering, tus mazos y tus carpetas.">
+<title>Terreta TCG — Tu colección de cartas</title>
+<meta name="description" content="Organiza tu colección de cartas, tus mazos, tus carpetas y tus partidas. App de fans no oficial.">
 <meta name="theme-color" content="#5a3fae">
 <link rel="manifest" href="./manifest.json">
 <script>
@@ -14,12 +14,15 @@
   var s = JSON.parse(localStorage.getItem('mtgLedgerSettings') || '{}');
   if(s.theme === 'light' || s.theme === 'dark') document.documentElement.setAttribute('data-theme', s.theme);
   if(s.splash === false) document.documentElement.classList.add('no-splash');
+  if(s.cardFx === false) document.documentElement.classList.add('no-card-fx');
 }catch(e){} })();
 </script>
 <link rel="icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Terreta TCG">
+<meta name="application-name" content="Terreta TCG">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -684,7 +687,7 @@
   .viewer{position:fixed; inset:0; z-index:70; overflow:hidden; touch-action:none; color:#fff; user-select:none; -webkit-user-select:none;}
   .viewer.closing{pointer-events:none;}
   .viewer-backdrop{position:absolute; inset:0; background:#0d0b12; overflow:hidden;}
-  .viewer-bg{position:absolute; inset:-12%; background-size:cover; background-position:center; filter:blur(40px) saturate(1.35) brightness(.5); transition:opacity .45s ease;}
+  .viewer-bg{position:absolute; inset:0; background:#0d0b12; transition:opacity .45s ease;}
   .viewer-bg.b2{opacity:0;}
   .viewer-shade{position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 45%, rgba(13,11,18,.15), rgba(13,11,18,.82));}
   .viewer-fade{animation:fadeIn .3s ease;}
@@ -744,6 +747,8 @@
   .viewer.insp-on .viewer-top, .viewer.insp-on .viewer-info, .viewer.insp-on .viewer-stage,
   .viewer.insp-on .viewer-arrow{opacity:0 !important; pointer-events:none;}
   .viewer.insp-on .viewer-hint{display:none;}
+  /* Ajustes › «Efectos foil y 3D» off: card images exactly as Scryfall serves them */
+  html.no-card-fx .foil-fx, html.no-card-fx .viewer-glare, html.no-card-fx .ifx, html.no-card-fx #viewer3d{display:none !important;}
   .viewer.insp-on .viewer-stage .foil-fx{display:none;} /* its shimmer would keep re-drawing behind the 3D view */
   /* while a card is open full screen, the foil shimmers of the lists underneath stand still
      (they'd keep re-drawing every frame behind it) */
@@ -811,11 +816,18 @@
   .fmt-name{font-family:var(--font-display); font-size:2.15rem; font-weight:700; line-height:1.05; margin:0; letter-spacing:-.01em; text-shadow:0 2px 14px rgba(0,0,0,.55);}
   .fmt-blurb{margin:.35rem 0 0; font-size:.8rem; line-height:1.35; opacity:.88; max-width:30ch;}
   .fmt-open{display:inline-flex; align-items:center; gap:.25rem; margin-top:.75rem; font-size:.78rem; font-weight:700; padding:.42rem .85rem; border-radius:999px; background:#fff; color:#1c1530;}
-  .fmt-credit{margin-top:.6rem; font-size:.6rem; opacity:.6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .fmt-credit{margin-top:.6rem; font-size:.6rem; line-height:1.35; opacity:.66; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
   .fmt-credit:empty{display:none;}
-  .fmt-avatars{display:flex; align-items:center; margin-bottom:.55rem;}
-  .fmt-avatars img, .fmt-avatars .fmt-more{width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.9); margin-right:-9px; background:#2a2433; box-shadow:0 2px 6px rgba(0,0,0,.35);}
-  .fmt-avatars .fmt-more{display:inline-flex; align-items:center; justify-content:center; font-size:.66rem; font-weight:800; font-family:var(--font-mono);}
+  .fmt-decks{display:flex; align-items:center; gap:.35rem; margin-bottom:.5rem; font-size:.74rem; font-weight:600; opacity:.9; min-width:0;}
+  .fmt-decks span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  /* credits for art crops (artist + copyright, Scryfall's image rules) */
+  .art-credit{display:block; font-size:.66rem; line-height:1.4; color:var(--ink-faint); overflow-wrap:anywhere;}
+  .art-foot{margin:.6rem .2rem 0;}
+  .deck-hero-credit{color:rgba(255,255,255,.7); font-size:.6rem; margin-top:.6rem; text-shadow:0 1px 4px rgba(0,0,0,.5);}
+  .hl-cmd .art-credit{color:rgba(255,255,255,.72); font-size:.56rem; margin-top:.25rem;}
+  .gd-hero .art-credit{color:rgba(255,255,255,.72); font-size:.62rem; margin-top:.5rem;}
+  .vic-credit{color:rgba(255,255,255,.58); font-size:.6rem; margin-top:.35rem;}
+  .lp-credit{display:block; color:#fff; font-size:clamp(.48rem, 3.1cqmin, .64rem); opacity:.6; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px;}
   .fmt-dots{display:flex; justify-content:center; gap:.45rem; margin-top:.35rem;}
   .fmt-dot{width:8px; height:8px; padding:0; border:none; border-radius:999px; background:var(--line); cursor:pointer; transition:width .25s ease, background .25s ease;}
   .fmt-dot.active{width:22px; background:var(--accent);}
@@ -1171,9 +1183,27 @@
   .progress-track{height:6px; border-radius:999px; background:var(--surface-2); overflow:hidden; margin-top:.6rem;}
   .progress-fill{height:100%; background:var(--accent); width:0%; transition:width .2s;}
   .about-note{font-size:.76rem; color:var(--ink-faint); line-height:1.6; padding:1rem .2rem 0;}
+  .settings-link{width:100%; border:none; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer;}
+  .settings-link:active{background:var(--surface-hover);}
+  .settings-chev{flex:none; width:8px; height:8px; border-right:2px solid var(--ink-faint); border-bottom:2px solid var(--ink-faint); transform:rotate(-45deg); margin-right:.3rem;}
+  /* ---------- Acerca de y legal ---------- */
+  .ab-head{display:flex; align-items:center; gap:.85rem; padding:.4rem .1rem 1rem;}
+  .ab-head img{width:56px; height:56px; border-radius:14px; box-shadow:var(--shadow);}
+  .ab-head b{display:block; font-family:var(--font-body); font-size:1.35rem; font-weight:800; letter-spacing:-.02em;}
+  .ab-head b span{font-weight:400; color:var(--ink-soft);}
+  .ab-head small{font-size:.78rem; color:var(--ink-soft);}
+  .ab-card{background:var(--surface); border-radius:var(--radius-m); padding:.85rem .95rem; margin-bottom:.75rem; font-size:.84rem; line-height:1.55; color:var(--ink-soft);}
+  .ab-card h3{margin:0 0 .35rem; font-size:.92rem; color:var(--ink); font-family:var(--font-body); font-weight:700;}
+  .ab-card p{margin:.35rem 0 0;}
+  .ab-card a{color:var(--accent); font-weight:600;}
+  .ab-quote{margin:.55rem 0 0; padding:.6rem .75rem; border-left:3px solid var(--accent); background:var(--surface-2); border-radius:0 8px 8px 0; font-size:.78rem; color:var(--ink); font-style:italic;}
+  .ab-lic{list-style:none; padding:0; margin:.35rem 0 0; display:flex; flex-direction:column; gap:.5rem;}
+  .ab-lic li{display:flex; flex-direction:column;}
+  .ab-lic b{color:var(--ink); font-weight:600;}
+  .ab-lic span{font-size:.76rem;}
 
   ::-webkit-scrollbar{width:0; height:0;}
-  /* ---------- Intro: MagicTerreta (Arco de Cabanes + the five colours) ----------
+  /* ---------- Intro: Terreta TCG (Arco de Cabanes + the five colours) ----------
      Built for smoothness on phones: every moving piece is its own HTML layer animated ONLY with
      transform/opacity, which the GPU compositor runs by itself even while the app is busy loading.
      Timeline (s): unlit arch in 0–.6 · orbs fly in .3→1.65 (one every .2) with a burst on landing and
@@ -1186,9 +1216,9 @@
   #splash.sp-out.sp-skip{animation-duration:.26s;}
   .sp-stage{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:clamp(4px,1.6vh,16px); margin-top:-5vh;}
   .sp-title{font-family:var(--font-body); font-size:clamp(30px,9.6vw,48px); letter-spacing:-.02em; line-height:1.15; white-space:nowrap;}
-  .sp-magic,.sp-terreta{display:inline-block; animation:spTitle .55s cubic-bezier(.2,.7,.2,1) both;}
-  .sp-magic{font-weight:800; color:var(--mt-ink); animation-delay:1.85s;}
-  .sp-terreta{font-weight:400; color:var(--mt-ink2); animation-delay:1.98s;}
+  .sp-name,.sp-tcg{display:inline-block; animation:spTitle .55s cubic-bezier(.2,.7,.2,1) both;}
+  .sp-name{font-weight:800; color:var(--mt-ink); animation-delay:1.85s;}
+  .sp-tcg{font-weight:400; color:var(--mt-ink2); margin-left:.26em; letter-spacing:.02em; animation-delay:1.98s;}
   .sp-art{position:relative; width:min(78vw,46vh,340px); aspect-ratio:304/319;}
   .sp-layer,.sp-archwrap{position:absolute; inset:0; width:100%; height:100%;}
   .sp-glow{animation:spGlow .9s ease-out 1.55s both;}
@@ -1228,7 +1258,7 @@
 </style>
 </head>
 <body>
-<div id="splash" aria-hidden="true"><div class="sp-stars"></div><div class="sp-stage"><div class="sp-title"><span class="sp-magic">Magic</span><span class="sp-terreta">Terreta</span></div><div class="sp-art"><svg class="sp-layer sp-glow" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><radialGradient id="sp-glowg"><stop offset="0" class="mt-g"/><stop offset="0.45" class="mt-g" stop-opacity="0.45"/><stop offset="1" class="mt-g" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="-30" rx="138" ry="112" fill="url(#sp-glowg)"/></svg><div class="sp-archwrap"><svg class="sp-layer sp-dim" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><linearGradient id="sp-dimstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-d0"/><stop offset="1" class="mt-d1"/></linearGradient><radialGradient id="sp-shadow" cx="0" cy="156" r="160" gradientTransform="translate(0 156) scale(1 0.09) translate(0 -156)" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-sh"/><stop offset="1" class="mt-sh" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="156" rx="160" ry="14" fill="url(#sp-shadow)"/><g fill="url(#sp-dimstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g><path class="mt-ol" d="M-118.24 -37.9 A123 123 0 0 1 118.24 -37.9" fill="none" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/></svg><svg class="sp-layer sp-lit" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-litstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient></defs><g fill="url(#sp-litstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g></svg></div><svg class="sp-rimseg" style="left:17.303%;top:27.074%;width:8.841%;height:21.091%;--i:0" viewBox="-99.4 -64.56 26.88 67.26" aria-hidden="true"><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="-95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="-95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:23.187%;top:16.308%;width:18.673%;height:13.653%;--i:1" viewBox="-81.51 -98.89 56.77 43.54" aria-hidden="true"><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:38.785%;top:14.895%;width:22.429%;height:4.144%;--i:2" viewBox="-34.09 -103.4 68.18 13.21" aria-hidden="true"><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:58.139%;top:16.308%;width:18.673%;height:13.653%;--i:3" viewBox="24.74 -98.89 56.77 43.54" aria-hidden="true"><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:73.857%;top:27.074%;width:8.841%;height:21.091%;--i:4" viewBox="72.52 -64.56 26.88 67.26" aria-hidden="true"><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><div class="sp-o sp-oR" style="left:13.634%;top:29.157%;width:8.553%;--dx:-884.6%;--dy:576.9%;--i:0;--hi:#ffb59c;--base:#e0442e;--rim:#861a0f;--glow:rgba(255,106,74,0.55);--glow0:rgba(255,106,74,0);--ring:#ff6a4a"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oG" style="left:28.559%;top:13.355%;width:8.553%;--dx:-807.7%;--dy:-673.1%;--i:1;--hi:#a6ecbf;--base:#23a05b;--rim:#0b5a2e;--glow:rgba(79,214,136,0.55);--glow0:rgba(79,214,136,0);--ring:#4fd688"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oW" style="left:50.000%;top:7.495%;width:8.553%;--dx:0.0%;--dy:-923.1%;--i:2;--hi:#fffdf2;--base:#f1e4b4;--rim:#b9a669;--glow:rgba(255,241,191,0.55);--glow0:rgba(255,241,191,0);--ring:#fff1bf"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oU" style="left:71.441%;top:13.355%;width:8.553%;--dx:807.7%;--dy:-673.1%;--i:3;--hi:#a9d9ff;--base:#2586dc;--rim:#0b4c8c;--glow:rgba(82,174,255,0.55);--glow0:rgba(82,174,255,0);--ring:#52aeff"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oB" style="left:86.366%;top:29.157%;width:8.553%;--dx:884.6%;--dy:576.9%;--i:4;--hi:#9a88a8;--base:#2e2436;--rim:#0b070e;--glow:rgba(168,132,208,0.55);--glow0:rgba(168,132,208,0);--ring:#a884d0"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div></div></div></div>
+<div id="splash" aria-hidden="true"><div class="sp-stars"></div><div class="sp-stage"><div class="sp-title"><span class="sp-name">Terreta</span><span class="sp-tcg">TCG</span></div><div class="sp-art"><svg class="sp-layer sp-glow" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><radialGradient id="sp-glowg"><stop offset="0" class="mt-g"/><stop offset="0.45" class="mt-g" stop-opacity="0.45"/><stop offset="1" class="mt-g" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="-30" rx="138" ry="112" fill="url(#sp-glowg)"/></svg><div class="sp-archwrap"><svg class="sp-layer sp-dim" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><linearGradient id="sp-dimstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-d0"/><stop offset="1" class="mt-d1"/></linearGradient><radialGradient id="sp-shadow" cx="0" cy="156" r="160" gradientTransform="translate(0 156) scale(1 0.09) translate(0 -156)" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-sh"/><stop offset="1" class="mt-sh" stop-opacity="0"/></radialGradient></defs><ellipse cx="0" cy="156" rx="160" ry="14" fill="url(#sp-shadow)"/><g fill="url(#sp-dimstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g><path class="mt-ol" d="M-118.24 -37.9 A123 123 0 0 1 118.24 -37.9" fill="none" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/></svg><svg class="sp-layer sp-lit" viewBox="-152 -150.9 304 318.9" aria-hidden="true"><defs><linearGradient id="sp-litstone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient></defs><g fill="url(#sp-litstone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><g><path d="M-139 0 H-47 V9 H-139 Z" fill="#fff" fill-opacity="0.03"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z" fill="#000" fill-opacity="0.03"/><path d="M-129 24 H-102.39 V43.5 H-129 Z" fill="#000" fill-opacity="0.04"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z" fill="#fff" fill-opacity="0.01"/><path d="M-129 45 H-79.35 V64.5 H-129 Z" fill="#000" fill-opacity="0.05"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z" fill="#000" fill-opacity="0.01"/><path d="M-129 66 H-105.27 V85.5 H-129 Z" fill="#000" fill-opacity="0.02"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z" fill="#000" fill-opacity="0.05"/><path d="M-129 87 H-77.91 V106.5 H-129 Z" fill="#000" fill-opacity="0.01"/><path d="M-134 108 H-52 V124.5 H-134 Z" fill="#000" fill-opacity="0.02"/><path d="M-97.15 126 H-44 V156 H-97.15 Z" fill="#000" fill-opacity="0.1"/><path d="M-142 126 H-98.65 V156 H-142 Z" fill="#000" fill-opacity="0.06"/><path d="M47 0 H139 V9 H47 Z" fill="#fff" fill-opacity="0.03"/><path d="M57 24 H100.89 V43.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M102.39 24 H129 V43.5 H102.39 Z" fill="#000" fill-opacity="0.05"/><path d="M57 45 H77.85 V64.5 H57 Z" fill="#000" fill-opacity="0.02"/><path d="M79.35 45 H129 V64.5 H79.35 Z" fill="#fff" fill-opacity="0.02"/><path d="M57 66 H103.77 V85.5 H57 Z" fill="#000" fill-opacity="0.05"/><path d="M105.27 66 H129 V85.5 H105.27 Z" fill="#000" fill-opacity="0.04"/><path d="M77.91 87 H129 V106.5 H77.91 Z" fill="#fff" fill-opacity="0.03"/><path d="M52 108 H134 V124.5 H52 Z" fill="#000" fill-opacity="0.02"/><path d="M44 126 H97.15 V156 H44 Z" fill="#000" fill-opacity="0.04"/><path d="M98.65 126 H142 V156 H98.65 Z" fill="#000" fill-opacity="0.06"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z" fill="#fff" fill-opacity="0.04"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z" fill="#000" fill-opacity="0.06"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z" fill="#fff" fill-opacity="0.03"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z" fill="#000" fill-opacity="0.03"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z" fill="#000" fill-opacity="0.05"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z" fill="#000" fill-opacity="0.05"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z" fill="#000" fill-opacity="0.03"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z" fill="#fff" fill-opacity="0.02"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z" fill="#000" fill-opacity="0.04"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z" fill="#000" fill-opacity="0.02"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z" fill="#000" fill-opacity="0.01"/></g><g class="mt-bev"><path d="M-100.89 40.9 H-57 V43.5 H-100.89 Z"/><path d="M-129 40.9 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 61.9 H-57 V64.5 H-77.85 Z"/><path d="M-129 61.9 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 82.9 H-57 V85.5 H-103.77 Z"/><path d="M-129 82.9 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 103.9 H-57 V106.5 H-76.41 Z"/><path d="M-129 103.9 H-77.91 V106.5 H-129 Z"/><path d="M-134 121.9 H-52 V124.5 H-134 Z"/><path d="M-139 6.8 H-47 V9 H-139 Z"/><path d="M-97.15 153 H-44 V156 H-97.15 Z"/><path d="M-142 153 H-98.65 V156 H-142 Z"/><path d="M57 40.9 H100.89 V43.5 H57 Z"/><path d="M102.39 40.9 H129 V43.5 H102.39 Z"/><path d="M57 61.9 H77.85 V64.5 H57 Z"/><path d="M79.35 61.9 H129 V64.5 H79.35 Z"/><path d="M57 82.9 H103.77 V85.5 H57 Z"/><path d="M105.27 82.9 H129 V85.5 H105.27 Z"/><path d="M57 103.9 H76.41 V106.5 H57 Z"/><path d="M77.91 103.9 H129 V106.5 H77.91 Z"/><path d="M52 121.9 H134 V124.5 H52 Z"/><path d="M47 6.8 H139 V9 H47 Z"/><path d="M44 153 H97.15 V156 H44 Z"/><path d="M98.65 153 H142 V156 H98.65 Z"/><path d="M57 -4.75 A57 57 0 0 0 55.52 -16.91 L58.3 -17.31 A59.8 59.8 0 0 1 59.79 -5.03 Z"/><path d="M55.16 -18.37 A57 57 0 0 0 50.82 -29.82 L53.42 -30.88 A59.8 59.8 0 0 1 57.81 -19.31 Z"/><path d="M50.12 -31.15 A57 57 0 0 0 43.16 -41.23 L45.43 -42.88 A59.8 59.8 0 0 1 52.47 -32.69 Z"/><path d="M42.16 -42.36 A57 57 0 0 0 32.99 -50.48 L34.81 -52.62 A59.8 59.8 0 0 1 44.07 -44.42 Z"/><path d="M31.76 -51.33 A57 57 0 0 0 20.91 -57.03 L22.16 -59.54 A59.8 59.8 0 0 1 33.12 -53.79 Z"/><path d="M19.51 -57.56 A57 57 0 0 0 7.61 -60.49 L8.23 -63.23 A59.8 59.8 0 0 1 20.24 -60.27 Z"/><path d="M6.13 -60.67 A57 57 0 0 0 -6.13 -60.67 L-6.19 -63.48 A59.8 59.8 0 0 1 6.19 -63.48 Z"/><path d="M-7.61 -60.49 A57 57 0 0 0 -19.51 -57.56 L-20.24 -60.27 A59.8 59.8 0 0 1 -8.23 -63.23 Z"/><path d="M-20.91 -57.03 A57 57 0 0 0 -31.76 -51.33 L-33.12 -53.79 A59.8 59.8 0 0 1 -22.16 -59.54 Z"/><path d="M-32.99 -50.48 A57 57 0 0 0 -42.16 -42.36 L-44.07 -44.42 A59.8 59.8 0 0 1 -34.81 -52.62 Z"/><path d="M-43.16 -41.23 A57 57 0 0 0 -50.12 -31.15 L-52.47 -32.69 A59.8 59.8 0 0 1 -45.43 -42.88 Z"/><path d="M-50.82 -29.82 A57 57 0 0 0 -55.16 -18.37 L-57.81 -19.31 A59.8 59.8 0 0 1 -53.42 -30.88 Z"/><path d="M-55.52 -16.91 A57 57 0 0 0 -57 -4.75 L-59.79 -5.03 A59.8 59.8 0 0 1 -58.3 -17.31 Z"/></g></svg></div><svg class="sp-rimseg" style="left:17.303%;top:27.074%;width:8.841%;height:21.091%;--i:0" viewBox="-99.4 -64.56 26.88 67.26" aria-hidden="true"><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 -76.72 -60.36" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="-95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="-95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:23.187%;top:16.308%;width:18.673%;height:13.653%;--i:1" viewBox="-81.51 -98.89 56.77 43.54" aria-hidden="true"><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-77.31 -59.55 A95.2 95.2 0 0 1 -28.94 -94.69" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:38.785%;top:14.895%;width:22.429%;height:4.144%;--i:2" viewBox="-34.09 -103.4 68.18 13.21" aria-hidden="true"><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M-29.89 -94.39 A95.2 95.2 0 0 1 29.89 -94.39" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:58.139%;top:16.308%;width:18.673%;height:13.653%;--i:3" viewBox="24.74 -98.89 56.77 43.54" aria-hidden="true"><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M28.94 -94.69 A95.2 95.2 0 0 1 77.31 -59.55" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/></svg><svg class="sp-rimseg" style="left:73.857%;top:27.074%;width:8.841%;height:21.091%;--i:4" viewBox="72.52 -64.56 26.88 67.26" aria-hidden="true"><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="7" opacity="0.2"/><path d="M76.72 -60.36 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" fill="none" stroke="url(#sp-rim)" stroke-width="2.2" opacity="0.9"/><circle cx="95.2" cy="-1.5" r="3.5" fill="url(#sp-rim)" opacity="0.2"/><circle cx="95.2" cy="-1.5" r="1.1" fill="url(#sp-rim)" opacity="0.9"/></svg><div class="sp-o sp-oR" style="left:13.634%;top:29.157%;width:8.553%;--dx:-884.6%;--dy:576.9%;--i:0;--hi:#ffb59c;--base:#e0442e;--rim:#861a0f;--glow:rgba(255,106,74,0.55);--glow0:rgba(255,106,74,0);--ring:#ff6a4a"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oG" style="left:28.559%;top:13.355%;width:8.553%;--dx:-807.7%;--dy:-673.1%;--i:1;--hi:#a6ecbf;--base:#23a05b;--rim:#0b5a2e;--glow:rgba(79,214,136,0.55);--glow0:rgba(79,214,136,0);--ring:#4fd688"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oW" style="left:50.000%;top:7.495%;width:8.553%;--dx:0.0%;--dy:-923.1%;--i:2;--hi:#fffdf2;--base:#f1e4b4;--rim:#b9a669;--glow:rgba(255,241,191,0.55);--glow0:rgba(255,241,191,0);--ring:#fff1bf"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oU" style="left:71.441%;top:13.355%;width:8.553%;--dx:807.7%;--dy:-673.1%;--i:3;--hi:#a9d9ff;--base:#2586dc;--rim:#0b4c8c;--glow:rgba(82,174,255,0.55);--glow0:rgba(82,174,255,0);--ring:#52aeff"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div><div class="sp-o sp-oB" style="left:86.366%;top:29.157%;width:8.553%;--dx:884.6%;--dy:576.9%;--i:4;--hi:#9a88a8;--base:#2e2436;--rim:#0b070e;--glow:rgba(168,132,208,0.55);--glow0:rgba(168,132,208,0);--ring:#a884d0"><i class="sp-burst"></i><div class="sp-fx-x"><div class="sp-fx-y"><div class="sp-pop"><i class="sp-halo"></i><i class="sp-ball"></i></div></div></div></div></div></div></div>
 <script>
 /* Intro runner. Skips itself under automation (navigator.webdriver) and when turned off in Ajustes.
    While it plays the app underneath stays hidden (html.sp-on) so the phone only has to animate the
@@ -1266,7 +1296,7 @@ window.runSplash = function(el, opts){
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="wordmark" role="img" aria-label="MagicTerreta"><svg class="app-emblem" viewBox="-146 -144 292 304" aria-hidden="true"><defs><linearGradient id="hdr-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="hdr-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="hdr-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="hdr-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="hdr-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="hdr-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="hdr-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="hdr-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><g fill="url(#hdr-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><path class="" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#hdr-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><g transform="translate(-110.55 -57.92)"><circle r="13" fill="url(#hdr-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(-65.18 -108.31)"><circle r="13" fill="url(#hdr-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(0 -127)"><circle r="13" fill="url(#hdr-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(65.18 -108.31)"><circle r="13" fill="url(#hdr-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(110.55 -57.92)"><circle r="13" fill="url(#hdr-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></svg><span class="mark"><b>Magic</b>Terreta</span></div>
+    <div class="wordmark" role="img" aria-label="Terreta TCG"><svg class="app-emblem" viewBox="-146 -144 292 304" aria-hidden="true"><defs><linearGradient id="hdr-stone" x1="0" y1="-97" x2="0" y2="156" gradientUnits="userSpaceOnUse"><stop offset="0" class="mt-s0"/><stop offset="1" class="mt-s1"/></linearGradient><linearGradient id="hdr-rim" x1="-93" y1="0" x2="93" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6a4a"/><stop offset="0.25" stop-color="#4fd688"/><stop offset="0.5" stop-color="#fff1bf"/><stop offset="0.75" stop-color="#52aeff"/><stop offset="1" stop-color="#a884d0"/></linearGradient><radialGradient id="hdr-orbR" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#ffb59c"/><stop offset="0.5" stop-color="#e0442e"/><stop offset="1" stop-color="#861a0f"/></radialGradient><radialGradient id="hdr-haloR"><stop offset="0.35" stop-color="#ff6a4a" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a4a" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbG" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a6ecbf"/><stop offset="0.5" stop-color="#23a05b"/><stop offset="1" stop-color="#0b5a2e"/></radialGradient><radialGradient id="hdr-haloG"><stop offset="0.35" stop-color="#4fd688" stop-opacity="0.55"/><stop offset="1" stop-color="#4fd688" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbW" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#fffdf2"/><stop offset="0.5" stop-color="#f1e4b4"/><stop offset="1" stop-color="#b9a669"/></radialGradient><radialGradient id="hdr-haloW"><stop offset="0.35" stop-color="#fff1bf" stop-opacity="0.55"/><stop offset="1" stop-color="#fff1bf" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbU" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#a9d9ff"/><stop offset="0.5" stop-color="#2586dc"/><stop offset="1" stop-color="#0b4c8c"/></radialGradient><radialGradient id="hdr-haloU"><stop offset="0.35" stop-color="#52aeff" stop-opacity="0.55"/><stop offset="1" stop-color="#52aeff" stop-opacity="0"/></radialGradient><radialGradient id="hdr-orbB" cx="0.36" cy="0.32" r="0.78"><stop offset="0" stop-color="#9a88a8"/><stop offset="0.5" stop-color="#2e2436"/><stop offset="1" stop-color="#0b070e"/></radialGradient><radialGradient id="hdr-haloB"><stop offset="0.35" stop-color="#a884d0" stop-opacity="0.55"/><stop offset="1" stop-color="#a884d0" stop-opacity="0"/></radialGradient></defs><g fill="url(#hdr-stone)"><path d="M-139 0 H-47 V9 H-139 Z"/><path d="M-49 10.5 L-137 10.5 C-131 12.5 -130 16.5 -129 22.5 L-57 22.5 C-56 16.5 -55 12.5 -49 10.5 Z"/><path d="M-100.89 24 H-57 V43.5 H-100.89 Z"/><path d="M-129 24 H-102.39 V43.5 H-129 Z"/><path d="M-77.85 45 H-57 V64.5 H-77.85 Z"/><path d="M-129 45 H-79.35 V64.5 H-129 Z"/><path d="M-103.77 66 H-57 V85.5 H-103.77 Z"/><path d="M-129 66 H-105.27 V85.5 H-129 Z"/><path d="M-76.41 87 H-57 V106.5 H-76.41 Z"/><path d="M-129 87 H-77.91 V106.5 H-129 Z"/><path d="M-134 108 H-52 V124.5 H-134 Z"/><path d="M-97.15 126 H-44 V156 H-97.15 Z"/><path d="M-142 126 H-98.65 V156 H-142 Z"/><path d="M47 0 H139 V9 H47 Z"/><path d="M49 10.5 L137 10.5 C131 12.5 130 16.5 129 22.5 L57 22.5 C56 16.5 55 12.5 49 10.5 Z"/><path d="M57 24 H100.89 V43.5 H57 Z"/><path d="M102.39 24 H129 V43.5 H102.39 Z"/><path d="M57 45 H77.85 V64.5 H57 Z"/><path d="M79.35 45 H129 V64.5 H79.35 Z"/><path d="M57 66 H103.77 V85.5 H57 Z"/><path d="M105.27 66 H129 V85.5 H105.27 Z"/><path d="M57 87 H76.41 V106.5 H57 Z"/><path d="M77.91 87 H129 V106.5 H77.91 Z"/><path d="M52 108 H134 V124.5 H52 Z"/><path d="M44 126 H97.15 V156 H44 Z"/><path d="M98.65 126 H142 V156 H98.65 Z"/><path d="M57 -1.5 L93 -1.5 L93 -4 A93 93 0 0 0 90.47 -25.53 L55.52 -16.91 A57 57 0 0 1 57 -4 Z"/><path d="M90.12 -26.98 A93 93 0 0 0 82.69 -46.55 L50.82 -29.82 A57 57 0 0 1 55.16 -18.37 Z"/><path d="M82 -47.88 A93 93 0 0 0 70.11 -65.11 L43.16 -41.23 A57 57 0 0 1 50.12 -31.15 Z"/><path d="M69.11 -66.23 A93 93 0 0 0 53.45 -80.11 L32.99 -50.48 A57 57 0 0 1 42.16 -42.36 Z"/><path d="M52.21 -80.96 A93 93 0 0 0 33.68 -90.69 L20.91 -57.03 A57 57 0 0 1 31.76 -51.33 Z"/><path d="M32.28 -91.22 A93 93 0 0 0 11.95 -96.23 L7.61 -60.49 A57 57 0 0 1 19.51 -57.56 Z"/><path d="M10.47 -96.41 A93 93 0 0 0 -10.47 -96.41 L-6.13 -60.67 A57 57 0 0 1 6.13 -60.67 Z"/><path d="M-11.95 -96.23 A93 93 0 0 0 -32.28 -91.22 L-19.51 -57.56 A57 57 0 0 1 -7.61 -60.49 Z"/><path d="M-33.68 -90.69 A93 93 0 0 0 -52.21 -80.96 L-31.76 -51.33 A57 57 0 0 1 -20.91 -57.03 Z"/><path d="M-53.45 -80.11 A93 93 0 0 0 -69.11 -66.23 L-42.16 -42.36 A57 57 0 0 1 -32.99 -50.48 Z"/><path d="M-70.11 -65.11 A93 93 0 0 0 -82 -47.88 L-50.12 -31.15 A57 57 0 0 1 -43.16 -41.23 Z"/><path d="M-82.69 -46.55 A93 93 0 0 0 -90.12 -26.98 L-55.16 -18.37 A57 57 0 0 1 -50.82 -29.82 Z"/><path d="M-90.47 -25.53 A93 93 0 0 0 -93 -4 L-93 -1.5 L-57 -1.5 L-57 -4 A57 57 0 0 1 -55.52 -16.91 Z"/></g><path class="" d="M-95.2 -1.5 L-95.2 -4 A95.2 95.2 0 0 1 95.2 -4 L95.2 -1.5" pathLength="100" fill="none" stroke="url(#hdr-rim)" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/><g transform="translate(-110.55 -57.92)"><circle r="13" fill="url(#hdr-orbR)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(-65.18 -108.31)"><circle r="13" fill="url(#hdr-orbG)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(0 -127)"><circle r="13" fill="url(#hdr-orbW)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(65.18 -108.31)"><circle r="13" fill="url(#hdr-orbU)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g><g transform="translate(110.55 -57.92)"><circle r="13" fill="url(#hdr-orbB)"/><circle r="12.4" fill="none" class="mt-ol" stroke-width="1.2"/><ellipse cx="-4.42" cy="-5.46" rx="4.42" ry="2.6" transform="rotate(-30 -4.42 -5.46)" fill="#fff" fill-opacity="0.7"/></g></svg><span class="mark"><b>Terreta</b> TCG</span></div>
   </div>
 </header>
 
@@ -1405,6 +1435,10 @@ window.runSplash = function(el, opts){
         </div>
       </div>
       <div class="settings-row">
+        <div><div class="srlabel">Efectos foil y 3D</div><div class="srsub">Brillo de las cartas foil, reflejos y la vista «Ver en 3D»</div></div>
+        <label class="switch" aria-label="Efectos foil y 3D"><input type="checkbox" id="cardFxToggle"><span class="track"></span><span class="thumb"></span></label>
+      </div>
+      <div class="settings-row">
         <div><div class="srlabel">Animación de inicio</div><div class="srsub">El arco de Cabanes al abrir la app · <button type="button" class="inline-link" id="splashReplayBtn">Ver ahora</button></div></div>
         <label class="switch" aria-label="Animación de inicio"><input type="checkbox" id="splashToggle"><span class="track"></span><span class="thumb"></span></label>
       </div>
@@ -1433,7 +1467,15 @@ window.runSplash = function(el, opts){
     <div id="settingsProgress" hidden>
       <div class="progress-track"><div class="progress-fill" id="settingsProgressFill"></div></div>
     </div>
-    <p class="about-note">Datos de cartas y precios cortesía de <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>. Todo lo que añades se guarda solo en este dispositivo/navegador.</p>
+    <div class="settings-section-title">Información</div>
+    <div class="settings-list">
+      <button type="button" class="settings-row settings-link" id="aboutBtn">
+        <div><div class="srlabel">Acerca de y legal</div><div class="srsub">Créditos, licencias y privacidad</div></div>
+        <span class="settings-chev" aria-hidden="true"></span>
+      </button>
+    </div>
+    <p class="about-note">Terreta TCG es contenido de fans no oficial permitido por la Política de contenido de fans de Wizards of the Coast. No está aprobada ni respaldada por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.<br>
+      Datos, imágenes y precios de cartas: <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>. Todo lo que añades se guarda solo en este dispositivo.</p>
   </section>
 
 </main>
@@ -1663,7 +1705,7 @@ function openDB(){
       db.onversionchange = function(){ db.close(); location.reload(); };
       resolve(db);
     };
-    req.onblocked = function(){ toast('Cierra las otras ventanas de MagicTerreta para terminar de actualizar la app.', 5000); };
+    req.onblocked = function(){ toast('Cierra las otras ventanas de Terreta TCG para terminar de actualizar la app.', 5000); };
     req.onerror = function(){ reject(req.error); };
   });
   return dbPromise;
@@ -1779,7 +1821,7 @@ const state = {
   ocrLoading: false
 };
 function loadSettings(){
-  const defaults = {theme:'auto', currency:'EUR', viewMode:'list', sort:{field:'added', dir:'desc'}, splash:true};
+  const defaults = {theme:'auto', currency:'EUR', viewMode:'list', sort:{field:'added', dir:'desc'}, splash:true, cardFx:true};
   try{ const raw = localStorage.getItem('mtgLedgerSettings'); if(raw) return Object.assign({}, defaults, JSON.parse(raw)); }catch(e){}
   return defaults;
 }
@@ -2588,11 +2630,13 @@ function openDecksWithCard(name){
   const uses = decksUsingName(name);
   const owned = ownedQtyForName(name);
   const need = uses.reduce(function(a,u){ return a + u.qty; }, 0);
+  const dwArts = [];
   const coverOf = function(d){
     const c = d.cards.find(function(x){ return x.commander && (x.imageNormal || x.imageSmall); }) ||
               d.cards.find(function(x){ return (x.imageNormal || x.imageSmall) && !/Land/.test(x.typeLine || ''); });
     if(!c) return '<div class="dw-cover dw-empty">'+icon('layers',18)+'</div>';
     const src = c.imageNormal || c.imageSmall, art = artCropUrl(src);
+    if(art) dwArts.push(art);
     return '<div class="dw-cover"><img src="'+esc(art || src)+'" alt=""'+(art ? '' : ' style="object-position:50% 20%"')+'></div>';
   };
   openModal(
@@ -2607,7 +2651,7 @@ function openDecksWithCard(name){
         '<span class="dw-info"><span class="dw-name">'+esc(u.deck.name)+'</span>'+
         '<span class="dw-sub">'+(u.commander ? icon('crown',11)+' Es el comandante' : (cmds.length ? esc(cmds.join(' & ')) : esc(deckFormat(u.deck) ? formatLabel(deckFormat(u.deck)) : 'Mazo')))+(u.qty > 1 ? ' · ×'+u.qty : '')+'</span></span>'+
         icon('chevron',16)+'</button>';
-    }).join('')+'</div>'
+    }).join('')+'</div>'+artCreditHTML(dwArts, 'art-foot')
   );
   document.querySelectorAll('#modalRoot [data-open-deck]').forEach(function(b){
     b.addEventListener('click', function(){ closeModalThen(function(){ openDeckAtCard(b.dataset.openDeck, name); }); });
@@ -2748,7 +2792,7 @@ function viewerPrice(normal, foilP, isFoil, qty){
 function viewerItemFromCollection(c){
   const p = c.prices || {}, usd = state.settings.currency === 'USD';
   return {
-    name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes),
+    name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes), colors: c.colors || [],
     set: {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang},
     price: viewerPrice(usd ? p.usd : p.eur, usd ? p.usdFoil : p.eurFoil, c.foil, c.quantity),
     sub: '', meta: '',
@@ -2765,6 +2809,7 @@ function viewerItemFromScryCard(card){
   const face = printFace(card);
   const p = card.prices || {}, usd = state.settings.currency === 'USD';
   return { name: card.name, img: face.imageNormal || face.image, back: faceBackUrl(card),
+    colors: card.colors || (card.card_faces && card.card_faces[0] && card.card_faces[0].colors) || [],
     set: {code: card.set, name: card.set_name, rarity: card.rarity, number: card.collector_number, lang: (card.lang || '').toUpperCase()},
     price: viewerPrice(toNum(usd ? p.usd : p.eur), toNum(usd ? p.usd_foil : p.eur_foil), false, 1), sub: '', meta: '' };
 }
@@ -2780,7 +2825,7 @@ function viewerItemByName(c, meta){
   }
   const unit = own != null ? own : deckCardPrice(c.name);
   return {
-    name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '',
+    name: c.name, img: c.imageNormal || c.imageSmall, sub: c.typeLine || '', meta: meta || '', colors: c.colors || [],
     set: c.setCode ? {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang && c.lang !== 'EN' ? c.lang : ''} : null,
     foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes),
     price: unit != null ? {main: fmtMoney(unit, state.settings.currency), foil: !!c.foil, sub: ''} : null,
@@ -2826,7 +2871,7 @@ function openCardViewer(items, startIndex, sourceEl){
   sizeViewer();
   syncSlides(false);
   updateViewerInfo();
-  setViewerBackground(items[startIndex].img, true);
+  setViewerBackground(items[startIndex], true);
   animateViewerOpen();
   bindViewerEvents(stage);
 }
@@ -2847,7 +2892,7 @@ function slideHTML(it){
     '</div></div></div>';
 }
 function classicBackHTML(){
-  return '<img src="'+CLASSIC_BACK_URL+'" alt="Dorso de Magic" draggable="false" onerror="this.parentNode.innerHTML=\'<div class=&quot;card-back-art&quot;><div class=&quot;cb-inner&quot;><img src=&quot;icons/icon-192.png&quot; alt=&quot;&quot;><span>MagicTerreta</span></div></div>\';">'+
+  return '<img src="'+CLASSIC_BACK_URL+'" alt="Dorso de Magic" draggable="false" onerror="this.parentNode.innerHTML=\'<div class=&quot;card-back-art&quot;><div class=&quot;cb-inner&quot;><img src=&quot;icons/icon-192.png&quot; alt=&quot;&quot;><span>Terreta TCG</span></div></div>\';">'+
     '<div class="viewer-glare"></div>';
 }
 /* Fill the back face: other face for double-faced cards, classic back otherwise. */
@@ -2929,14 +2974,27 @@ function updateViewerInfo(){
   if(prev) prev.disabled = viewer.index === 0;
   if(next) next.disabled = viewer.index === viewer.items.length-1;
 }
-function setViewerBackground(url, instant){
+/* The backdrop glows in the card's colours (one soft light per colour). It used to be the card
+   image itself, blurred — Scryfall's image rules don't allow blurring or colour-shifting card
+   images, so the picture is only ever shown as it is. */
+const VIEWER_TINT = {W:'#cdbb86', U:'#2f70bb', B:'#6c5688', R:'#c9472f', G:'#2f9159'};
+const VIEWER_SPOTS = ['22% 16%', '82% 34%', '24% 86%', '80% 84%', '52% 50%'];
+function viewerBgCss(colors){
+  let list = (colors || []).map(function(c){ return VIEWER_TINT[c]; }).filter(Boolean);
+  if(!list.length) list = ['#7a7287']; // colourless, lands, unknown: a cool grey
+  if(list.length === 1) list = [list[0], list[0]];
+  return list.slice(0, 5).map(function(c, i){
+    return 'radial-gradient(ellipse 78% 58% at '+VIEWER_SPOTS[i]+', '+c+(i ? '8c' : 'bf')+', transparent 72%)';
+  }).join(', ')+', #0d0b12';
+}
+function setViewerBackground(item, instant){
   const a = document.querySelector('#viewer .viewer-bg.b1'), b = document.querySelector('#viewer .viewer-bg.b2');
   if(!a || !b) return;
-  const css = 'url("'+String(url).replace(/"/g,'%22')+'")';
-  if(instant){ a.style.backgroundImage = css; return; }
+  const css = viewerBgCss(item && item.colors);
+  if(instant){ a.style.background = css; return; }
   // cross-fade between the two layers
   const show = viewer.bgFlip ? a : b, hide = viewer.bgFlip ? b : a;
-  show.style.backgroundImage = css; show.style.opacity = '1'; hide.style.opacity = '0';
+  show.style.background = css; show.style.opacity = '1'; hide.style.opacity = '0';
   viewer.bgFlip = !viewer.bgFlip;
 }
 function goToSlide(i){
@@ -2949,7 +3007,7 @@ function goToSlide(i){
   syncSlides(true);
   updateViewerInfo();
   if(changed){
-    setViewerBackground(viewer.items[i].img, false);
+    setViewerBackground(viewer.items[i], false);
     // the card you left turns face-up again for next time
     if(old) setTimeout(function(){ old.classList.remove('flipped'); }, 380);
   }
@@ -2969,7 +3027,7 @@ function resetTilt(){
 }
 function applyTilt(nx, ny){ // nx, ny in -1..1
   const el = viewer && viewer.slides[viewer.index];
-  if(!el || prefersReducedMotion() || viewer.insp) return;
+  if(!el || prefersReducedMotion() || viewer.insp || !cardFxOn()) return;
   const t = el.querySelector('.viewer-tilt');
   t.style.transform = 'rotateX('+(-ny*9).toFixed(2)+'deg) rotateY('+(nx*11).toFixed(2)+'deg)';
   el.querySelectorAll('.viewer-glare').forEach(function(g){
@@ -3088,8 +3146,9 @@ function inspFxHTML(kind){ // 'foil' | 'etched' | ''
     '<div class="ifx ifx-glare"></div>';
 }
 function clamp1(v){ return Math.max(-1, Math.min(1, v)); }
+function cardFxOn(){ return state.settings.cardFx !== false; }
 function openInspect(){
-  if(!viewer || viewer.insp || viewer.closing) return;
+  if(!viewer || viewer.insp || viewer.closing || !cardFxOn()) return;
   const it = viewer.items[viewer.index];
   const slide = viewer.slides[viewer.index];
   const fc = currentFlipCard();
@@ -3975,6 +4034,91 @@ function artCropUrl(src){
   if(!src || !/\/\/cards\.scryfall\.io\/(small|normal|large|png)\//.test(src)) return null;
   return src.replace(/(\/\/cards\.scryfall\.io\/)(small|normal|large|png)\//, '$1art_crop/').replace(/\.png(\?|$)/, '.jpg$1');
 }
+/* ---------- Credits for art crops ----------
+   Scryfall's image rules: wherever an art crop (the illustration without the card frame) is
+   shown, the artist and the copyright go in the same screen. Every Scryfall image URL contains
+   the card's id, so the artist is looked up from the image itself: names are cached on the
+   device and fetched in batches of 75 (one /cards/collection request) the first time an
+   illustration shows up; credits already on screen fill in when they arrive. Offline, the
+   credit shows just the copyright until the next time. */
+const ARTIST_KEY = 'mtgArtists';
+const WOTC_COPY = '™ & © Wizards of the Coast';
+let artistCache = null, artistSaveTimer = 0, artistTimer = 0, artistBusy = false;
+const artistQueue = new Set(), artistMissed = {};
+function artistData(){
+  if(!artistCache){ try{ artistCache = JSON.parse(localStorage.getItem(ARTIST_KEY) || '{}') || {}; }catch(e){ artistCache = {}; } }
+  return artistCache;
+}
+function saveArtistsSoon(){
+  clearTimeout(artistSaveTimer);
+  artistSaveTimer = setTimeout(function(){ try{ localStorage.setItem(ARTIST_KEY, JSON.stringify(artistData())); }catch(e){} }, 400);
+}
+/* "<id>" for a front face, "<id>/b" for a back face; null for anything that isn't a Scryfall image */
+function imgArtKey(url){
+  const m = /cards\.scryfall\.io\/[a-z_]+\/(front|back)\/[0-9a-f]\/[0-9a-f]\/([0-9a-f-]{36})\./.exec(url || '');
+  return m ? m[2] + (m[1] === 'back' ? '/b' : '') : null;
+}
+/* remember the artists of a card object we already have (search results, price refresh…) */
+function seedArtists(card){
+  if(!card || !card.id) return;
+  const d = artistData(), faces = card.card_faces || [];
+  const front = (faces[0] && faces[0].artist) || card.artist || '';
+  const back = (faces[1] && faces[1].artist) || front;
+  if(d[card.id] !== front || d[card.id+'/b'] !== back){ d[card.id] = front; d[card.id+'/b'] = back; saveArtistsSoon(); }
+}
+function wantArtists(urls){
+  const d = artistData();
+  urls.forEach(function(u){
+    const k = imgArtKey(u); if(!k) return;
+    const id = k.split('/')[0];
+    if(d[k] === undefined && !artistMissed[id]) artistQueue.add(id);
+  });
+  if(artistQueue.size && !artistTimer && !artistBusy) artistTimer = setTimeout(fetchArtists, 250);
+}
+async function fetchArtists(){
+  artistTimer = 0;
+  if(artistBusy) return;
+  artistBusy = true;
+  try{
+    while(artistQueue.size){
+      const ids = Array.from(artistQueue).slice(0, 75);
+      ids.forEach(function(id){ artistQueue.delete(id); });
+      let ok = false;
+      try{
+        const r = await fetch(SCRYFALL+'/cards/collection', {method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({identifiers: ids.map(function(id){ return {id: id}; })})});
+        if(r.ok){ ok = true; const j = await r.json(); (j.data || []).forEach(seedArtists); }
+      }catch(e){}
+      const d = artistData();
+      ids.forEach(function(id){
+        if(!ok){ artistMissed[id] = true; return; } // offline: try again next time the app opens
+        if(d[id] === undefined){ d[id] = ''; d[id+'/b'] = ''; saveArtistsSoon(); } // Scryfall doesn't know it
+      });
+      refreshArtCredits();
+      if(artistQueue.size) await sleep(120);
+    }
+  } finally { artistBusy = false; }
+}
+/* "Ilustración de A · ™ & © Wizards of the Coast" (short: "Ilus. A · © WotC") */
+function artCreditText(urls, short){
+  const d = artistData(), names = [];
+  urls.forEach(function(u){ const k = imgArtKey(u), a = k ? d[k] : ''; if(a && names.indexOf(a) < 0) names.push(a); });
+  const who = names.length ? (short ? 'Ilus. ' : (names.length > 1 ? 'Ilustraciones de ' : 'Ilustración de '))+joinNames(names) : '';
+  const copy = short ? '© Wizards of the Coast' : WOTC_COPY;
+  return who ? who+' · '+copy : copy;
+}
+function artCreditHTML(urls, cls, short){
+  urls = (urls || []).filter(function(u){ return u && imgArtKey(u); });
+  if(!urls.length) return '';
+  wantArtists(urls);
+  return '<span class="art-credit'+(cls ? ' '+cls : '')+'" data-arts="'+esc(urls.join(' '))+'"'+(short ? ' data-short="1"' : '')+'>'+esc(artCreditText(urls, short))+'</span>';
+}
+function refreshArtCredits(){
+  document.querySelectorAll('.art-credit[data-arts]').forEach(function(el){
+    const t = artCreditText(el.dataset.arts.split(' '), el.dataset.short === '1');
+    if(el.textContent !== t) el.textContent = t;
+  });
+}
 function partnerArtHTML(a, b){
   function layer(c, cls){
     const src = c.imageNormal || c.imageSmall || '';
@@ -3992,6 +4136,15 @@ function partnerArtHTML(a, b){
       '<svg class="partner-divider" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="-2" y1="59" x2="102" y2="41"/></svg>'+
     '</div>'
   );
+}
+/* the illustrations shown by split (partner) deck tiles, for their credit */
+function partnerArtUrls(decks){
+  const out = [];
+  decks.forEach(function(d){
+    const cm = d.cards.filter(function(c){ return c.commander && (c.imageNormal || c.imageSmall); });
+    if(cm.length >= 2) cm.slice(0, 2).forEach(function(c){ const u = artCropUrl(c.imageNormal || c.imageSmall); if(u) out.push(u); });
+  });
+  return out;
 }
 function deckGridItemHTML(deck){
   const s = deckSummary(deck);
@@ -4067,7 +4220,7 @@ function formatArtImgHTML(k, cls){
   const a = formatArtFor(k);
   return a ? '<img class="'+cls+'" src="'+esc(a.url)+'" alt="" decoding="async" draggable="false" onload="this.classList.add(\'in\')" onerror="this.remove()">' : '';
 }
-function formatCreditText(k){ const a = formatArtFor(k); return a ? FORMAT_ART[k].name+(a.artist ? ' · ilustración de '+a.artist : '') : ''; }
+function formatCreditText(k){ const a = formatArtFor(k); return a ? FORMAT_ART[k].name+(a.artist ? ' · ilustración de '+a.artist : '')+' · '+WOTC_COPY : ''; }
 /* art arrived: put it into whatever shows that format right now (slide, folder banner) */
 function paintFormatArt(k){
   document.querySelectorAll('[data-fmt-art="'+k+'"]').forEach(function(box){
@@ -4097,15 +4250,14 @@ function formatStats(k){
 function fmtCountText(n){ return n === 1 ? '1 mazo' : n+' mazos'; }
 function formatSlideHTML(k, i){
   const st = formatStats(k), cur = state.settings.currency;
-  const covers = st.list.map(deckCoverUrl).filter(Boolean);
-  const av = covers.slice(0, 4).map(function(u){ return '<img src="'+esc(u)+'" alt="" loading="lazy" decoding="async" draggable="false">'; }).join('')+
-    (st.n > 4 ? '<span class="fmt-more">+'+(st.n - 4)+'</span>' : '');
+  const names = st.list.slice().sort(function(a,b){ return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0); }).map(function(d){ return d.name; });
+  const av = names.length ? icon('layers',13)+'<span>'+esc(names.slice(0, 3).join(' · '))+(names.length > 3 ? ' +'+(names.length - 3) : '')+'</span>' : '';
   return '<div class="fmt-slide fmt-c-'+(k || 'none')+'" role="button" tabindex="0" data-fmt="'+k+'" data-i="'+i+'" style="--fc:'+FORMAT_ART[k].color+'" aria-label="'+esc(formatLabel(k)+', '+fmtCountText(st.n))+'">'+
     '<div class="fmt-art-box" data-fmt-art="'+k+'">'+formatArtImgHTML(k, 'fmt-art')+'</div>'+
     '<div class="fmt-shade"></div>'+
     '<div class="fmt-top"><span class="fmt-chip">'+icon('layers',13)+' '+fmtCountText(st.n)+'</span>'+(st.value > 0 ? '<span class="fmt-chip fmt-val">'+fmtMoney(st.value, cur)+'</span>' : '')+'</div>'+
     '<div class="fmt-bottom">'+
-      (av ? '<div class="fmt-avatars">'+av+'</div>' : '')+
+      (av ? '<div class="fmt-decks">'+av+'</div>' : '')+
       '<h3 class="fmt-name">'+esc(formatLabel(k))+'</h3>'+
       '<p class="fmt-blurb">'+esc(k ? FORMAT_BLURB[k] : 'Mazos a los que aún no has puesto formato')+'</p>'+
       '<span class="fmt-open">'+(st.n ? 'Ver mazos' : 'Empezar')+' '+icon('chevron',14)+'</span>'+
@@ -4201,7 +4353,7 @@ function openFormatFolder(k){
         '<button class="btn btn-primary" id="fmtNewDeckBtn">'+icon('plus',15)+' Nuevo mazo</button>'+
         '<button class="btn btn-secondary" id="fmtImportDeckBtn">'+icon('upload',15)+' Importar lista</button>'+
       '</div>'+
-      (st.n ? '<div class="card-grid" id="fmtDeckGrid">'+st.list.map(deckGridItemHTML).join('')+'</div>'
+      (st.n ? '<div class="card-grid" id="fmtDeckGrid">'+st.list.map(deckGridItemHTML).join('')+'</div>'+artCreditHTML(partnerArtUrls(st.list), 'art-foot')
             : emptyStateHTML('layers', k ? 'No tienes mazos de '+esc(label)+' todavía.<br>Crea uno o importa una lista.' : 'No hay mazos sin formato.'))+
     '</div>';
   showDetailPanel(panel, 'fmt:'+k);
@@ -4330,15 +4482,17 @@ function heroImgHTML(c, extraCls){
 }
 function deckHeroHTML(deck, s){
   const cmds = deck.cards.filter(function(c){ return c.commander && (c.imageNormal || c.imageSmall); });
-  let art = '';
+  let art = '', shown = [];
   if(cmds.length >= 2){
     art = '<div class="hero-split">'+heroImgHTML(cmds[0], 'a')+heroImgHTML(cmds[1], 'b')+
       '<svg class="hero-divider" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="58" y1="-2" x2="42" y2="102"/></svg></div>';
+    shown = cmds.slice(0, 2);
   } else {
     const pick = cmds[0] || deck.cards.filter(function(c){ return (c.imageNormal || c.imageSmall) && !/land/i.test(c.typeLine || ''); })
       .sort(function(a,b){ return (/creature/i.test(b.typeLine||'') ? 1 : 0) - (/creature/i.test(a.typeLine||'') ? 1 : 0); })[0];
-    if(pick) art = heroImgHTML(pick);
+    if(pick){ art = heroImgHTML(pick); shown = [pick]; }
   }
+  const heroArts = shown.map(function(c){ return artCropUrl(c.imageNormal || c.imageSmall); }).filter(Boolean);
   const allCmds = deck.cards.filter(function(c){ return c.commander; });
   const kicker = [deckFormat(deck) ? formatLabel(deckFormat(deck)) : 'Mazo', deckCountText(s)].join(' · ');
   const identity = s.colors.length ? s.colors : [];
@@ -4354,6 +4508,7 @@ function deckHeroHTML(deck, s){
           '<span class="hero-chip">'+s.unique+' únicas</span>'+
           '<span id="deckValueChips" class="hero-chips-dyn"></span>'+
         '</div>'+
+        artCreditHTML(heroArts, 'deck-hero-credit')+
       '</div>'+
     '</div>';
 }
@@ -5336,6 +5491,7 @@ function renderSettings(){
   document.querySelectorAll('#themeSegmented button').forEach(function(b){ b.classList.toggle('active', b.dataset.theme===state.settings.theme); });
   document.querySelectorAll('#currencySegmented button').forEach(function(b){ b.classList.toggle('active', b.dataset.currency===state.settings.currency); });
   const sp = document.getElementById('splashToggle'); if(sp) sp.checked = state.settings.splash !== false;
+  const fx = document.getElementById('cardFxToggle'); if(fx) fx.checked = cardFxOn();
 }
 /* Replays the intro from Ajustes (works even when it's switched off for app start). */
 function replaySplash(){
@@ -5422,7 +5578,7 @@ async function refreshPricesBatch(onProgress){
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({identifiers: chunk.map(function(id){ return {id:id}; })})
       });
-      if(r.ok){ reached = true; const j = await r.json(); (j.data || []).forEach(function(card){ byId[card.id] = card; }); }
+      if(r.ok){ reached = true; const j = await r.json(); (j.data || []).forEach(function(card){ byId[card.id] = card; seedArtists(card); }); }
     }catch(e){}
     if(onProgress) onProgress(Math.min(ids.length, i+75), ids.length);
     if(i+75 < ids.length) await sleep(110);
@@ -5591,7 +5747,7 @@ async function renderValueHistorySection(){
       (state.decks.length ? '<div class="vh-split">Colección '+fmtMoney(last.coll, currency)+' · Mazos '+fmtMoney(last.decks, currency)+'</div>' : '')+
       deltaHTML+breakdownHTML+'</div>';
   if(all.length < 2){
-    html += '<div class="vh-empty">El registro empieza hoy. MagicTerreta guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
+    html += '<div class="vh-empty">El registro empieza hoy. Terreta TCG guarda el valor de tu colección cada día que abres la app y actualiza los precios una vez al día. Mañana verás aquí cómo evoluciona y qué cartas han subido o bajado.</div>';
     box.innerHTML = html;
     return;
   }
@@ -6733,7 +6889,7 @@ function buildBackup(){
 function backupFileName(ext){
   const d = new Date();
   const p = function(n){ return String(n).padStart(2,'0'); };
-  return 'magicterreta-copia-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.'+ext;
+  return 'terreta-tcg-copia-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.'+ext;
 }
 function markBackupDone(){
   const m = loadBackupMeta(); m.lastBackupAt = Date.now(); saveBackupMeta(m);
@@ -6793,7 +6949,7 @@ function backupShareUnavailable(err){
   document.getElementById('backupFallbackDownloadBtn').addEventListener('click', function(){ downloadBackup(); closeModal(); });
 }
 function validateBackup(b){
-  if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de MagicTerreta');
+  if(!b || typeof b !== 'object' || b.app !== 'ledger' || b.kind !== 'backup') throw new Error('Este archivo no es una copia de seguridad de Terreta TCG');
   if(!Array.isArray(b.cards) || !Array.isArray(b.decks) || !Array.isArray(b.binders)) throw new Error('La copia está incompleta o dañada');
   const bad = function(arr){ return arr.some(function(x){ return !x || typeof x !== 'object' || !x.id; }); };
   if(bad(b.cards) || bad(b.decks) || bad(b.binders)) throw new Error('La copia está incompleta o dañada');
@@ -6830,7 +6986,7 @@ async function restoreBackupFile(file){
   try{
     b = validateBackup(JSON.parse(await file.text()));
   }catch(e){
-    toast(e instanceof SyntaxError ? 'Este archivo no es una copia de seguridad de MagicTerreta' : e.message, 3400);
+    toast(e instanceof SyntaxError ? 'Este archivo no es una copia de seguridad de Terreta TCG' : e.message, 3400);
     return;
   }
   const when = b.createdAt ? new Date(b.createdAt).toLocaleString('es-ES', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'fecha desconocida';
@@ -6914,6 +7070,41 @@ function showDetailPanel(panel, key){
   document.body.classList.add('detail-open');
   if(!detailHasEntry){ navPush(); detailHasEntry = true; }
 }
+/* ---------- Acerca de y legal ---------- */
+const APP_VERSION = '1.0';
+const APP_CONTACT_EMAIL = ''; // the app's own contact address (also in privacidad.html)
+function openAbout(){
+  const panel = document.getElementById('detailPanel');
+  const lic = [
+    ['Keyrune y Mana', 'Andrew Gioia · fuentes con licencia SIL OFL 1.1 y CSS con licencia MIT. Los símbolos de expansión y de maná son ™ & © Wizards of the Coast.'],
+    ['Fraunces', 'The Fraunces Project Authors (Undercase Type) · SIL OFL 1.1'],
+    ['Public Sans', 'The Public Sans Project Authors (USWDS) · SIL OFL 1.1'],
+    ['IBM Plex Mono', 'IBM Corp. · SIL OFL 1.1'],
+    ['Tesseract.js', 'Apache License 2.0 · lector de texto del escáner; se descarga solo al usarlo'],
+    ['Vista 3D', 'Idea inspirada en pokemon-cards-css de Simon Goellner (simeydotme); el código es propio']
+  ];
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="aboutBack" aria-label="Volver">'+icon('back',18)+'</button><h2>Acerca de y legal</h2></div>'+
+    '<div class="detail-body">'+
+      '<div class="ab-head"><img src="icons/icon-192.png" alt=""><div><b>Terreta <span>TCG</span></b><small>Versión '+APP_VERSION+' · gratis, sin anuncios ni compras</small></div></div>'+
+      '<div class="ab-card"><h3>Contenido de fans no oficial</h3>'+
+        '<p>Terreta TCG es contenido de fans no oficial permitido por la Política de contenido de fans de Wizards of the Coast. No está aprobada ni respaldada por Wizards. Partes de los materiales usados son propiedad de Wizards of the Coast. ©Wizards of the Coast LLC.</p>'+
+        '<p class="ab-quote" lang="en">Terreta TCG is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>'+
+        '<p>Magic: The Gathering, los nombres de las cartas, sus textos e ilustraciones, y los símbolos de maná y de expansión son marcas y propiedad de Wizards of the Coast LLC. <a href="https://company.wizards.com/es/legal/fancontentpolicy" target="_blank" rel="noopener">Política de contenido de fans</a></p></div>'+
+      '<div class="ab-card"><h3>Datos e imágenes de cartas</h3>'+
+        '<p>Los datos, las imágenes y los precios de las cartas vienen de <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>. Terreta TCG no está creada, respaldada ni afiliada con Scryfall.</p>'+
+        '<p>Las ilustraciones recortadas llevan al lado el nombre de su artista. Los precios (Cardmarket y TCGplayer, a través de Scryfall) son orientativos y pueden ir con un día de retraso.</p></div>'+
+      '<div class="ab-card"><h3>Privacidad</h3>'+
+        '<p>Todo lo que guardas —colección, mazos, carpetas, deseos, partidas y jugadores— se queda en este dispositivo. No hay cuentas, ni analítica, ni publicidad.</p>'+
+        '<p>La app se conecta a Scryfall para buscar cartas, imágenes y precios. Solo si usas el escáner descarga el lector de texto; la imagen de la cámara se procesa en el propio móvil y no se envía a ningún sitio.</p>'+
+        '<p><a href="./privacidad.html" target="_blank" rel="noopener">Política de privacidad completa</a></p></div>'+
+      '<div class="ab-card"><h3>Licencias de terceros</h3><ul class="ab-lic">'+lic.map(function(x){ return '<li><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></li>'; }).join('')+'</ul>'+
+        '<p><a href="./vendor/LICENSES.txt" target="_blank" rel="noopener">Textos de las licencias</a></p></div>'+
+      (APP_CONTACT_EMAIL ? '<div class="ab-card"><h3>Contacto</h3><p>¿Un fallo o una idea? Escribe a <a href="mailto:'+esc(APP_CONTACT_EMAIL)+'">'+esc(APP_CONTACT_EMAIL)+'</a></p></div>' : '')+
+    '</div>';
+  showDetailPanel(panel, 'about');
+  document.getElementById('aboutBack').addEventListener('click', navBack);
+}
 function hideDetailPanel(animated){
   const panel = document.getElementById('detailPanel');
   detailHasEntry = false;
@@ -6967,7 +7158,7 @@ function applyTopLayer(){
   if(state.tab !== HOME_TAB){ switchTab(HOME_TAB, true); }
 }
 function requestExitConfirm(){
-  if(confirm('¿Seguro que quieres salir de MagicTerreta?')){
+  if(confirm('¿Seguro que quieres salir de Terreta TCG?')){
     history.back(); // nothing of ours left pushed: this lets the app actually close
   } else {
     pushNavGuard(); // restore the buffer so the next back press behaves the same way
@@ -7133,7 +7324,7 @@ function renderGames(){
       if(topC){
         html += '<div class="hl-card hl-cmd">'+(topC.art ? '<img src="'+esc(topC.art)+'" alt="" loading="lazy">' : '')+'<div class="hl-shade"></div>'+
           '<span class="hl-kicker">'+icon('crown',13)+' Comandante top</span><b class="hl-name">'+esc(topC.name)+'</b>'+
-          '<span class="hl-sub">'+topC.wins+' '+(topC.wins === 1 ? 'victoria' : 'victorias')+' de '+topC.games+'</span></div>';
+          '<span class="hl-sub">'+topC.wins+' '+(topC.wins === 1 ? 'victoria' : 'victorias')+' de '+topC.games+'</span>'+artCreditHTML(topC.art ? [topC.art] : [], '', true)+'</div>';
       }
       html += '</div>';
     }
@@ -7156,7 +7347,7 @@ function renderGames(){
           (x.art ? '<img class="rk-art" src="'+esc(x.art)+'" alt="" loading="lazy">' : '<span class="rk-av">'+icon('crown',14)+'</span>')+
           '<div class="rk-main"><b>'+esc(x.name)+'</b><small>'+x.wins+' de '+x.games+' · '+esc(joinNames(by.slice(0, 3)))+'</small></div>'+
           '<div class="rk-pct"><span>'+pct+'%</span><i><em style="width:'+pct+'%"></em></i></div></div>';
-      }).join('')+'</div>';
+      }).join('')+'</div>'+artCreditHTML(cs.slice(0, 8).map(function(x){ return x.art; }), 'art-foot');
     }
     // history
     const hist = games.slice().sort(function(a,b){ return b.endedAt - a.endedAt; });
@@ -7278,6 +7469,7 @@ function renderGameSetup(){
             (isCmd && c.length === 1 ? '<button class="gs-partner" data-seat-partner="'+i+'">+ Partner</button>' : '')+
           '</div></div>';
       }).join('')+'</div>'+
+      artCreditHTML(s.seats.slice(0, s.n).map(function(x){ return x.commanders && x.commanders[0] && x.commanders[0].art; }), 'art-foot')+
       (liveGame ? '<p class="section-note gs-warn">'+icon('alert',13)+' Tienes una partida a medias: si empiezas otra, aquella se descarta.</p>' : '')+
       '<button class="btn btn-primary btn-block gs-start" id="gsStart">'+icon('play',15)+' Empezar partida</button>'+
     '</div>';
@@ -7326,14 +7518,16 @@ function openCommanderPicker(i, partner){
   const s = gameSetup, seat = setupSeat(i), isCmd = s.format === 'commander';
   const who = seat.name.trim() || 'Jugador '+(i + 1);
   const decks = partner ? [] : state.decks.filter(function(d){ const f = deckFormat(d); return isCmd ? f === 'commander' : (s.format === 'other' ? f !== 'commander' : f === s.format); });
+  const deckArts = [];
   openModal('<h3 class="modal-title">'+icon(isCmd ? 'crown' : 'layers',20)+' '+(isCmd ? (partner ? 'Segundo comandante' : 'Comandante') : 'Mazo')+' de '+esc(who)+'</h3>'+
     '<input class="text-input" id="cpSearch" placeholder="'+(isCmd ? 'Busca un comandante…' : 'Busca una carta de ese mazo…')+'" autocomplete="off" enterkeyhint="search">'+
     (decks.length ? '<div class="cp-sub">Tus mazos</div><div class="cp-list">'+decks.map(function(d){
       const cm = d.cards.filter(function(c){ return c.commander; });
       const art = deckCoverUrl(d);
+      if(art) deckArts.push(art);
       return '<button class="cp-item" data-cp-deck="'+esc(d.id)+'">'+(art ? '<img src="'+esc(art)+'" alt="" loading="lazy">' : '<span class="cp-ph">'+icon('layers',16)+'</span>')+
         '<span><b>'+esc(d.name)+'</b><small>'+esc(cm.length ? cmdNames(cm) : formatLabel(deckFormat(d)))+'</small></span></button>';
-    }).join('')+'</div>' : '')+
+    }).join('')+'</div>'+artCreditHTML(deckArts, 'art-foot') : '')+
     '<div class="cp-sub" id="cpResTitle" hidden>'+(isCmd ? 'Comandantes' : 'Cartas')+'</div><div class="cp-list" id="cpResults"></div>'+
     ((partner ? seat.commanders.length > 1 : seat.commanders.length) ? '<button class="btn btn-secondary btn-block" id="cpClear" style="margin-top:.8rem;">'+icon('x',14)+' Quitar '+(partner ? 'el segundo comandante' : (isCmd ? 'comandante' : 'mazo'))+'</button>' : '')
   );
@@ -7350,11 +7544,14 @@ function openCommanderPicker(i, partner){
       if(my !== seq) return;
       const j = r.ok ? await r.json() : {data: []};
       found = (j.data || []).slice(0, 10);
+      found.forEach(seedArtists);
+      const arts = [];
       res.innerHTML = found.length ? found.map(function(c, k){
         const face = (c.image_uris || (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris) || {});
+        if(face.art_crop) arts.push(face.art_crop);
         return '<button class="cp-item" data-cp-card="'+k+'">'+(face.art_crop ? '<img src="'+esc(face.art_crop)+'" alt="" loading="lazy">' : '<span class="cp-ph">'+icon('crown',16)+'</span>')+
           '<span><b>'+esc(c.name)+'</b><small>'+esc(c.type_line || '')+'</small></span></button>';
-      }).join('') : '<div class="cp-msg">No se ha encontrado nada con «'+esc(q)+'».</div>';
+      }).join('')+artCreditHTML(arts, 'art-foot') : '<div class="cp-msg">No se ha encontrado nada con «'+esc(q)+'».</div>';
     }catch(e){ if(my === seq) res.innerHTML = '<div class="cp-msg">Sin conexión: elige uno de tus mazos o inténtalo luego.</div>'; }
   }, 280);
   document.getElementById('cpSearch').addEventListener('input', function(e){ search(e.target.value.trim()); });
@@ -7417,7 +7614,8 @@ function lcPanelHTML(i){
   return '<div class="lp" data-seat="'+i+'" data-rot="'+pos.rot+'" style="grid-row:'+pos.r+'; grid-column:'+pos.c+'; --pc:'+PC_DARK[p.color]+'; --rot:'+pos.rot+'deg">'+
     '<div class="lp-inner">'+
       '<div class="lp-bg">'+bg+'</div><div class="lp-shade"></div>'+
-      '<div class="lp-head"><span class="lp-name">'+esc(p.name)+'</span>'+(p.commanders.length ? '<span class="lp-cmd">'+esc(p.commanders.map(function(c){ return shortCardName(c.name); }).join(' + '))+'</span>' : '')+'</div>'+
+      '<div class="lp-head"><span class="lp-name">'+esc(p.name)+'</span>'+(p.commanders.length ? '<span class="lp-cmd">'+esc(p.commanders.map(function(c){ return shortCardName(c.name); }).join(' + '))+'</span>' : '')+
+        artCreditHTML(arts.slice(0, 2).map(function(c){ return c.art; }), 'lp-credit', true)+'</div>'+
       '<div class="lp-center"><span class="lp-delta" data-delta></span><span class="lp-life" data-life></span></div>'+
       '<div class="lp-badges" data-badges></div>'+
       '<button class="lp-zone minus" data-seat="'+i+'" data-sign="-1" aria-label="Restar vida a '+esc(p.name)+'"><span>−</span></button>'+
@@ -7865,7 +8063,8 @@ function lcOpenSaveSheet(w, auto, fmt){
         '<div class="sv-fmts" role="radiogroup" aria-label="Formato de la partida">'+GAME_FMT_ORDER.map(function(f){ return '<button role="radio" aria-checked="'+(f === lc.saveFmt)+'" data-lc="savefmt" data-fmt="'+f+'" class="'+(f === lc.saveFmt ? 'active' : '')+'">'+GAME_FORMATS[f].label+'</button>'; }).join('')+'</div>'+
         '<div class="sv-actions"><button class="btn sv-no" data-lc="nosave">'+icon('x',14)+' No guardar</button>'+
         '<button class="btn btn-primary" data-lc="save">'+icon('check',15)+' Guardar</button></div></div>'+
-      '<button class="btn vic-keep btn-block" data-lc="keep">'+(auto ? 'Seguir jugando' : 'Volver a la partida')+'</button></div>', auto ? 'victory' : 'save');
+      '<button class="btn vic-keep btn-block" data-lc="keep">'+(auto ? 'Seguir jugando' : 'Volver a la partida')+'</button>'+
+      artCreditHTML(art ? [art] : [], 'vic-credit')+'</div>', auto ? 'victory' : 'save');
 }
 function lcOpenEnd(){
   const g = liveGame;
@@ -7919,7 +8118,8 @@ function openGameDetail(id){
     '<div class="detail-body">'+
       '<div class="gd-hero">'+(wArt ? '<img src="'+esc(wArt.art)+'" alt="">' : '')+'<div class="gd-shade"></div>'+
         '<div class="gd-hero-in">'+(w ? '<span class="gd-kicker">'+icon('crown',13)+' Ganó</span><b>'+esc(playerName(w.pid, w.name))+'</b>'+(w.commanders && w.commanders.length ? '<small>'+esc(cmdNames(w.commanders))+'</small>' : '') : '<b>Sin ganador</b>')+
-        '<div class="gd-chips"><span>'+icon('clock',12)+' '+fmtDuration(g.durationSec)+'</span>'+(g.turns ? '<span>'+g.turns+' rondas</span>' : '')+'<span>'+gameFmtLabel(g)+' · '+g.startLife+' vidas</span></div></div></div>'+
+        '<div class="gd-chips"><span>'+icon('clock',12)+' '+fmtDuration(g.durationSec)+'</span>'+(g.turns ? '<span>'+g.turns+' rondas</span>' : '')+'<span>'+gameFmtLabel(g)+' · '+g.startLife+' vidas</span></div>'+
+        artCreditHTML(wArt ? [wArt.art] : [], '')+'</div></div>'+
       '<div class="settings-section-title">Clasificación</div>'+
       '<div class="gd-table" role="table">'+order.map(function(i){
         const p = g.players[i];
@@ -8230,6 +8430,12 @@ async function init(){
     toast(e.target.checked ? 'La animación saldrá al abrir la app' : 'La app se abrirá sin animación');
   });
   document.getElementById('splashReplayBtn').addEventListener('click', replaySplash);
+  document.getElementById('cardFxToggle').addEventListener('change', function(e){
+    state.settings.cardFx = e.target.checked; saveSettings();
+    document.documentElement.classList.toggle('no-card-fx', !e.target.checked);
+    toast(e.target.checked ? 'Efectos foil y 3D activados' : 'Las cartas se verán tal cual, sin brillos ni 3D');
+  });
+  document.getElementById('aboutBtn').addEventListener('click', openAbout);
   document.getElementById('currencySegmented').addEventListener('click', function(e){
     const b = e.target.closest('button'); if(!b) return;
     state.settings.currency = b.dataset.currency; saveSettings(); renderSettings(); renderCollection(); renderStats(); renderWishlist();
