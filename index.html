@@ -257,6 +257,45 @@
   .add-hint{color:var(--ink-soft); font-size:.88rem; line-height:1.55; margin:.4rem .1rem;}
   .add-sec-title{font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; margin:1.3rem .1rem .7rem;}
   .add-scan-btn{width:100%; justify-content:center; gap:.5rem;}
+  .add-entry{display:grid; grid-template-columns:1fr 1fr; gap:.5rem;}
+  .add-entry .btn{padding-left:.5rem; padding-right:.5rem;}
+  /* ---------- Pegar una lista ---------- */
+  .paste-area{min-height:12.5rem; resize:vertical; font-family:var(--font-mono); font-size:.86rem; line-height:1.5;}
+  .paste-actions{display:grid; grid-template-columns:auto 1fr; gap:.5rem; margin-top:.6rem;}
+  .paste-actions .btn{justify-content:center;}
+  .paste-count{font-size:.78rem; color:var(--ink-soft); margin:.5rem .1rem 0;}
+  .paste-examples{margin:.9rem .1rem 0; font-size:.78rem; color:var(--ink-soft); line-height:1.6;}
+  .paste-examples code{font-family:var(--font-mono); font-size:.76rem; background:var(--surface-2); padding:.05rem .35rem; border-radius:5px; color:var(--ink);}
+  .pst-sum{display:flex; flex-wrap:wrap; gap:.4rem; margin:.1rem 0 .9rem;}
+  .pst-sum span{display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; font-weight:600; padding:.3rem .65rem; border-radius:999px; background:var(--surface-2); color:var(--ink-soft);}
+  .pst-sum .ok{background:var(--good-soft); color:var(--good);} .pst-sum .warn{background:var(--warn-soft); color:var(--warn);} .pst-sum .bad{background:var(--danger-soft); color:var(--danger);}
+  .pst-group{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-l); padding:.15rem .8rem; margin-bottom:1rem; box-shadow:var(--shadow);}
+  .pst-row{display:flex; gap:.65rem; align-items:flex-start; padding:.6rem 0; border-bottom:1px solid var(--line);}
+  .pst-row:last-child{border-bottom:none;}
+  .pst-row .card-thumb{margin-top:2px;}
+  .pst-miss{width:40px; height:56px; border-radius:5px; flex:none; display:grid; place-items:center; background:var(--danger-soft); color:var(--danger);}
+  .pst-main{flex:1; min-width:0;}
+  .pst-name{font-family:var(--font-display); font-size:.95rem; line-height:1.2;}
+  .pst-name b{font-family:var(--font-body); font-weight:700; font-size:.82rem; color:var(--accent-strong); margin-right:.25rem;}
+  .pst-meta{display:flex; flex-wrap:wrap; align-items:center; gap:.35rem; margin-top:.2rem; font-size:.72rem; color:var(--ink-soft); font-family:var(--font-mono);}
+  .pst-note{margin-top:.35rem; font-size:.76rem; line-height:1.35; color:var(--ink-soft);}
+  .pst-row.st-pick .pst-note{color:var(--warn);} .pst-row.st-missing .pst-note{color:var(--danger);}
+  .pst-note q{font-style:normal; font-weight:600; color:var(--ink);}
+  .pst-alts{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.45rem;}
+  .pst-alts button{border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:999px; padding:.28rem .62rem; font-size:.75rem; cursor:pointer; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pst-alts button.pst-find{background:none; border-style:dashed; color:var(--accent);}
+  .pst-search{margin-top:.5rem;}
+  .pst-search .text-input{padding:.5rem .7rem; font-size:.85rem;}
+  .pst-results{display:flex; flex-direction:column; gap:.3rem; margin-top:.4rem;}
+  .pst-results button{display:flex; align-items:center; gap:.55rem; border:none; background:var(--surface-2); border-radius:10px; padding:.3rem; text-align:left; color:var(--ink); cursor:pointer; font-size:.82rem;}
+  .pst-results img{width:28px; height:39px; border-radius:3px; object-fit:cover; flex:none;}
+  .pst-results small{display:block; color:var(--ink-soft); font-size:.7rem;}
+  .pst-x{flex:none;}
+  .detail-body.pst-review{padding-bottom:0;}
+  .pst-foot{position:sticky; bottom:0; margin:0 -1rem; padding:1.4rem 1rem calc(.9rem + env(safe-area-inset-bottom)); background:linear-gradient(180deg, transparent, var(--paper) 1.2rem); display:flex; flex-direction:column; gap:.5rem; z-index:2;}
+  .pst-foot .btn{justify-content:center;}
+  .pst-foot label{display:flex; align-items:center; gap:.5rem; font-size:.8rem; color:var(--ink-soft);}
+  .pst-foot select{flex:1;}
   .add-results .suggestion-item{display:flex; align-items:center; gap:.9rem; padding:.5rem .3rem; border-bottom:1px solid var(--line); font-size:1rem; cursor:pointer;}
   .add-results .suggestion-item:active{background:var(--surface-2);}
   .add-results .sugg-thumb{width:52px; height:72px; border-radius:4px;}
@@ -1534,6 +1573,10 @@ window.runSplash = function(el, opts){
         <button class="btn btn-secondary" id="exportCsvBtn">Exportar</button>
       </div>
       <div class="settings-row">
+        <div><div class="srlabel">Pegar una lista</div><div class="srsub">Varias cartas a la vez desde texto: «4 Lightning Bolt», «1x Brainstorm»…</div></div>
+        <button class="btn btn-secondary" id="pasteListBtn">Pegar</button>
+      </div>
+      <div class="settings-row">
         <div><div class="srlabel">Importar CSV</div><div class="srsub">Desde esta app o desde ManaBox</div></div>
         <button class="btn btn-secondary" id="importCsvBtn">Importar</button>
         <input type="file" id="importFileInput" accept=".csv,text/csv" hidden>
@@ -1583,6 +1626,7 @@ window.runSplash = function(el, opts){
 
 /* ---------- Icons ---------- */
 const ICONS = {
+  paste:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.2V3.5A1.5 1.5 0 0 1 10.5 2h3A1.5 1.5 0 0 1 15 3.5v.7"/><line x1="8.5" y1="10" x2="15.5" y2="10"/><line x1="8.5" y1="13.5" x2="15.5" y2="13.5"/><line x1="8.5" y1="17" x2="12.5" y2="17"/>',
   tag:'<path d="M3.5 12.3V4.5a1 1 0 0 1 1-1h7.8l8.5 8.5a1.4 1.4 0 0 1 0 2l-6.8 6.8a1.4 1.4 0 0 1-2 0z"/><circle cx="8.2" cy="8.2" r="1.5"/>',
   sparkle:'<path d="M11 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
   shield:'<path d="M12 3l7.5 3v5.2c0 4.6-3.2 8.3-7.5 9.8-4.3-1.5-7.5-5.2-7.5-9.8V6z"/>',
@@ -3783,7 +3827,8 @@ function renderAddIdle(){
   const recent = state.cards.slice().sort(function(a,b){ return (b.addedAt||0) - (a.addedAt||0); })
     .filter(function(c){ const k = (c.name||'').toLowerCase(); if(seen[k]) return false; seen[k] = true; return true; }).slice(0, 9);
   body.innerHTML =
-    '<button type="button" class="btn btn-secondary add-scan-btn" data-add-scan>'+icon('camera',17)+' Escanear con la cámara</button>'+
+    '<div class="add-entry"><button type="button" class="btn btn-secondary add-scan-btn" data-add-scan>'+icon('camera',17)+' Escanear</button>'+
+      '<button type="button" class="btn btn-secondary add-scan-btn" data-add-paste>'+icon('paste',17)+' Pegar una lista</button></div>'+
     (recent.length
       ? '<div class="add-sec-title">Añadidas hace poco</div><div class="add-grid">'+recent.map(function(c){
           const img = c.imageNormal || c.imageSmall;
@@ -3875,6 +3920,7 @@ function onAddPageClick(e){
   const tile = e.target.closest('[data-pi]');
   if(tile){ const p = addPage.prints && addPage.prints[+tile.dataset.pi]; if(p) openAddDetailsModal(p, null); return; }
   if(e.target.closest('[data-add-scan]')) closeDetailThen(function(){ switchTab('scan'); });
+  if(e.target.closest('[data-add-paste]')) openPasteList();
 }
 function openViewerForCollectionItem(id, sourceEl){
   let list = lastRenderedCardList;
@@ -4077,7 +4123,16 @@ async function scanSearchToQueue(text){
 async function addAllScanQueueToCollection(){
   const n = state.scanQueue.length;
   if(n === 0) return;
-  for(const item of state.scanQueue){
+  await addScryCardsToCollection(state.scanQueue);
+  state.scanQueue = [];
+  saveScanQueue();
+  renderScanQueue();
+  renderCollection();
+  toast(n+' carta'+(n===1?'':'s')+' añadida'+(n===1?'':'s')+' a tu colección');
+}
+/* items: [{card (Scryfall object), quantity, foil, condition, lang, binderId}] */
+async function addScryCardsToCollection(items){
+  for(const item of items){
     const card = item.card;
     const face = printFace(card);
     const prices = {
@@ -4107,11 +4162,311 @@ async function addAllScanQueueToCollection(){
       state.cards.push(newItem);
     }
   }
-  state.scanQueue = [];
-  saveScanQueue();
-  renderScanQueue();
-  renderCollection();
-  toast(n+' carta'+(n===1?'':'s')+' añadida'+(n===1?'':'s')+' a tu colección');
+  if(state.cards.length) scheduleTodaySnapshot();
+}
+
+/* ---------- Pegar una lista ----------
+   One card per line: "4 Lightning Bolt", "1x Brainstorm", "Bolt x2", "Sol Ring (C21) 263 *F*".
+   Exact names are matched 75 at a time; the rest go one by one through Scryfall's fuzzy match
+   (typos, partial and Spanish names), then a search by popularity for short ambiguous names
+   ("Bolt" → Lightning Bolt) and last the closest name that starts like it ("Brainsotrn" →
+   Brainstorm). Whatever wasn't an exact match is listed for review before anything is added.
+   Each card gets Scryfall's default printing; its edition can be changed afterwards. */
+const PASTE_HEADER_RE = /^(deck|mazo|main ?deck|sideboard|banquillo|commander|comandantes?|companion|compa[nñ]ero|maybeboard|tokens?)\s*(\(\d+\))?\s*:?\s*$/i;
+const PASTE_FOIL_RE = /\s*(\*F\*|\*E\*|\((?:foil|etched)\)|\[(?:foil|etched)\]|-\s*foil|\bfoil|\betched)\s*$/i;
+function parsePastedCards(text){
+  const out = [], byKey = {};
+  String(text || '').split(/\r?\n/).slice(0, 2000).forEach(function(raw){
+    let line = raw.replace(/\u00a0/g, ' ').trim();
+    if(!line || /^(\/\/|#)/.test(line) || PASTE_HEADER_RE.test(line)) return;
+    line = line.replace(/^[-•·*]\s+/, '').replace(/^sb:\s*/i, '');
+    let qty = 1, name = line, m, foil = false;
+    if((m = line.match(/^(\d{1,3})\s*[x×]?\s+(.+)$/i))){ qty = +m[1]; name = m[2]; }
+    else if((m = line.match(/^[x×](\d{1,3})\s+(.+)$/i))){ qty = +m[1]; name = m[2]; }
+    else if((m = line.match(/^(.+?)(?:\s+[x×]|\s*×)\s*(\d{1,3})$/i)) && !/[\(\[][A-Za-z0-9]{2,6}[\)\]]\s*\S*$/.test(line)){ name = m[1]; qty = +m[2]; }
+    for(let k = 0; k < 2; k++) if(PASTE_FOIL_RE.test(name)){ foil = true; name = name.replace(PASTE_FOIL_RE, '').trim(); }
+    let setCode = null, num = null;
+    const sm = name.match(/^(.*?)\s*[\(\[]([A-Za-z0-9]{2,6})[\)\]]\s*([A-Za-z0-9\-★]*)\s*$/);
+    if(sm && sm[1].trim()){ name = sm[1].trim(); setCode = sm[2].toLowerCase(); num = (sm[3] || '').trim() || null; }
+    for(let k = 0; k < 2; k++) if(PASTE_FOIL_RE.test(name)){ foil = true; name = name.replace(PASTE_FOIL_RE, '').trim(); }
+    name = name.replace(/\s+/g, ' ').trim();
+    if(!name || !qty) return;
+    const key = normName(name)+'|'+(setCode || '')+'|'+(num || '')+'|'+(foil ? 1 : 0);
+    if(byKey[key]){ byKey[key].qty += qty; return; }
+    const e = {qty: qty, name: name, setCode: setCode, collectorNumber: num, foil: foil};
+    byKey[key] = e; out.push(e);
+  });
+  return out;
+}
+function nameKey(s){ return normName(s).replace(/[^a-z0-9]+/g, ' ').trim(); }
+/* edit distance with swapped letters counting as one change (optimal string alignment) */
+function editDistance(a, b){
+  const m = a.length, n = b.length;
+  if(!m) return n; if(!n) return m;
+  let p2 = null, p1 = [], cur;
+  for(let j = 0; j <= n; j++) p1[j] = j;
+  for(let i = 1; i <= m; i++){
+    cur = [i];
+    for(let j = 1; j <= n; j++){
+      const cost = a[i-1] === b[j-1] ? 0 : 1;
+      let v = Math.min(p1[j] + 1, cur[j-1] + 1, p1[j-1] + cost);
+      if(p2 && i > 1 && j > 1 && a[i-1] === b[j-2] && a[i-2] === b[j-1]) v = Math.min(v, p2[j-2] + 1);
+      cur[j] = v;
+    }
+    p2 = p1; p1 = cur;
+  }
+  return p1[n];
+}
+/* the typed text is this card's name (any punctuation, front face, or its printed name in another language) */
+function typedIsName(typed, card){
+  const t = nameKey(typed);
+  const face = card.card_faces && card.card_faces[0];
+  return [card.name, frontFaceName(card.name), card.printed_name, face && face.printed_name].filter(Boolean).some(function(n){ return nameKey(n) === t; });
+}
+async function scryGetJSON(url){
+  try{ const r = await fetch(url); let j = {}; try{ j = await r.json(); }catch(e){} return {ok: r.ok, j: j}; }
+  catch(e){ return {ok: false, j: {}, offline: true}; }
+}
+async function scrySearchCards(q, max){
+  const r = await scryGetJSON(SCRYFALL+'/cards/search?order=edhrec&unique=cards&q='+encodeURIComponent(q));
+  return r.ok ? (r.j.data || []).slice(0, max || 175) : [];
+}
+/* one name that wasn't an exact match → {card, status: 'fixed'|'pick', alts} or {status: 'missing'} */
+async function resolvePastedName(typed){
+  const f = await scryGetJSON(SCRYFALL+'/cards/named?fuzzy='+encodeURIComponent(typed));
+  if(f.offline) return {status: 'offline'};
+  if(f.ok && f.j && f.j.object === 'card'){
+    if(typedIsName(typed, f.j)) return {card: f.j, status: 'ok', alts: []};
+    // a guess ("swords" → Sword): also offer the most played cards with those words
+    await sleep(110);
+    const more = (await scrySearchCards(typed, 6)).map(function(c){ return c.name; }).filter(function(n){ return n !== f.j.name; }).slice(0, 5);
+    return {card: f.j, status: 'fixed', alts: more};
+  }
+  await sleep(110);
+  const t = nameKey(typed);
+  // a Spanish name the fuzzy match didn't get: its exact printed name ("Rayo" → Thunderbolt)
+  const esExact = await scrySearchCards('!"'+typed.replace(/"/g, '')+'" lang:es', 1);
+  await sleep(110);
+  if(esExact.length) return {card: esExact[0], status: 'ok', alts: []};
+  if(f.j && f.j.type === 'ambiguous'){ // a short or common word: the most played card with it
+    const list = await scrySearchCards(typed, 8);
+    if(list.length) return {card: list[0], status: 'pick', alts: list.slice(1, 6).map(function(c){ return c.name; })};
+    await sleep(110);
+  }
+  // the closest Spanish name with those words (a typo in Spanish)
+  const es = await scrySearchCards(typed+' lang:es', 40);
+  await sleep(110);
+  if(es.length){
+    const ranked = es.map(function(c, i){
+      const pn = nameKey(c.printed_name || (c.card_faces && c.card_faces[0] && c.card_faces[0].printed_name) || '');
+      return {c: c, i: i, d: pn ? editDistance(t, pn) : 99};
+    }).sort(function(a, b){ return a.d - b.d || a.i - b.i; });
+    if(ranked[0].d <= Math.max(2, Math.round(t.length * 0.34))){
+      return {card: ranked[0].c, status: 'pick', alts: ranked.slice(1, 6).filter(function(x){ return x.d <= ranked[0].d + 3; }).map(function(x){ return x.c.name; })};
+    }
+  }
+  // a typo: cards whose name contains the start of a word, the closest one wins
+  const words = t.split(' ').filter(function(w){ return w.length >= 3; }).sort(function(a, b){ return b.length - a.length; });
+  const tries = [];
+  if(words.length){ const w = t.split(' ')[0].length >= 3 ? t.split(' ')[0] : words[0]; [5, 4, 3].forEach(function(n){ const q = w.slice(0, Math.min(n, w.length)); if(tries.indexOf(q) < 0) tries.push(q); }); }
+  if(words[0] && tries.indexOf(words[0].slice(0, 4)) < 0) tries.push(words[0].slice(0, 4));
+  for(const q of tries.slice(0, 4)){
+    const list = await scrySearchCards('name:'+q);
+    await sleep(110);
+    if(!list.length) continue;
+    const ranked = list.map(function(c, i){
+      return {c: c, i: i, d: Math.min(editDistance(t, nameKey(c.name)), editDistance(t, nameKey(frontFaceName(c.name))))};
+    }).sort(function(a, b){ return a.d - b.d || a.i - b.i; });
+    const best = ranked[0];
+    if(best.d <= Math.max(2, Math.round(t.length * 0.34))){
+      return {card: best.c, status: 'pick', alts: ranked.slice(1, 6).filter(function(x){ return x.d <= best.d + 3; }).map(function(x){ return x.c.name; })};
+    }
+  }
+  return {status: 'missing'};
+}
+const pasteState = {text: '', rows: null, binderId: ''};
+function openPasteList(){
+  pasteState.rows = null;
+  renderPasteInput();
+}
+function pasteCountText(entries){
+  const n = entries.reduce(function(a, e){ return a + e.qty; }, 0);
+  return n ? n+(n === 1 ? ' carta' : ' cartas')+(entries.length !== n ? ' ('+entries.length+(entries.length === 1 ? ' distinta' : ' distintas')+')' : '') : 'Escribe o pega tu lista';
+}
+function renderPasteInput(){
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="pasteBack" aria-label="Volver">'+icon('back',18)+'</button><h2>Pegar una lista</h2></div>'+
+    '<div class="detail-body paste-page">'+
+      '<p class="add-hint" style="margin-top:0;">Una carta por línea, con la cantidad delante o detrás. Vale con parte del nombre, con alguna falta o en español: lo que no esté claro te lo enseño antes de añadirlo.</p>'+
+      '<textarea id="pasteText" class="text-input paste-area" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="4 Lightning Bolt&#10;1x Brainstorm&#10;Sol Ring x2&#10;Contrahechizo"></textarea>'+
+      '<div class="paste-count" id="pasteCount"></div>'+
+      '<div class="paste-actions">'+
+        (navigator.clipboard && navigator.clipboard.readText ? '<button class="btn btn-secondary" id="pasteClipBtn">'+icon('paste',16)+' Pegar</button>' : '<span></span>')+
+        '<button class="btn btn-primary" id="pasteGoBtn">'+icon('search',16)+' Buscar cartas</button></div>'+
+      '<div class="paste-examples">También entiende <code>Sol Ring (C21) 263</code> para una edición concreta y <code>*F*</code> o <code>foil</code> al final para foil. Las líneas como «Sideboard» o «Commander» se ignoran.</div>'+
+    '</div>';
+  showDetailPanel(panel, 'paste');
+  const ta = document.getElementById('pasteText');
+  ta.value = pasteState.text;
+  const count = function(){ pasteState.text = ta.value; const e = parsePastedCards(ta.value); document.getElementById('pasteCount').textContent = pasteCountText(e); document.getElementById('pasteGoBtn').disabled = !e.length; };
+  ta.addEventListener('input', count); count();
+  document.getElementById('pasteBack').addEventListener('click', navBack);
+  const clip = document.getElementById('pasteClipBtn');
+  if(clip) clip.addEventListener('click', async function(){
+    try{ const t = await navigator.clipboard.readText(); if(t){ ta.value = (ta.value.trim() ? ta.value.replace(/\s*$/, '\n') : '')+t.trim(); count(); } else toast('El portapapeles está vacío'); }
+    catch(e){ toast('Mantén pulsado el cuadro y elige «Pegar»'); ta.focus(); }
+  });
+  document.getElementById('pasteGoBtn').addEventListener('click', function(){ resolvePastedList(parsePastedCards(ta.value)); });
+  if(!pasteState.text) setTimeout(function(){ if(ta.isConnected) ta.focus({preventScroll: true}); }, 320);
+}
+async function resolvePastedList(entries){
+  if(!entries.length){ toast('No he encontrado ninguna línea con una carta'); return; }
+  const rows = entries.map(function(e, k){ return {k: k, e: e, card: null, status: 'missing', alts: []}; });
+  const busy = openImportOverlay({title: 'Buscando cartas', subtitle: pasteCountText(entries), cancelLabel: 'Cancelar'});
+  let done = 0, reached = false;
+  for(let b = 0; b < rows.length && !busy.cancelled; b += 75){
+    const chunk = rows.slice(b, b + 75);
+    if(b === 0) updateImportOverlay(0, rows.length, 'buscando…');
+    const found = await scryCollectionBatch(chunk.map(function(r){
+      return {key: String(r.k), ident: (r.e.setCode && r.e.collectorNumber) ? {set: r.e.setCode, collector_number: String(r.e.collectorNumber)} : {name: frontFaceName(r.e.name)}};
+    }));
+    if(found) reached = true;
+    const dealt = [];
+    chunk.forEach(function(r){
+      const c = found && found[String(r.k)];
+      if(c && (r.e.setCode && r.e.collectorNumber || typedIsName(r.e.name, c))){ r.card = c; r.status = 'ok'; done++; dealt.push(c); }
+    });
+    importOverlayBatch(done, rows.length, dealt);
+    for(const r of chunk){
+      if(busy.cancelled || r.card) continue;
+      updateImportOverlay(done, rows.length, r.e.name);
+      const res = await resolvePastedName(r.e.name);
+      if(res.status === 'offline') break;
+      reached = true;
+      done++;
+      if(res.card){ r.card = res.card; r.status = res.status; r.alts = res.alts || []; updateImportOverlay(done, rows.length, res.card.name, importCardImage(res.card)); }
+      else updateImportOverlay(done, rows.length, r.e.name+' (no encontrada)');
+      await sleep(110);
+    }
+    if(b + 75 < rows.length) await sleep(110);
+  }
+  await importOverlaySettle();
+  if(busy.cancelled){ closeImportOverlay(); toast('Búsqueda cancelada: no se ha añadido nada'); return; }
+  if(!reached){ await finishImportOverlay('Sin conexión', 'No se ha podido contactar con Scryfall. Inténtalo con conexión.', false); return; }
+  closeImportOverlay();
+  pasteState.rows = rows;
+  renderPasteReview();
+}
+function pasteRowHTML(r){
+  const c = r.card, e = r.e;
+  const face = c ? printFace(c) : null;
+  const thumb = c ? (face.image ? '<img class="card-thumb" src="'+esc(face.image)+'" alt="" loading="lazy">' : '<div class="card-thumb card-thumb-empty">'+icon('image',14)+'</div>') : '<div class="pst-miss">'+icon('alert',18)+'</div>';
+  const lang = c && c.lang && c.lang !== 'en' ? c.lang.toUpperCase() : '';
+  let note = '';
+  if(r.status === 'pick') note = 'Escribiste <q>'+esc(e.name)+'</q>. ¿Es esta? Si no, elige otra:';
+  else if(r.status === 'fixed') note = 'Escribiste <q>'+esc(e.name)+'</q>'+(r.alts.length ? '. ¿O era otra?' : '');
+  else if(r.status === 'missing') note = 'No he encontrado <q>'+esc(e.name)+'</q>. Búscala o quítala.';
+  const alts = r.status === 'pick' || r.status === 'missing' || r.status === 'fixed'
+    ? '<div class="pst-alts">'+(r.status === 'pick' || r.status === 'fixed' ? r.alts.map(function(n){ return '<button type="button" data-alt="'+esc(n)+'">'+esc(n)+'</button>'; }).join('') : '')+
+        '<button type="button" class="pst-find" data-find>'+icon('search',12)+' '+(r.status === 'missing' ? 'Buscar' : 'Otra carta')+'</button></div>' : '';
+  return '<div class="pst-row st-'+r.status+'" data-k="'+r.k+'">'+thumb+
+    '<div class="pst-main">'+
+      '<div class="pst-name"><b>'+e.qty+'×</b>'+esc(c ? c.name : e.name)+'</div>'+
+      (c ? '<div class="pst-meta">'+setIconSpanHTML(c.set, c.rarity)+'<span>'+esc((c.set || '').toUpperCase())+'</span>'+(e.foil ? '<span>· foil</span>' : '')+(lang ? '<span>· '+esc(lang)+'</span>' : '')+'</div>' : '')+
+      (note ? '<div class="pst-note">'+note+'</div>' : '')+alts+
+      '<div class="pst-search" hidden><input class="text-input" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Nombre de la carta" value="'+esc(e.name)+'"><div class="pst-results"></div></div>'+
+    '</div>'+
+    '<button type="button" class="icon-btn pst-x" data-remove aria-label="Quitar de la lista" title="Quitar">'+icon('x',15)+'</button>'+
+  '</div>';
+}
+function renderPasteReview(){
+  const rows = pasteState.rows || [];
+  const panel = document.getElementById('detailPanel');
+  const ready = rows.filter(function(r){ return r.card; });
+  const toCheck = rows.filter(function(r){ return r.status !== 'ok'; });
+  const order = {missing: 0, pick: 1, fixed: 2};
+  toCheck.sort(function(a, b){ return order[a.status] - order[b.status] || a.k - b.k; });
+  const n = ready.reduce(function(a, r){ return a + r.e.qty; }, 0);
+  const cnt = function(st){ return rows.filter(function(r){ return r.status === st; }).length; };
+  const okN = cnt('ok'), pickN = cnt('pick') + cnt('fixed'), missN = cnt('missing');
+  panel.innerHTML =
+    '<div class="detail-header"><button class="icon-btn" id="pasteBack" aria-label="Volver">'+icon('back',18)+'</button><h2>Revisa la lista</h2></div>'+
+    '<div class="detail-body paste-page pst-review">'+
+      '<div class="pst-sum">'+(okN ? '<span class="ok">'+icon('check',13)+' '+okN+' encontradas</span>' : '')+
+        (pickN ? '<span class="warn">'+icon('info',13)+' '+pickN+' por revisar</span>' : '')+(missN ? '<span class="bad">'+icon('alert',13)+' '+missN+' sin encontrar</span>' : '')+'</div>'+
+      (toCheck.length ? '<div class="add-sec-title" style="margin-top:.2rem;">Revisa estas</div><div class="pst-group" id="plCheck">'+toCheck.map(pasteRowHTML).join('')+'</div>' : '')+
+      (rows.some(function(r){ return r.status === 'ok'; }) ? '<div class="add-sec-title">Encontradas</div><div class="pst-group" id="plOk">'+rows.filter(function(r){ return r.status === 'ok'; }).map(pasteRowHTML).join('')+'</div>' : '')+
+      (!rows.length ? emptyStateHTML('paste', 'Has quitado todas las cartas de la lista.') : '')+
+      '<div class="pst-foot">'+
+        (state.binders.length ? '<label>'+icon('folder',15)+' Guardar en <select class="text-input" id="plBinder"><option value="">Sin carpeta</option>'+
+          state.binders.map(function(b){ return '<option value="'+esc(b.id)+'"'+(pasteState.binderId === b.id ? ' selected' : '')+'>'+esc(b.name)+'</option>'; }).join('')+'</select></label>' : '')+
+        '<button class="btn btn-primary" id="plAdd"'+(n ? '' : ' disabled')+'>'+icon('plus',16)+' Añadir '+n+(n === 1 ? ' carta' : ' cartas')+' a la colección</button>'+
+        '<button class="btn btn-secondary" id="plEdit">'+icon('edit',15)+' Editar la lista</button>'+
+      '</div>'+
+    '</div>';
+  showDetailPanel(panel, 'paste');
+  document.getElementById('pasteBack').addEventListener('click', navBack);
+  document.getElementById('plEdit').addEventListener('click', function(){ pasteState.rows = null; renderPasteInput(); });
+  const sel = document.getElementById('plBinder');
+  if(sel) sel.addEventListener('change', function(){ pasteState.binderId = sel.value; });
+  document.getElementById('plAdd').addEventListener('click', addPastedToCollection);
+  panel.querySelector('.paste-page').addEventListener('click', onPasteReviewClick);
+}
+function pasteRowEl(k){ return document.querySelector('#detailPanel .pst-row[data-k="'+k+'"]'); }
+async function onPasteReviewClick(ev){
+  const rowEl = ev.target.closest('.pst-row'); if(!rowEl) return;
+  const r = (pasteState.rows || []).find(function(x){ return String(x.k) === rowEl.dataset.k; }); if(!r) return;
+  if(ev.target.closest('[data-remove]')){ pasteState.rows = pasteState.rows.filter(function(x){ return x !== r; }); renderPasteReview(); return; }
+  const alt = ev.target.closest('[data-alt]');
+  if(alt){
+    alt.disabled = true;
+    const res = await scryGetJSON(SCRYFALL+'/cards/named?exact='+encodeURIComponent(alt.dataset.alt));
+    if(res.ok && res.j.object === 'card'){ r.card = res.j; r.status = 'ok'; r.alts = []; renderPasteReview(); toast('Cambiada por «'+res.j.name+'»'); }
+    else { alt.disabled = false; toast(res.offline ? 'Sin conexión' : 'No se ha podido cargar esa carta'); }
+    return;
+  }
+  const pick = ev.target.closest('[data-pick]');
+  if(pick){ const c = rowEl._found && rowEl._found[+pick.dataset.pick]; if(c){ r.card = c; r.status = 'ok'; r.alts = []; renderPasteReview(); toast('Elegida «'+c.name+'»'); } return; }
+  if(ev.target.closest('[data-find]')){
+    const box = rowEl.querySelector('.pst-search'); box.hidden = !box.hidden;
+    if(!box.hidden){
+      const input = box.querySelector('input'), res = box.querySelector('.pst-results');
+      let seq = 0;
+      const run = debounce(async function(){
+        const q = input.value.trim(), my = ++seq;
+        if(q.length < 2){ res.innerHTML = ''; return; }
+        res.innerHTML = '<div class="cp-msg">Buscando…</div>';
+        let list = await scrySearchCards(q, 8);
+        if(!list.length){ const f = await scryGetJSON(SCRYFALL+'/cards/named?fuzzy='+encodeURIComponent(q)); if(f.ok && f.j.object === 'card') list = [f.j]; }
+        if(my !== seq) return;
+        rowEl._found = list;
+        res.innerHTML = list.length ? list.map(function(c, i){ const im = printFace(c).image;
+          return '<button type="button" data-pick="'+i+'">'+(im ? '<img src="'+esc(im)+'" alt="" loading="lazy">' : '')+'<span>'+esc(c.name)+'<small>'+esc(c.type_line || '')+'</small></span></button>'; }).join('')
+          : '<div class="cp-msg">Nada con «'+esc(q)+'».</div>';
+      }, 300);
+      if(!input._bound){ input._bound = true; input.addEventListener('input', run); }
+      input.focus(); input.select(); run();
+    }
+  }
+}
+async function addPastedToCollection(){
+  const rows = (pasteState.rows || []).filter(function(r){ return r.card; });
+  if(!rows.length) return;
+  const btn = document.getElementById('plAdd'); if(btn) btn.disabled = true;
+  const binderId = pasteState.binderId && state.binders.some(function(b){ return b.id === pasteState.binderId; }) ? pasteState.binderId : null;
+  const items = rows.map(function(r){
+    const fin = r.card.finishes || [];
+    return {card: r.card, quantity: r.e.qty, foil: !!r.e.foil && (fin.indexOf('foil') > -1 || fin.indexOf('etched') > -1 || !fin.length),
+      condition: 'NM', lang: (r.card.lang || 'en').toUpperCase(), binderId: binderId};
+  });
+  await addScryCardsToCollection(items);
+  const n = items.reduce(function(a, x){ return a + x.quantity; }, 0);
+  const skipped = (pasteState.rows || []).length - rows.length;
+  pasteState.text = ''; pasteState.rows = null;
+  renderCollection(); renderStats();
+  closeDetailThen(function(){ if(state.tab !== 'collection') switchTab('collection'); });
+  toast(n+(n === 1 ? ' carta añadida' : ' cartas añadidas')+' a tu colección'+(skipped ? ' · '+skipped+' sin añadir' : '')+'. Toca una para cambiar su edición.', 4200);
 }
 
 /* ---------- Decks ---------- */
@@ -8596,6 +8951,7 @@ async function init(){
   });
   document.getElementById('refreshPricesBtn').addEventListener('click', refreshAllPrices);
   document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
+  document.getElementById('pasteListBtn').addEventListener('click', openPasteList);
   document.getElementById('importCsvBtn').addEventListener('click', function(){ document.getElementById('importFileInput').click(); });
   document.getElementById('importFileInput').addEventListener('change', function(e){
     const f = e.target.files[0]; e.target.value='';
