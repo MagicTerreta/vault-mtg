@@ -102,13 +102,13 @@
   .btn:active, .icon-btn:active, .qty-btn:active, .card-row:active, .group-card:active,
   .card-grid-item:active, .stat-highlight-card:active, .color-swatch:active{ transform:scale(.95); }
   .qty-val.bump{ animation:bumpPulse .28s ease; display:inline-block; }
-  .tab-panel:not([hidden]){ animation:fadeIn .2s ease; }
+
   /* Tab changes slide in from the side of the tab you tapped; lists cascade in. */
-  @keyframes tabInRight{ from{opacity:0; transform:translateX(28px);} to{opacity:1; transform:none;} }
-  @keyframes tabInLeft{ from{opacity:0; transform:translateX(-28px);} to{opacity:1; transform:none;} }
+  @keyframes tabInRight{ from{opacity:.6; transform:translateX(14px);} to{opacity:1; transform:none;} }
+  @keyframes tabInLeft{ from{opacity:.6; transform:translateX(-14px);} to{opacity:1; transform:none;} }
   @keyframes itemIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
-  .tab-panel.enter-right{ animation:tabInRight .3s cubic-bezier(.2,.8,.2,1); }
-  .tab-panel.enter-left{ animation:tabInLeft .3s cubic-bezier(.2,.8,.2,1); }
+  .tab-panel.enter-right{ animation:tabInRight .2s cubic-bezier(.2,.8,.2,1); }
+  .tab-panel.enter-left{ animation:tabInLeft .2s cubic-bezier(.2,.8,.2,1); }
   .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(-n+14){ animation:itemIn .36s cubic-bezier(.2,.8,.2,1) both; }
   .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(2){animation-delay:28ms;}
   .tab-panel.stagger :is(.card-row,.card-grid-item,.group-card,.settings-list,.mover-row):nth-child(3){animation-delay:56ms;}
@@ -156,6 +156,7 @@
   @keyframes iconPop{ 0%{transform:scale(1);} 45%{transform:scale(1.22) translateY(-1px);} 100%{transform:scale(1);} }
   .tab-btn.pop svg{animation:iconPop .38s cubic-bezier(.3,1.4,.5,1);}
   .tab-btn{position:relative;}
+  .tab-btn.needs-attention.attention-late::after{background:var(--danger);}
   .tab-btn.needs-attention::after{content:''; position:absolute; top:.4rem; left:calc(50% + 8px); width:8px; height:8px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 2px var(--surface);}
   .wish-summary{display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin:.9rem 0 .4rem; font-size:.8rem; color:var(--ink-soft);}
   .wish-summary-actions{display:flex; gap:.2rem; flex-wrap:wrap; margin-left:auto;}
@@ -168,6 +169,7 @@
   .export-preview{width:100%; min-height:9rem; max-height:14rem; resize:vertical; font-family:var(--font-mono); font-size:.72rem; line-height:1.5; padding:.6rem .7rem; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface-2); color:var(--ink); margin:.2rem 0 .8rem;}
   .export-actions{display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:.5rem;}
   .segmented.export-mode{margin-bottom:.8rem; display:flex; width:100%;}
+  .export-link{margin-top:.6rem; justify-content:center; text-decoration:none;}
   .segmented.export-mode button{flex:1; white-space:nowrap;}
   /* ---------- Deck cover ---------- */
   #detailPanel.hero-mode .detail-header{position:absolute; top:0; left:0; right:0; z-index:6; background:transparent; border-bottom-color:transparent; transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;}
@@ -211,6 +213,8 @@
     background:none; animation:imgIn .45s ease both;}
   .deck-hero .hero-img.is-loaded{opacity:1; animation:imgIn .6s ease both, heroDrift 18s ease-out both;}
   img.is-error{animation:none !important; background:var(--surface-2) !important;}
+  img.is-loaded.instant:not(.hero-img){animation:none; background:none;}
+  img.fmt-art.instant{transition:none;}
 
 
   /* ---------- Collection summary (scrolls with the page; tap → statistics) ---------- */
@@ -652,11 +656,14 @@
   .stats-body .vh-empty{margin:.3rem 0 .6rem;}
   .backup-actions{display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end;}
   .backup-status .srlabel{display:flex; align-items:center; gap:.45rem;}
-  .backup-status.ok .srlabel::before, .backup-status.overdue .srlabel::before{content:''; flex:none; width:8px; height:8px; border-radius:50%;}
-  .backup-status.ok .srlabel::before{background:var(--good);}
-  .backup-status.overdue{background:var(--warn-soft);}
-  .backup-status.overdue .srlabel{color:var(--warn);}
-  .backup-status.overdue .srlabel::before{background:var(--warn);}
+  /* how old the last backup is: green < 1 week, amber 1–3 weeks, red > 3 weeks */
+  .backup-status[class*="lvl-"] .srlabel::before{content:''; flex:none; width:10px; height:10px; border-radius:50%; background:var(--lvl); box-shadow:0 0 0 3px color-mix(in srgb, var(--lvl) 22%, transparent);}
+  .backup-status.lvl-ok{--lvl:var(--good); background:var(--good-soft);}
+  .backup-status.lvl-soon{--lvl:#d18b1f; background:var(--warn-soft);}
+  .backup-status.lvl-late{--lvl:var(--danger); background:var(--danger-soft);}
+  .backup-status[class*="lvl-"] .srlabel{color:color-mix(in srgb, var(--lvl) 80%, var(--ink));}
+  #backupStatusHint{display:block; font-weight:700; color:color-mix(in srgb, var(--lvl, var(--ink-soft)) 85%, var(--ink)); margin-bottom:1px;}
+  #backupStatusHint:empty{display:none;}
 
   .icon-btn{background:none; border:1px solid var(--line); border-radius:999px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); cursor:pointer; flex-shrink:0;}
   .icon-btn:hover{background:var(--surface-2); color:var(--ink);}
@@ -696,6 +703,7 @@
   .card-row:hover{background:var(--surface-2);}
   .thumb-wrap{position:relative; width:40px; height:56px; border-radius:5px; overflow:hidden; flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,.18);}
   .card-thumb{width:40px; height:56px; border-radius:5px; object-fit:cover; background:var(--surface-2); flex-shrink:0;}
+  #collectionList > .card-row, #wishlistList > .card-row, #binderCardsList > .card-row{content-visibility:auto; contain-intrinsic-size:auto 76px;}
   .thumb-wrap .card-thumb{box-shadow:none;}
   .card-thumb-empty{display:flex; align-items:center; justify-content:center; color:var(--ink-faint);}
   .card-thumb-lg{width:64px; height:90px; border-radius:7px;}
@@ -946,7 +954,9 @@
   .gd-hero .art-credit{color:rgba(255,255,255,.72); font-size:.62rem; margin-top:.5rem;}
   .vic-credit{color:rgba(255,255,255,.58); font-size:.6rem; margin-top:.35rem;}
   .lp-credit{display:block; color:#fff; font-size:clamp(.48rem, 3.1cqmin, .64rem); opacity:.6; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px;}
-  .fmt-dots{display:flex; justify-content:center; gap:.45rem; margin-top:.35rem;}
+  .fmt-dots{display:flex; flex-wrap:wrap; justify-content:center; gap:.45rem; margin-top:.35rem; padding:0 1rem;}
+  .fmt-pick-sec{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin:.6rem .1rem .1rem;}
+  .fmt-pick-sec:first-child{margin-top:0;}
   .fmt-dot{width:8px; height:8px; padding:0; border:none; border-radius:999px; background:var(--line); cursor:pointer; transition:width .25s ease, background .25s ease;}
   .fmt-dot.active{width:22px; background:var(--accent);}
   .fmt-hint{text-align:center; font-size:.74rem; color:var(--ink-faint); margin:.7rem 0 0;}
@@ -1523,7 +1533,7 @@ window.runSplash = function(el, opts){
     <div class="settings-section-title">Copia de seguridad</div>
     <div class="settings-list">
       <div class="settings-row backup-status" id="backupStatusRow">
-        <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub">Incluye cartas, mazos, carpetas, deseos, partidas y ajustes</div></div>
+        <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub"><b id="backupStatusHint"></b>Incluye cartas, mazos, carpetas, deseos, partidas, jugadores y ajustes</div></div>
       </div>
       <div class="settings-row">
         <div><div class="srlabel">Crear copia</div><div class="srsub">Guárdala fuera del móvil (Drive, correo, PC…)</div></div>
@@ -1686,8 +1696,35 @@ function icon(name, size){ size = size||20; return '<svg width="'+size+'" height
    the shimmer) or failed (static placeholder). */
 document.addEventListener('load', function(e){
   const t = e.target;
-  if(t && t.tagName === 'IMG'){ t.classList.remove('is-error'); t.classList.add('is-loaded'); }
+  if(t && t.tagName === 'IMG'){
+    t.classList.remove('is-error'); t.classList.add('is-loaded');
+    if(t._t0 && performance.now() - t._t0 < 160) t.classList.add('instant'); // came from the cache: no fade
+  }
 }, true);
+/* once a picture has faded in, it stays put: a hidden tab shown again would otherwise replay the fade
+   (CSS animations restart when an element comes back from display:none) */
+document.addEventListener('animationend', function(e){
+  if(e.animationName === 'imgIn' && e.target.tagName === 'IMG') e.target.classList.add('instant');
+}, true);
+/* An <img> whose picture is already in memory is complete the moment it's created: mark it before the
+   first paint so a redrawn list doesn't flash its placeholders and fade every picture in again. */
+(function(){
+  if(!window.MutationObserver) return;
+  const mark = function(im){
+    if(im.complete && im.naturalWidth){ im.classList.add('is-loaded', 'instant'); if(im.classList.contains('fmt-art')) im.classList.add('in'); }
+    else im._t0 = performance.now();
+  };
+  new MutationObserver(function(recs){
+    for(let i = 0; i < recs.length; i++){
+      const added = recs[i].addedNodes;
+      for(let j = 0; j < added.length; j++){
+        const n = added[j];
+        if(n.nodeType !== 1) continue;
+        if(n.tagName === 'IMG') mark(n); else if(n.firstElementChild){ const ims = n.getElementsByTagName('img'); for(let k = 0; k < ims.length; k++) mark(ims[k]); }
+      }
+    }
+  }).observe(document.documentElement, {childList: true, subtree: true});
+})();
 document.addEventListener('error', function(e){
   const t = e.target;
   if(t && t.tagName === 'IMG' && !t.dataset.fallback) t.classList.add('is-error');
@@ -1839,16 +1876,22 @@ function openDB(){
   return dbPromise;
 }
 function dbGetOne(store, key){ return openDB().then(function(db){ return new Promise(function(res, rej){ const r = db.transaction(store, 'readonly').objectStore(store).get(key); r.onsuccess = function(){ res(r.result || null); }; r.onerror = function(){ rej(r.error); }; }); }); }
+/* bumped by every write to the database; a tab whose list was drawn at the current revision (and with the
+   same view settings) isn't redrawn when you come back to it — redrawing ~3000 rows and their pictures
+   was the blink when switching tabs */
+let dataRev = 0;
+const LIST_STORES = {cards: 1, decks: 1, binders: 1, wishlist: 1}; // what the lists are drawn from (not the value history, games…)
+function viewSig(extra){ return dataRev+'|'+JSON.stringify(state.settings)+'|'+(extra || ''); }
 async function dbGetAll(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readonly'); const r=tx.objectStore(store).getAll(); r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); }
-async function dbPut(store, val){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){noteStoreWrite(store); res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbDeleteMany(store, ids){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); ids.forEach(function(id){ os.delete(id); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbDelete(store, id){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbPut(store, val){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(val); tx.oncomplete=function(){noteStoreWrite(store); res(val);}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbDeleteMany(store, ids){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); ids.forEach(function(id){ os.delete(id); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbDelete(store, id){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
 /* Decks count towards the grand total, so any change to them refreshes the summary (debounced). */
 var statsRefreshTimer = null;
 function noteStoreWrite(store){ if(store === 'decks') queueStatsRefresh(); }
 function queueStatsRefresh(){ clearTimeout(statsRefreshTimer); statsRefreshTimer = setTimeout(function(){ try{ renderStats(); }catch(e){} }, 250); }
-async function dbPutMany(store, vals){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
-async function dbClear(store){ const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbPutMany(store, vals){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
+async function dbClear(store){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
 
 /* ---------- Scryfall client ---------- */
 const SCRYFALL = 'https://api.scryfall.com';
@@ -2819,6 +2862,11 @@ function closeModalThen(fn){
   window.addEventListener('popstate', h);
   closeModal();
 }
+let collectionDrawn = null;
+function collectionUpToDate(){
+  const fv = document.getElementById('collectionFilterInput').value.trim().toLowerCase();
+  return !!collectionDrawn && collectionDrawn.sig === viewSig(fv+'|'+JSON.stringify(state.cf || ''));
+}
 function renderCollection(){
   const container = document.getElementById('collectionList');
   const filterVal = document.getElementById('collectionFilterInput').value.trim().toLowerCase();
@@ -2843,6 +2891,7 @@ function renderCollection(){
                  : emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'" ni en tu colección, ni en tus mazos, ni en tus deseos.');
   else emptyHTML = emptyStateHTML('book','Tu colección está vacía todavía.<br>Pulsa el botón + para añadir la primera.');
   renderCardsInto(container, items, emptyHTML);
+  collectionDrawn = {sig: viewSig(filterVal+'|'+JSON.stringify(state.cf || '')), list: items};
   renderAlsoIn(also);
   renderActiveFilters();
   renderStats();
@@ -4632,13 +4681,66 @@ function deckGridItemHTML(deck){
    from Scryfall and cached), how many decks you have and what they're worth. Tap the
    centred card to open that format's folder; tap a side card to bring it to the centre.
    Swiping is the browser's own scroll-snap, so it's as smooth as any native carousel. */
-const FORMAT_ART = {
-  commander: {name: "Atraxa, Praetors' Voice", set: 'c16', color: '#6d4bd8'},
-  modern: {name: 'Tarmogoyf', set: 'fut', color: '#1f6fd0'},
-  pauper: {name: 'Lightning Bolt', set: 'm10', color: '#25865c'},
-  premodern: {name: 'Psychatog', set: 'ody', color: '#b06a26'},
-  '': {name: '', set: '', color: '#5f5871'}
-};
+/* Every format Scryfall keeps legality for (plus Premodern). key = Scryfall's legality key.
+   cmd: decks led by a commander ('commander' | 'brawl' | 'oathbreaker'), size: exact deck size for those.
+   The Mazos carousel lists them by how many decks you have; this order breaks ties. */
+const FORMAT_DEFS = [
+  {key:'commander', label:'Commander', cmd:'commander', size:100, color:'#6d4bd8', art:{name:"Atraxa, Praetors' Voice", set:'c16'},
+    blurb:'100 cartas, singleton, comandante e identidad de color'},
+  {key:'modern', label:'Modern', color:'#1f6fd0', art:{name:'Tarmogoyf', set:'fut'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, ediciones desde 8ª', why:'no se han impreso en ninguna edición válida para Modern'},
+  {key:'pauper', label:'Pauper', color:'#25865c', art:{name:'Lightning Bolt', set:'m10'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, solo comunes', why:'solo se permiten cartas que se hayan impreso como comunes', notLegalTag:'No es común'},
+  {key:'premodern', label:'Premodern', color:'#b06a26', art:{name:'Psychatog', set:'ody'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, de Cuarta Edición a Azote', why:'solo valen cartas de las ediciones entre Cuarta Edición y Azote (1995–2003)'},
+  {key:'standard', label:'Standard', color:'#c2453a', art:{name:'Sheoldred, the Apocalypse', set:'dmu'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, solo las ediciones recientes', why:'no están en ninguna edición que esté ahora en Standard'},
+  {key:'pioneer', label:'Pioneer', color:'#0f8b8d', art:{name:'Thoughtseize', set:'ths'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, desde Regreso a Rávnica', why:'no se han impreso en ninguna edición válida para Pioneer'},
+  {key:'legacy', label:'Legacy', color:'#8a3d6e', art:{name:'Force of Will', set:'all'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, casi todas las cartas'},
+  {key:'vintage', label:'Vintage', color:'#9a7b22', art:{name:'Black Lotus', set:'lea'},
+    blurb:'60+ cartas, banquillo 15, máx. 4 copias, las restringidas solo 1', restricted:true},
+  {key:'oathbreaker', label:'Oathbreaker', cmd:'oathbreaker', size:60, color:'#3c5a9a', art:{name:'Jace, the Mind Sculptor', set:'wwk'},
+    blurb:'60 cartas, singleton, un planeswalker y su hechizo emblemático'},
+  {key:'brawl', label:'Brawl', cmd:'brawl', size:100, arena:true, color:'#d0612a', art:{name:'Kenrith, the Returned King', set:'eld'},
+    blurb:'100 cartas, singleton, comandante e identidad de color'},
+  {key:'competitivebrawl', label:'Comp. Brawl', cmd:'brawl', size:100, arena:true, color:'#a8332f', art:{name:'Esika, God of the Tree', set:'khm'},
+    blurb:'Brawl clasificatorio: 100 cartas, singleton, su propia lista de prohibidas'},
+  {key:'alchemy', label:'Alchemy', arena:true, color:'#2b9bb5', art:{name:'The Wandering Emperor', set:'neo'},
+    blurb:'60+ cartas, máx. 4 copias, Standard de Arena con cartas digitales'},
+  {key:'historic', label:'Historic', arena:true, color:'#5c6f2b', art:{name:'Teferi, Time Raveler', set:'war'},
+    blurb:'60+ cartas, máx. 4 copias, todas las cartas de Arena'},
+  {key:'timeless', label:'Timeless', arena:true, color:'#4a4e6b', art:{name:'Oko, Thief of Crowns', set:'eld'},
+    blurb:'60+ cartas, máx. 4 copias, todo Arena, las restringidas solo 1', restricted:true},
+  {key:'penny', label:'Penny Dreadful', color:'#7f5a3a', art:{name:'Prosperous Innkeeper', set:'afr'},
+    blurb:'60+ cartas, máx. 4 copias, solo cartas muy baratas'}
+];
+const FORMAT_BY = {};
+FORMAT_DEFS.forEach(function(f){ FORMAT_BY[f.key] = f; });
+const DECK_FORMATS = FORMAT_DEFS.map(function(f){ return {key: f.key, label: f.label, arena: !!f.arena}; });
+function cmdKind(fmt){ const f = FORMAT_BY[fmt]; return (f && f.cmd) || ''; }
+function formatKeyFromText(t){
+  t = String(t || '').toLowerCase();
+  if(/comp(etitive|\.)?\s*brawl|ranked\s*brawl|competitivebrawl/.test(t)) return 'competitivebrawl';
+  if(/brawl/.test(t)) return 'brawl';
+  if(/oath\s*breaker/.test(t)) return 'oathbreaker';
+  if(/commander|edh/.test(t)) return 'commander';
+  if(/pre-?modern/.test(t)) return 'premodern'; // before "modern", which it contains
+  if(/modern/.test(t)) return 'modern';
+  if(/pauper/.test(t)) return 'pauper';
+  if(/pioneer/.test(t)) return 'pioneer';
+  if(/legacy/.test(t)) return 'legacy';
+  if(/vintage/.test(t)) return 'vintage';
+  if(/alchemy/.test(t)) return 'alchemy';
+  if(/historic/.test(t)) return 'historic';
+  if(/timeless/.test(t)) return 'timeless';
+  if(/penny/.test(t)) return 'penny';
+  if(/standard/.test(t)) return 'standard';
+  return '';
+}
+const FORMAT_ART = {'': {name: '', set: '', color: '#5f5871'}};
+FORMAT_DEFS.forEach(function(f){ FORMAT_ART[f.key] = {name: f.art.name, set: f.art.set, color: f.color}; });
 const FORMAT_ART_KEY = 'mtgFormatArt';
 let formatArtCache = null, formatArtLoading = false;
 function formatArtData(){
@@ -4650,7 +4752,7 @@ function formatArtFor(k){ const d = formatArtData()[k]; return d && d.url ? d : 
 async function ensureFormatArt(){
   if(formatArtLoading) return;
   const cache = formatArtData();
-  const todo = DECK_FORMATS.map(function(f){ return f.key; }).filter(function(k){ const d = cache[k]; return !d || !d.url || d.card !== FORMAT_ART[k].name || Date.now() - (d.ts || 0) > 30*DAY_MS; });
+  const todo = formatKeysShown().filter(function(k){ return !!k; }).filter(function(k){ const d = cache[k]; return !d || !d.url || d.card !== FORMAT_ART[k].name || Date.now() - (d.ts || 0) > 30*DAY_MS; });
   if(!todo.length) return;
   formatArtLoading = true;
   try{
@@ -4693,7 +4795,11 @@ function deckCoverUrl(deck){
   return artCropUrl(src) || src;
 }
 function formatKeysShown(){
-  return DECK_FORMATS.map(function(f){ return f.key; }).concat(state.decks.some(function(d){ return !deckFormat(d); }) ? [''] : []);
+  const n = {};
+  state.decks.forEach(function(d){ const k = deckFormat(d); n[k] = (n[k] || 0) + 1; });
+  const keys = FORMAT_DEFS.map(function(f, i){ return {k: f.key, i: i, n: n[f.key] || 0}; })
+    .sort(function(a, b){ return b.n - a.n || a.i - b.i; }).map(function(x){ return x.k; });
+  return keys.concat(n[''] ? [''] : []);
 }
 function formatStats(k){
   const list = state.decks.filter(function(d){ return deckFormat(d) === k; });
@@ -4739,6 +4845,7 @@ function fmtSetActive(car, i){
 }
 function renderDecks(){
   const el = document.getElementById('decksList');
+  el._sig = viewSig();
   const keys = formatKeysShown();
   const old = el.querySelector('.fmt-carousel');
   const keepScroll = old && old.clientWidth ? old.scrollLeft : null;
@@ -4894,7 +5001,7 @@ function deckCardRowHTML(deck, c, big, board){
     (img ? '<img class="'+thumbClass+'" src="'+esc(img)+'" alt="" data-action="deck-view" data-name="'+esc(c.name)+'" title="Ver en grande">' : '<div class="'+thumbClass+' card-thumb-empty">'+icon('image',big?22:16)+'</div>')+
     '<div class="card-info"><div class="card-name with-cost"><span class="nm">'+esc(c.name)+'</span>'+manaCostHTML(c.manaCost || cardManaCost(rulesFor(c.name)))+'</div><div class="card-meta">'+((c.manaCost || cardManaCost(rulesFor(c.name)) || /\bLand\b/.test(c.typeLine||'')) ? '' : colorPipsHTML(c.colors))+badge+'</div></div>'+
     '<div class="card-value">'+
-      (!side && (isCommanderDeck(deck) || c.commander) && maybeCommander(c) ? '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>' : '')+
+      (!side && (isCommanderDeck(deck) || c.commander) && maybeCommander(c, deckFormat(deck)) ? '<button class="icon-btn crown-btn'+(c.commander?' active':'')+'" data-action="toggle-commander" data-name="'+esc(c.name)+'" data-id="'+deck.id+'" title="'+(c.commander?'Quitar de comandante':'Marcar como comandante')+'">'+icon('crown',15)+'</button>' : '')+
       '<div class="qty-stepper">'+
         '<button class="qty-btn" data-action="deck-dec" data-board="'+(side ? 'side' : 'main')+'" data-name="'+esc(c.name)+'" data-id="'+deck.id+'">'+icon('minus',13)+'</button>'+
         '<span class="qty-val">'+q+'</span>'+
@@ -5219,9 +5326,10 @@ function openDeckDetail(id){
 }
 /* Could this deck card be a commander at all? Quick check from the stored type line, used to
    show the crown only where it makes sense (no type line stored → show it, checked on tap). */
-function maybeCommander(c){
+function maybeCommander(c, fmt){
   const type = String(c.typeLine || '').split(' // ')[0];
-  return !!c.commander || !type || /Legendary/.test(type);
+  // Oathbreaker: the planeswalker and its signature spell (an instant or sorcery)
+  return !!c.commander || !type || /Legendary/.test(type) || (cmdKind(fmt) === 'oathbreaker' && /Instant|Sorcery/.test(type));
 }
 /* Marks / unmarks a deck card as commander following the rules. Unmarking is always allowed.
    Marking needs Scryfall's rules data (fetched if missing): legendary creature, legendary
@@ -5240,9 +5348,20 @@ async function toggleDeckCommander(deck, c){
                         : 'Sin conexión no puedo comprobar si «'+c.name+'» puede ser comandante. Inténtalo de nuevo con internet.', 4200);
     return false;
   }
+  const kind = cmdKind(deckFormat(deck));
+  if(kind === 'oathbreaker'){ // one planeswalker (the oathbreaker) + one instant or sorcery (its signature spell)
+    const role = oathbreakerRole(card);
+    if(!role){ toast('En Oathbreaker se marcan un planeswalker (tu oathbreaker) y un instantáneo o conjuro (su hechizo emblemático).', 4800); return false; }
+    const clash = others.find(function(x){ const o = rulesFor(x.name); return o && oathbreakerRole(o) === role; });
+    if(clash){ toast('Ya tienes '+(role === 'oathbreaker' ? 'un oathbreaker' : 'un hechizo emblemático')+' marcado («'+clash.name+'»). Quítalo antes.', 4200); return false; }
+    c.commander = true;
+    await dbPut('decks', deck);
+    return true;
+  }
   const tr = commanderTraits(card);
+  if(kind === 'brawl' && !tr.canLead && brawlCanLead(card)) tr.canLead = true; // Brawl: planeswalkers too
   if(!tr.canLead && !tr.isBackground){
-    toast('«'+c.name+'» no puede ser comandante: tiene que ser una criatura legendaria, un vehículo legendario o decir en su texto que puede ser tu comandante.', 4800);
+    toast('«'+c.name+'» no puede ser comandante: tiene que ser una criatura legendaria'+(kind === 'brawl' ? ', un planeswalker' : '')+', un vehículo legendario o decir en su texto que puede ser tu comandante.', 4800);
     return false;
   }
   if(others.length === 1){
@@ -5296,7 +5415,7 @@ function openDeckCardSheet(deck, name){
   const canFoil = !fin || fin.indexOf('foil') > -1 || fin.indexOf('etched') > -1;
   const foilOnly = !!(fin && canFoil && fin.indexOf('nonfoil') < 0);
   const lang = c.lang || 'EN';
-  const withSide = deckFormat(deck) !== 'commander' || (c.side||0) > 0;
+  const withSide = !cmdKind(deckFormat(deck)) || (c.side||0) > 0;
   const sw = function(id, on, label, disabled){ return '<label class="switch" aria-label="'+label+'"><input type="checkbox" id="'+id+'"'+(on ? ' checked' : '')+(disabled ? ' disabled' : '')+'><span class="track"></span><span class="thumb"></span></label>'; };
   openModal(
     '<div class="modal-card-image-wrap">'+
@@ -5320,7 +5439,7 @@ function openDeckCardSheet(deck, name){
     '<div class="toggle-row dcs-row"><div><div class="srlabel">Idioma</div></div>'+
       '<select id="dcsLang" class="text-input dcs-select" aria-label="Idioma">'+LANGS.map(function(l){ return '<option value="'+l+'"'+(lang === l ? ' selected' : '')+'>'+l+'</option>'; }).join('')+'</select></div>'+
     '<div class="toggle-row dcs-row" id="dcsProxyRow"></div>'+
-    ((isCommanderDeck(deck) || c.commander) && maybeCommander(c) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
+    ((isCommanderDeck(deck) || c.commander) && maybeCommander(c, deckFormat(deck)) ? '<div class="toggle-row dcs-row"><div><div class="srlabel">Comandante</div></div>'+sw('dcsCommander', !!c.commander, 'Comandante')+'</div>' : '')+
     '<div class="btn-row">'+
       '<button class="btn btn-danger" id="dcsRemove">'+icon('trash',15)+' Quitar</button>'+
       '<button class="btn btn-primary btn-block" id="dcsDone">'+icon('check',15)+' Hecho</button>'+
@@ -5433,7 +5552,13 @@ function newDeckModal(){
     '<h3 class="modal-title">'+icon('layers',20)+' Nuevo mazo</h3>'+
     '<div class="field"><label for="newDeckName">Nombre</label><input id="newDeckName" class="text-input" placeholder="Ej. Comandante Atraxa"></div>'+
     '<div class="field"><label for="newDeckFormat">Formato</label><select id="newDeckFormat" class="text-input">'+
-      DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){ return '<option value="'+f.key+'"'+(f.key === (DECK_FORMATS.some(function(x){ return x.key === state.settings.deckTab; }) ? state.settings.deckTab : (state.settings.deckTab === 'none' ? '' : 'commander')) ? ' selected' : '')+'>'+f.label+'</option>'; }).join('')+
+      (function(){
+        const sel = DECK_FORMATS.some(function(x){ return x.key === state.settings.deckTab; }) ? state.settings.deckTab : (state.settings.deckTab === 'none' ? '' : 'commander');
+        const opt = function(f){ return '<option value="'+f.key+'"'+(f.key === sel ? ' selected' : '')+'>'+esc(f.label)+'</option>'; };
+        return '<optgroup label="Papel">'+DECK_FORMATS.filter(function(f){ return !f.arena; }).map(opt).join('')+'</optgroup>'+
+               '<optgroup label="MTG Arena">'+DECK_FORMATS.filter(function(f){ return f.arena; }).map(opt).join('')+'</optgroup>'+
+               opt({key:'', label:'Sin formato'});
+      })()+
     '</select></div>'+
     '<button class="btn btn-primary btn-block" id="createDeckBtn">'+icon('check',15)+' Crear mazo</button>'
   );
@@ -5738,6 +5863,7 @@ function binderIconHTML(binder, size){
 }
 function renderBinders(){
   const el = document.getElementById('bindersList');
+  el._sig = viewSig();
   const assignedIds = {};
   state.cards.forEach(function(c){ if(c.binderId) assignedIds[c.binderId]=true; });
   const unassignedCount = state.cards.filter(function(c){ return !c.binderId; }).reduce(function(a,c){return a+c.quantity;},0);
@@ -6580,6 +6706,13 @@ function commanderTraits(card){
     mentionsTwoCommanders: /two commanders/i.test(t)
   };
 }
+function brawlCanLead(card){ const type = cardFrontType(card); return /Legendary/.test(type) && /Planeswalker/.test(type); }
+function oathbreakerRole(card){
+  const type = cardFrontType(card);
+  if(/Planeswalker/.test(type)) return 'oathbreaker';
+  if(/Instant|Sorcery/.test(type)) return 'signature';
+  return '';
+}
 function commanderPairOk(a, b){
   const A = commanderTraits(a), B = commanderTraits(b);
   if(A.partner && B.partner) return true;
@@ -6593,36 +6726,27 @@ function commanderPairOk(a, b){
 /* ---------- Deck formats ----------
    Each deck has a format: commander, modern, pauper, premodern or '' (sin formato). Older
    decks stored free text ("Commander", "EDH"…); they're converted once at start-up. */
-const DECK_FORMATS = [{key:'commander', label:'Commander'}, {key:'modern', label:'Modern'}, {key:'pauper', label:'Pauper'}, {key:'premodern', label:'Premodern'}];
-const SIXTY_FORMATS = ['modern', 'pauper', 'premodern'];
-function formatKeyFromText(t){
-  t = String(t || '').toLowerCase();
-  if(/commander|edh/.test(t)) return 'commander';
-  if(/pre-?modern/.test(t)) return 'premodern'; // before "modern", which it contains
-  if(/modern/.test(t)) return 'modern';
-  if(/pauper/.test(t)) return 'pauper';
-  return '';
-}
 function deckFormat(deck){
   const k = formatKeyFromText(deck.format);
   if(k) return k;
   return (deck.cards || []).some(function(c){ return c.commander; }) ? 'commander' : '';
 }
 function formatLabel(k){ const f = DECK_FORMATS.find(function(x){ return x.key === k; }); return f ? f.label : 'Sin formato'; }
-function isCommanderDeck(deck){ return deckFormat(deck) === 'commander'; }
+function isCommanderDeck(deck){ return !!cmdKind(deckFormat(deck)); } // led by a commander (Commander, Brawl, Oathbreaker)
 /* old free-text formats → keys (the original text is kept in formatNote if it wasn't one of ours) */
 async function migrateDeckFormats(){
-  const changed = []; let standard = 0;
+  const changed = []; let restored = 0, restoredFmt = '';
   state.decks.forEach(function(d){
+    // decks parked in "Sin formato" while their format wasn't in the app (Standard…) go back to it
+    if(!d.format && d.formatNote && formatKeyFromText(d.formatNote)){ d.format = restoredFmt = formatKeyFromText(d.formatNote); delete d.formatNote; restored++; changed.push(d); return; }
     const k = deckFormat(d);
     if(d.format !== k){
-      if(d.format && !formatKeyFromText(d.format)){ d.formatNote = /^standard$/i.test(d.format) ? 'Standard' : d.format; if(/^standard$/i.test(d.format)) standard++; }
+      if(d.format && !formatKeyFromText(d.format)) d.formatNote = d.format;
       d.format = k; changed.push(d);
     }
   });
   if(changed.length) await dbPutMany('decks', changed);
-  // Standard was replaced by Premodern: those decks wait in "Sin formato" to be reassigned
-  if(standard) setTimeout(function(){ toast(standard === 1 ? 'Tu mazo de Standard está ahora en «Sin formato»' : 'Tus '+standard+' mazos de Standard están ahora en «Sin formato»', 4200); }, 1200);
+  if(restored) setTimeout(function(){ toast(restored === 1 ? 'Tu mazo de '+formatLabel(restoredFmt)+' vuelve a estar en '+formatLabel(restoredFmt) : restored+' mazos han vuelto a su formato (Standard…)', 4200); }, 1200);
 }
 /* "¿De qué formato es?" — used from the deck cover and after importing a deck without one. */
 function openDeckFormatSheet(deck, opts){
@@ -6631,15 +6755,17 @@ function openDeckFormatSheet(deck, opts){
   openModal(
     '<h3 class="modal-title">'+icon('layers',20)+' '+esc(opts.title || 'Formato del mazo')+'</h3>'+
     '<div class="section-note" style="margin-top:-.4rem;">'+esc(deck.name)+' · se comprobarán sus reglas y prohibiciones</div>'+
-    '<div class="fmt-pick">'+DECK_FORMATS.concat([{key:'', label:'Sin formato'}]).map(function(f){
-      return '<button type="button" class="fmt-opt'+(f.key === cur ? ' active' : '')+'" data-fmt="'+f.key+'"><b>'+esc(f.label)+'</b><span>'+esc(FORMAT_BLURB[f.key])+'</span></button>';
+    '<div class="fmt-pick">'+[['Papel', FORMAT_DEFS.filter(function(f){ return !f.arena; })], ['MTG Arena', FORMAT_DEFS.filter(function(f){ return f.arena; })], ['', [{key:'', label:'Sin formato'}]]].map(function(g){
+      return (g[0] ? '<div class="fmt-pick-sec">'+esc(g[0])+'</div>' : '')+g[1].map(function(f){
+        return '<button type="button" class="fmt-opt'+(f.key === cur ? ' active' : '')+'" data-fmt="'+f.key+'"><b>'+esc(f.label)+'</b><span>'+esc(FORMAT_BLURB[f.key])+'</span></button>';
+      }).join('');
     }).join('')+'</div>'
   );
   document.querySelector('#modalRoot .fmt-pick').addEventListener('click', async function(e){
     const b = e.target.closest('[data-fmt]'); if(!b) return;
     const k = b.dataset.fmt;
     deck.format = k; delete deck.legality; delete deck.bracket;
-    if(k !== 'commander') deck.cards.forEach(function(c){ c.commander = false; });
+    if(!cmdKind(k)) deck.cards.forEach(function(c){ c.commander = false; });
     await dbPut('decks', deck);
     closeModal();
     renderDecks();
@@ -6647,13 +6773,8 @@ function openDeckFormatSheet(deck, opts){
     toast(k ? 'Mazo de '+formatLabel(k) : 'Mazo sin formato');
   });
 }
-const FORMAT_BLURB = {
-  commander: '100 cartas, singleton, comandante e identidad de color',
-  modern: '60+ cartas, banquillo 15, máx. 4 copias, ediciones desde 8ª',
-  pauper: '60+ cartas, banquillo 15, máx. 4 copias, solo comunes',
-  premodern: '60+ cartas, banquillo 15, máx. 4 copias, de Cuarta Edición a Azote',
-  '': 'Sin comprobar reglas'
-};
+const FORMAT_BLURB = {'': 'Sin comprobar reglas'};
+FORMAT_DEFS.forEach(function(f){ FORMAT_BLURB[f.key] = f.blurb; });
 function cardCopies(c){ return (c.qty || 0) + (c.side || 0); }
 function listNames(names, max){
   max = max || 6;
@@ -6662,7 +6783,9 @@ function listNames(names, max){
 }
 /* Returns null while rules data is missing; otherwise
    {status:'legal'|'illegal'|'warn', issues:[{level,title,cards}], flags:{name:[labels]}, total, gameChangers} */
-function computeCommanderLegality(deck){
+function computeCommanderLegality(deck, fmt){
+  fmt = fmt || 'commander';
+  const def = FORMAT_BY[fmt] || FORMAT_BY.commander, kind = def.cmd, size = def.size, label = def.label;
   const names = deck.cards.map(function(c){ return c.name; });
   if(names.some(function(n){ return rulesFor(n) === undefined; })) return null;
   const issues = [], flags = {};
@@ -6672,19 +6795,25 @@ function computeCommanderLegality(deck){
   const unknown = deck.cards.filter(function(c){ return rulesFor(c.name) === null; }).map(function(c){ return c.name; });
 
   // 1) size
-  if(total !== 100){
-    const off = Math.abs(100-total);
-    issues.push({level:'error', title: (total < 100 ? (off === 1 ? 'Falta 1 carta' : 'Faltan '+off+' cartas') : (off === 1 ? 'Sobra 1 carta' : 'Sobran '+off+' cartas'))+': un mazo de Commander tiene exactamente 100 (con el comandante).', cards:[]});
+  if(total !== size){
+    const off = Math.abs(size-total);
+    issues.push({level:'error', title: (total < size ? (off === 1 ? 'Falta 1 carta' : 'Faltan '+off+' cartas') : (off === 1 ? 'Sobra 1 carta' : 'Sobran '+off+' cartas'))+': un mazo de '+label+' tiene exactamente '+size+' (con '+(kind === 'oathbreaker' ? 'el oathbreaker y su hechizo' : 'el comandante')+').', cards:[]});
   }
   // 2) commander(s)
   const cmdCards = commanders.map(function(c){ return rulesFor(c.name); }).filter(Boolean);
-  if(commanders.length === 0){
+  if(kind === 'oathbreaker'){
+    const ob = cmdCards.filter(function(c){ return oathbreakerRole(c) === 'oathbreaker'; }), sig = cmdCards.filter(function(c){ return oathbreakerRole(c) === 'signature'; });
+    if(ob.length !== 1) issues.push({level:'error', title: ob.length ? 'Solo puede haber un oathbreaker (planeswalker) marcado.' : 'Marca con la corona tu oathbreaker: un planeswalker.', cards: ob.map(function(c){ return c.name; })});
+    if(sig.length !== 1) issues.push({level:'error', title: sig.length ? 'Solo puede haber un hechizo emblemático marcado.' : 'Marca con la corona el hechizo emblemático: un instantáneo o conjuro.', cards: sig.map(function(c){ return c.name; })});
+    cmdCards.filter(function(c){ return !oathbreakerRole(c); }).forEach(function(c){ issues.push({level:'error', title:'«'+c.name+'» no puede ir en la zona de mando de Oathbreaker.', cards:[]}); });
+  } else if(commanders.length === 0){
     issues.push({level:'error', title:'No hay comandante marcado. Márcalo con la corona en la lista de cartas.', cards:[]});
   } else if(commanders.length > 2){
     issues.push({level:'error', title:'Hay '+commanders.length+' cartas marcadas como comandante; como máximo puede haber 2.', cards: commanders.map(function(c){ return c.name; })});
   } else {
     cmdCards.forEach(function(card){
       const tr = commanderTraits(card);
+      if(kind === 'brawl' && brawlCanLead(card)) tr.canLead = true;
       const other = cmdCards.find(function(x){ return x !== card; });
       const okAsBackground = tr.isBackground && other && commanderTraits(other).choosesBackground;
       if(!tr.canLead && !okAsBackground){
@@ -6702,16 +6831,17 @@ function computeCommanderLegality(deck){
   }
   // 3) colour identity
   const identity = {};
-  cmdCards.forEach(function(c){ (c.color_identity || []).forEach(function(k){ identity[k] = true; }); });
+  cmdCards.filter(function(c){ return kind !== 'oathbreaker' || oathbreakerRole(c) === 'oathbreaker'; })
+    .forEach(function(c){ (c.color_identity || []).forEach(function(k){ identity[k] = true; }); });
   if(cmdCards.length){
     const outside = deck.cards.filter(function(c){
-      if(c.commander) return false;
+      if(c.commander && (kind !== 'oathbreaker' || oathbreakerRole(rulesFor(c.name) || {}) === 'oathbreaker')) return false;
       const card = rulesFor(c.name); if(!card) return false;
       return (card.color_identity || []).some(function(k){ return !identity[k]; });
     }).map(function(c){ return c.name; });
     if(outside.length){
       const idTxt = Object.keys(identity).length ? Object.keys(identity).map(manaName).join(', ') : 'incoloro';
-      issues.push({level:'error', title: outside.length+' '+(outside.length===1?'carta está':'cartas están')+' fuera de la identidad de color del comandante ('+idTxt+').', cards: outside});
+      issues.push({level:'error', title: outside.length+' '+(outside.length===1?'carta está':'cartas están')+' fuera de la identidad de color '+(kind === 'oathbreaker' ? 'del oathbreaker' : 'del comandante')+' ('+idTxt+').', cards: outside});
       outside.forEach(function(n){ flag(n, 'Fuera de color'); });
     }
   }
@@ -6719,12 +6849,12 @@ function computeCommanderLegality(deck){
   const banned = [], notLegal = [];
   deck.cards.forEach(function(c){
     const card = rulesFor(c.name); if(!card || !card.legalities) return;
-    const l = card.legalities.commander;
+    const l = card.legalities[fmt];
     if(l === 'banned'){ banned.push(c.name); flag(c.name, 'Prohibida'); }
     else if(l === 'not_legal'){ notLegal.push(c.name); flag(c.name, 'No permitida'); }
   });
-  if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en Commander.', cards: banned});
-  if(notLegal.length) issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no está permitida':'cartas no están permitidas')+' en Commander (cartas de broma, digitales…).', cards: notLegal});
+  if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en '+label+'.', cards: banned});
+  if(notLegal.length) issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no está permitida':'cartas no están permitidas')+' en '+label+(def.arena ? ' (no están en MTG Arena).' : ' (cartas de broma, digitales…).'), cards: notLegal});
   // 5) singleton
   const dupes = [];
   deck.cards.forEach(function(c){
@@ -6736,7 +6866,7 @@ function computeCommanderLegality(deck){
   // 6) couldn't check
   if(unknown.length) issues.push({level:'warn', title: unknown.length+' '+(unknown.length===1?'carta no se ha encontrado':'cartas no se han encontrado')+' en Scryfall y no se han podido comprobar.', cards: unknown});
   // info: Game Changers (used by the official Commander brackets)
-  const gc = deck.cards.filter(function(c){ const card = rulesFor(c.name); return card && card.game_changer; }).map(function(c){ return c.name; });
+  const gc = kind !== 'commander' ? [] : deck.cards.filter(function(c){ const card = rulesFor(c.name); return card && card.game_changer; }).map(function(c){ return c.name; });
   if(gc.length) issues.push({level:'info', title: gc.length+' Game Changer'+(gc.length===1?' (cuenta':'s (cuentan')+' para los brackets de Commander; no afecta a la legalidad).', cards: gc});
 
   const hasError = issues.some(function(i){ return i.level === 'error'; });
@@ -6759,21 +6889,23 @@ function computeFormatLegality(deck, fmt){
   const side = deck.cards.reduce(function(a,c){ return a+(c.side||0); }, 0);
   if(main < 60) issues.push({level:'error', title:(60-main === 1 ? 'Falta 1 carta' : 'Faltan '+(60-main)+' cartas')+': el mazo principal de '+label+' necesita al menos 60.', cards:[]});
   if(side > 15) issues.push({level:'error', title:'El banquillo tiene '+side+' cartas: como máximo pueden ser 15.', cards:[]});
-  const banned = [], notLegal = [], dupes = [], unknown = [];
+  const banned = [], notLegal = [], dupes = [], unknown = [], restrictedOver = [];
   deck.cards.forEach(function(c){
     const card = rulesFor(c.name);
     if(!card){ unknown.push(c.name); return; }
     const l = card.legalities && card.legalities[fmt];
     if(l === 'banned'){ banned.push(c.name); flag(c.name, 'Prohibida'); }
-    else if(l && l !== 'legal' && l !== 'restricted'){ notLegal.push(c.name); flag(c.name, fmt === 'pauper' ? 'No es común' : 'No legal'); }
-    const max = maxCopies60(card), n = cardCopies(c);
+    else if(l && l !== 'legal' && l !== 'restricted'){ notLegal.push(c.name); flag(c.name, (FORMAT_BY[fmt] && FORMAT_BY[fmt].notLegalTag) || 'No legal'); }
+    const n = cardCopies(c);
+    if(l === 'restricted'){ if(n > 1){ restrictedOver.push(n+'× '+c.name); flag(c.name, 'Restringida'); } return; }
+    const max = maxCopies60(card);
     if(n > max){ dupes.push(n+'× '+c.name); flag(c.name, 'Más de '+max); }
   });
+  if(restrictedOver.length) issues.push({level:'error', title:'Las cartas restringidas en '+label+' solo pueden ir 1 vez.', cards: restrictedOver});
   if(banned.length) issues.push({level:'error', title: banned.length+' '+(banned.length===1?'carta prohibida':'cartas prohibidas')+' en '+label+'.', cards: banned});
   if(notLegal.length){
-    const why = fmt === 'pauper' ? 'solo se permiten cartas que se hayan impreso como comunes'
-      : fmt === 'premodern' ? 'solo valen cartas de las ediciones entre Cuarta Edición y Azote (1995–2003)'
-      : 'no se han impreso en ninguna edición válida para Modern';
+    const def = FORMAT_BY[fmt] || {};
+    const why = def.why || (def.arena ? 'no están en MTG Arena o no son de este formato' : 'no están permitidas en este formato');
     issues.push({level:'error', title: notLegal.length+' '+(notLegal.length===1?'carta no es legal':'cartas no son legales')+' en '+label+': '+why+'.', cards: notLegal});
   }
   if(dupes.length) issues.push({level:'error', title:'Como máximo 4 copias de cada carta contando mazo y banquillo (salvo tierras básicas y cartas que digan lo contrario).', cards: dupes});
@@ -6805,8 +6937,8 @@ function legalityPanelHTML(deck, result, state_){
     : result.status === 'warn' ? 'Parece legal, pero revisa lo siguiente'
     : 'No es legal en '+label+' · '+errors+' '+(errors===1?'problema':'problemas');
   const sub = result.status !== 'legal' ? ''
-    : fmt === 'commander' ? result.total+' cartas · singleton · identidad de color · sin prohibidas'
-    : result.total+' cartas'+(result.side ? ' + '+result.side+' banquillo' : '')+' · máx. 4 copias'+(fmt === 'pauper' ? ' · solo comunes' : '')+' · sin prohibidas';
+    : cmdKind(fmt) ? result.total+' cartas · singleton · identidad de color · sin prohibidas'
+    : result.total+' cartas'+(result.side ? ' + '+result.side+' banquillo' : '')+' · máx. 4 copias'+(fmt === 'pauper' ? ' · solo comunes' : '')+((FORMAT_BY[fmt] || {}).restricted ? ' · restringidas ×1' : '')+' · sin prohibidas';
   const items = result.issues.map(function(i){
     const ic = i.level === 'error' ? icon('x',13) : (i.level === 'warn' ? icon('alert',13) : icon('info',13));
     return '<li class="'+i.level+'"><span class="li-icon">'+ic+'</span><div>'+esc(i.title)+
@@ -6862,7 +6994,7 @@ async function runDeckLegality(deck){
     if(deck.legality || deck.bracket){ delete deck.legality; delete deck.bracket; await dbPut('decks', deck); }
     return;
   }
-  const result = ok ? (fmt === 'commander' ? computeCommanderLegality(deck) : computeFormatLegality(deck, fmt)) : null;
+  const result = ok ? (cmdKind(fmt) ? computeCommanderLegality(deck, fmt) : computeFormatLegality(deck, fmt)) : null;
   if(!result){
     target.innerHTML = legalityPanelHTML(deck, null, 'offline');
     const retry = document.getElementById('legalityRetryBtn');
@@ -7015,8 +7147,11 @@ function deckExportText(deck, mode){
   }
   return lines.join('\n');
 }
-function wishlistExportText(){
-  return sortedWishlist().map(function(w){ return w.qty+' '+w.name; }).join('\n');
+/* 'cm': "1 Lightning Bolt" (what Cardmarket's Wants import expects) · 'set': with edition and number (Moxfield, Arena…) */
+function wishlistExportText(mode){
+  return sortedWishlist().map(function(w){
+    return w.qty+' '+w.name+(mode === 'set' && w.setCode ? ' ('+String(w.setCode).toUpperCase()+')'+(w.collectorNumber ? ' '+w.collectorNumber : '') : '');
+  }).join('\n');
 }
 async function copyText(text){
   try{
@@ -7043,7 +7178,8 @@ function openTextExportModal(opts){
       '<button class="btn btn-secondary" id="exportDownloadBtn">'+icon('download',15)+' .txt</button>'+
       (canShare ? '<button class="btn btn-secondary" id="exportShareBtn">'+icon('share',15)+' Enviar</button>' : '')+
     '</div>'+
-    '<p class="about-note" style="padding-top:.8rem;">Formato compatible con ManaBox, Moxfield, Archidekt, MTG Arena y la lista de «Wants» de Cardmarket.</p>'
+    '<a class="btn btn-secondary btn-block export-link" id="exportLink" target="_blank" rel="noopener" hidden></a>'+
+    '<p class="about-note" id="exportNote" style="padding-top:.8rem;">Formato compatible con ManaBox, Moxfield, Archidekt, MTG Arena y la lista de «Wants» de Cardmarket.</p>'
   );
   const preview = document.getElementById('exportPreview');
   function current(){ return opts.build(mode); }
@@ -7051,6 +7187,10 @@ function openTextExportModal(opts){
     const t = current();
     preview.value = t || opts.emptyText || '';
     document.querySelectorAll('#exportModeSeg button').forEach(function(b){ b.classList.toggle('active', b.dataset.mode === mode); });
+    if(opts.notes && opts.notes[mode]) document.getElementById('exportNote').textContent = opts.notes[mode];
+    const ln = document.getElementById('exportLink'), l = opts.links && opts.links[mode];
+    ln.hidden = !l;
+    if(l){ ln.href = l.href; ln.innerHTML = icon('exportOut',15)+' '+esc(l.label); }
     ['exportCopyBtn','exportDownloadBtn','exportShareBtn'].forEach(function(id){ const b = document.getElementById(id); if(b) b.disabled = !t; });
   }
   refresh();
@@ -7233,6 +7373,7 @@ function renderWishlist(){
   const list = document.getElementById('wishlistList');
   const summary = document.getElementById('wishSummary');
   if(!list) return;
+  list._sig = viewSig();
   const items = sortedWishlist();
   document.getElementById('wishlistExportBtn').disabled = items.length === 0;
   document.getElementById('wishSearchBox').hidden = !!wishSel;
@@ -7346,12 +7487,21 @@ async function refreshWishlistPricesIfStale(){
    browser's storage and would be lost if the site data is cleared or the phone changes.
    A backup is one JSON file with everything, restorable in one step. */
 const BACKUP_META_KEY = 'mtgLedgerBackupMeta';
-const BACKUP_OVERDUE_DAYS = 14;
+const BACKUP_OVERDUE_DAYS = 21;   // red after 3 weeks (and the reminder)
+const BACKUP_SOON_DAYS = 7;       // amber after 1 week
 const BACKUP_REMIND_EVERY_DAYS = 7;
 const DAY_MS = 86400000;
 function loadBackupMeta(){ try{ return JSON.parse(localStorage.getItem(BACKUP_META_KEY) || '{}') || {}; }catch(e){ return {}; } }
 function saveBackupMeta(m){ try{ localStorage.setItem(BACKUP_META_KEY, JSON.stringify(m)); }catch(e){} }
 function hasAnyData(){ return state.cards.length > 0 || state.decks.length > 0 || state.binders.length > 0 || state.wishlist.length > 0 || state.games.length > 0; }
+/* 'ok' (green) · 'soon' (amber) · 'late' (red) · '' (nothing to back up yet) */
+function backupLevel(){
+  if(!hasAnyData()) return '';
+  const last = loadBackupMeta().lastBackupAt;
+  if(!last) return 'late';
+  const age = Date.now() - last;
+  return age > BACKUP_OVERDUE_DAYS*DAY_MS ? 'late' : age > BACKUP_SOON_DAYS*DAY_MS ? 'soon' : 'ok';
+}
 function backupIsOverdue(){
   if(!hasAnyData()) return false;
   const last = loadBackupMeta().lastBackupAt;
@@ -7369,17 +7519,19 @@ function renderBackupStatus(){
   const label = document.getElementById('backupStatusLabel');
   if(!row || !label) return;
   const last = loadBackupMeta().lastBackupAt;
-  const overdue = backupIsOverdue();
+  const level = backupLevel();
   if(last){
     const when = new Date(last).toLocaleDateString('es-ES', {day:'numeric', month:'short', year:'numeric'});
     label.textContent = 'Última copia: '+daysAgoText(last)+' ('+when+')';
   } else {
     label.textContent = 'Nunca has hecho una copia';
   }
-  row.classList.toggle('overdue', overdue);
-  row.classList.toggle('ok', !!last && !overdue);
+  const hint = document.getElementById('backupStatusHint');
+  if(hint) hint.textContent = level === 'ok' ? 'Al día' : level === 'soon' ? 'Tiene más de una semana: haz otra pronto' : level === 'late' ? (last ? 'Tiene más de tres semanas: haz una copia ya' : 'Haz una copia para no perder nada') : '';
+  ['ok', 'soon', 'late'].forEach(function(k){ row.classList.toggle('lvl-'+k, level === k); });
+  row.classList.remove('overdue', 'ok');
   const tab = document.querySelector('.tab-btn[data-tab="settings"]');
-  if(tab) tab.classList.toggle('needs-attention', overdue);
+  if(tab){ tab.classList.toggle('needs-attention', level === 'soon' || level === 'late'); tab.classList.toggle('attention-late', level === 'late'); }
 }
 function buildBackup(){
   return {
@@ -7468,7 +7620,7 @@ function validateBackup(b){
 }
 /* Clear + write all three stores in ONE transaction: either the whole backup lands or
    nothing changes (a failure half-way leaves the current data untouched). */
-async function dbReplaceAll(data){
+async function dbReplaceAll(data){ dataRev++;
   const db = await openDB();
   return new Promise(function(res, rej){
     // Backups made before the wishlist existed have no "wishlist": leave the current one alone.
@@ -7532,7 +7684,7 @@ function maybeRemindBackup(){
   if(m.lastReminderAt && (Date.now() - m.lastReminderAt) < BACKUP_REMIND_EVERY_DAYS*DAY_MS) return;
   m.lastReminderAt = Date.now(); saveBackupMeta(m);
   const txt = m.lastBackupAt
-    ? 'Hace más de '+BACKUP_OVERDUE_DAYS+' días que no haces una copia de seguridad. Puedes hacerla en Ajustes.'
+    ? 'Hace más de tres semanas que no haces una copia de seguridad. Puedes hacerla en Ajustes.'
     : 'Aún no tienes ninguna copia de seguridad. Puedes hacerla en Ajustes.';
   setTimeout(function(){ toast(txt, 5000); }, 1200);
 }
@@ -8739,7 +8891,7 @@ function animateTabEnter(tab, prevTab){
   const panel = document.querySelector('.tab-panel[data-tab="'+tab+'"]');
   if(!panel) return;
   panel.classList.remove('enter-left','enter-right','stagger'); void panel.offsetWidth;
-  panel.classList.add(TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prevTab) ? 'enter-right' : 'enter-left', 'stagger');
+  panel.classList.add(TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prevTab) ? 'enter-right' : 'enter-left');
   clearTimeout(panel._animT);
   panel._animT = setTimeout(function(){ panel.classList.remove('enter-left','enter-right','stagger'); }, 950);
 }
@@ -8756,11 +8908,11 @@ function switchTab(tab, fromNav){
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
   if(tab !== 'scan') stopCamera();
-  if(tab === 'collection') renderCollection();
-  if(tab === 'decks') renderDecks();
+  if(tab === 'collection'){ if(collectionUpToDate()) lastRenderedCardList = collectionDrawn.list; else renderCollection(); }
+  if(tab === 'decks' && document.getElementById('decksList')._sig !== viewSig()) renderDecks();
   if(tab === 'games') renderGames();
-  if(tab === 'binders') renderBinders();
-  if(tab === 'wishlist'){ renderWishlist(); refreshWishlistPricesIfStale(); }
+  if(tab === 'binders' && document.getElementById('bindersList')._sig !== viewSig()) renderBinders();
+  if(tab === 'wishlist'){ if(wishSel || document.getElementById('wishlistList')._sig !== viewSig()) renderWishlist(); refreshWishlistPricesIfStale(); }
   if(tab === 'settings') renderSettings();
   animateTabEnter(tab, prevTab);
   // each tab keeps its own scroll position
@@ -8983,7 +9135,11 @@ async function init(){
 
   document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
   document.getElementById('wishlistExportBtn').addEventListener('click', function(){
-    openTextExportModal({ title:'Exportar lista de deseos', fileBase:'lista-de-deseos', modes:null, build: wishlistExportText });
+    openTextExportModal({ title:'Exportar lista de deseos', fileBase:'lista-de-deseos', build: wishlistExportText,
+      modes:[{key:'cm', label:'Para Cardmarket'}, {key:'set', label:'Con edición'}],
+      notes:{cm:'Una carta por línea con su cantidad. En Cardmarket, abre (o crea) una lista de Wants y pega el texto en la opción de añadir cartas desde una lista.',
+             set:'Con la edición y el número entre paréntesis: lo leen Moxfield, Archidekt, ManaBox, MTG Arena y la importación de esta app.'},
+      links:{cm:{label:'Abrir Cardmarket', href:'https://www.cardmarket.com/es/Magic/Wants'}} });
   });
   const wishInput = document.getElementById('wishSearchInput');
   const wishSugg = document.getElementById('wishSuggestions');
