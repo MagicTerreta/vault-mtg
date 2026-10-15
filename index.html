@@ -162,6 +162,37 @@
   .wish-summary-actions{display:flex; gap:.2rem; flex-wrap:wrap; margin-left:auto;}
   .wish-summary-actions .btn-ghost{padding:.4rem .5rem; font-size:.8rem;}
   .wish-summary strong{color:var(--ink); font-family:var(--font-mono); font-weight:600;}
+  /* price alerts */
+  .wa-price-btn{display:inline-flex; align-items:center; gap:4px; background:var(--surface-2); border:none; border-radius:999px; padding:3px 8px 3px 7px; margin-right:-2px; cursor:pointer;}
+  .wa-price-btn svg{color:var(--ink-faint); flex:none;}
+  .wa-price-btn.has-alert{background:var(--accent-soft);}
+  .wa-price-btn.has-alert svg{color:var(--accent); fill:currentColor;}
+  .wa-badge{background:var(--accent-soft); color:var(--accent);}
+  .wa-badge svg{flex:none;}
+  .wa-badge.wa-hit{background:var(--good); color:var(--surface); font-weight:600;}
+  .card-row.wa-row-hit{background:color-mix(in srgb, var(--good-soft) 70%, transparent); box-shadow:inset 3px 0 0 var(--good);}
+  .card-row.wa-row-hit .wa-price-btn{background:var(--good-soft);}
+  .card-row.wa-row-hit .wa-price-btn svg{color:var(--good);}
+  .wa-banner{display:flex; align-items:center; gap:.6rem; margin:.2rem 0 .6rem; padding:.65rem .7rem; border-radius:var(--radius-m); background:var(--good-soft); color:color-mix(in srgb, var(--good) 75%, var(--ink)); font-size:.84rem;}
+  .wa-banner-ico{flex:none; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; background:var(--good); color:var(--surface);}
+  .wa-banner-txt{flex:1; min-width:0;}
+  .wa-banner .btn{padding:.45rem .7rem; font-size:.8rem; flex:none;}
+  .wa-prices{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin:.2rem 0 .9rem;}
+  .wa-p{display:flex; flex-direction:column; gap:2px; padding:.6rem .7rem; border-radius:var(--radius-m); background:var(--surface-2); min-width:0;}
+  .wa-p span{font-size:.68rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em;}
+  .wa-p b{font-family:var(--font-mono); font-size:1.05rem; display:flex; align-items:center; gap:4px;}
+  .wa-p small{font-size:.72rem; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .wa-p-low{background:var(--good-soft);}
+  .wa-p-low b{color:var(--good);}
+  .wa-input{display:flex; align-items:center; gap:.5rem;}
+  .wa-input input{flex:1; font-family:var(--font-mono); font-size:1.1rem;}
+  .wa-input span{font-family:var(--font-mono); font-size:1.1rem; color:var(--ink-soft);}
+  .wa-quick{display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.35rem;}
+  .wa-quick:empty{display:none;}
+  .tab-btn.needs-attention.attention-good::after{background:var(--good);}
+  .storage-status .srlabel{display:flex; align-items:center; gap:.45rem; color:var(--warn);}
+  .storage-status.is-safe .srlabel{color:var(--good);}
+  .storage-status .srlabel svg{flex:none;}
   .wish-for{font-size:.68rem; color:var(--ink-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-row .card-info{min-width:0;}
   .deck-tools{display:flex; gap:.5rem; flex-wrap:wrap; margin:.2rem 0 .4rem;}
@@ -542,7 +573,7 @@
   .legality-checks{display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.6rem;}
   .badge-bad{background:var(--danger-soft); color:var(--danger);}
   .gimg-wrap .deck-legal-badge{position:absolute; top:5px; right:5px; width:20px; height:20px; border-radius:50%; display:grid; place-items:center; box-shadow:0 0 0 2px var(--surface);}
-  .deck-legal-badge.ok{background:var(--good); color:#fff;}
+  .deck-legal-badge.ok{background:var(--good); color:var(--surface);}
   .deck-legal-badge.bad{background:var(--danger); color:#fff;}
   /* Collection value history */
   .vh-hero{display:flex; flex-direction:column; gap:.2rem; margin-bottom:.8rem;}
@@ -1520,6 +1551,7 @@ window.runSplash = function(el, opts){
       <div id="wishSuggestions" class="suggestions" hidden></div>
     </div>
     <div class="wish-summary" id="wishSummary" hidden></div>
+    <div class="wa-banner" id="wishAlertBanner" hidden></div>
     <div id="wishlistList"></div>
   </section>
 
@@ -1534,6 +1566,9 @@ window.runSplash = function(el, opts){
     <div class="settings-list">
       <div class="settings-row backup-status" id="backupStatusRow">
         <div><div class="srlabel" id="backupStatusLabel">Nunca has hecho una copia</div><div class="srsub"><b id="backupStatusHint"></b>Incluye cartas, mazos, carpetas, deseos, partidas, jugadores y ajustes</div></div>
+      </div>
+      <div class="settings-row storage-status" id="storageStatusRow" hidden>
+        <div><div class="srlabel" id="storageStatusLabel"></div><div class="srsub" id="storageStatusSub"></div></div>
       </div>
       <div class="settings-row">
         <div><div class="srlabel">Crear copia</div><div class="srsub">Guárdala fuera del móvil (Drive, correo, PC…)</div></div>
@@ -1636,6 +1671,7 @@ window.runSplash = function(el, opts){
 
 /* ---------- Icons ---------- */
 const ICONS = {
+  bell:'<path d="M6 8.5a6 6 0 0 1 12 0c0 6.5 2.5 8.5 2.5 8.5h-17S6 15 6 8.5z"/><path d="M10.2 20.5a2 2 0 0 0 3.6 0"/>',
   paste:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.2V3.5A1.5 1.5 0 0 1 10.5 2h3A1.5 1.5 0 0 1 15 3.5v.7"/><line x1="8.5" y1="10" x2="15.5" y2="10"/><line x1="8.5" y1="13.5" x2="15.5" y2="13.5"/><line x1="8.5" y1="17" x2="12.5" y2="17"/>',
   tag:'<path d="M3.5 12.3V4.5a1 1 0 0 1 1-1h7.8l8.5 8.5a1.4 1.4 0 0 1 0 2l-6.8 6.8a1.4 1.4 0 0 1-2 0z"/><circle cx="8.2" cy="8.2" r="1.5"/>',
   sparkle:'<path d="M11 3.5l1.7 5 5 1.7-5 1.7-1.7 5-1.7-5-5-1.7 5-1.7z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
@@ -1888,7 +1924,34 @@ async function dbDeleteMany(store, ids){ if(LIST_STORES[store]) dataRev++; const
 async function dbDelete(store, id){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(id); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
 /* Decks count towards the grand total, so any change to them refreshes the summary (debounced). */
 var statsRefreshTimer = null;
-function noteStoreWrite(store){ if(store === 'decks') queueStatsRefresh(); }
+function noteStoreWrite(store){ if(store === 'decks') queueStatsRefresh(); if(!persistAsked && storagePersisted !== true) requestPersistentStorage(); }
+/* ---------- Keep the data from being cleared ----------
+   By default the browser keeps the database as "best effort": if the phone runs low on space it may
+   delete it without asking. Asking for persistent storage stops that. Chrome decides on its own (an
+   installed app or one used often gets it, no prompt); Firefox asks the user. Asked once per session,
+   and only once there is something to keep. */
+let storagePersisted = null;   // true · false · null (unknown or not supported)
+let persistAsked = false;
+async function requestPersistentStorage(){
+  const st = navigator.storage;
+  if(!st || typeof st.persist !== 'function') return;
+  try{
+    let ok = typeof st.persisted === 'function' ? await st.persisted() : false;
+    if(!ok && !persistAsked && hasAnyData()){ persistAsked = true; ok = await st.persist(); }
+    storagePersisted = !!ok;
+  }catch(e){ return; }
+  renderStorageStatus();
+}
+function renderStorageStatus(){
+  const row = document.getElementById('storageStatusRow');
+  if(!row) return;
+  row.hidden = storagePersisted === null || (!storagePersisted && !hasAnyData());
+  row.classList.toggle('is-safe', storagePersisted === true);
+  document.getElementById('storageStatusLabel').innerHTML = icon('shield', 16)+'<span>'+(storagePersisted ? 'Datos protegidos en este móvil' : 'Datos sin proteger')+'</span>';
+  document.getElementById('storageStatusSub').textContent = storagePersisted
+    ? 'El navegador no los borrará aunque el móvil se quede sin espacio'
+    : 'Si el móvil se queda sin espacio, el navegador podría borrarlos. Haz copias a menudo; con la app instalada suele protegerlos solo.';
+}
 function queueStatsRefresh(){ clearTimeout(statsRefreshTimer); statsRefreshTimer = setTimeout(function(){ try{ renderStats(); }catch(e){} }, 250); }
 async function dbPutMany(store, vals){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); const os=tx.objectStore(store); vals.forEach(function(v){ os.put(v); }); tx.oncomplete=function(){noteStoreWrite(store); res();}; tx.onerror=function(){rej(tx.error);}; }); }
 async function dbClear(store){ if(LIST_STORES[store]) dataRev++; const db = await openDB(); return new Promise(function(res,rej){ const tx=db.transaction(store,'readwrite'); tx.objectStore(store).clear(); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }
@@ -7147,9 +7210,10 @@ function deckExportText(deck, mode){
   }
   return lines.join('\n');
 }
-/* 'cm': "1 Lightning Bolt" (what Cardmarket's Wants import expects) · 'set': with edition and number (Moxfield, Arena…) */
+/* 'cm': "1 Lightning Bolt" (what Cardmarket's Wants import expects) · 'set': with edition and number (Moxfield, Arena…)
+   · 'hits': like 'cm', only the cards below their price alert */
 function wishlistExportText(mode){
-  return sortedWishlist().map(function(w){
+  return sortedWishlist().filter(function(w){ return mode !== 'hits' || wishAlertActive(w); }).map(function(w){
     return w.qty+' '+w.name+(mode === 'set' && w.setCode ? ' ('+String(w.setCode).toUpperCase()+')'+(w.collectorNumber ? ' '+w.collectorNumber : '') : '');
   }).join('\n');
 }
@@ -7166,7 +7230,7 @@ async function copyText(text){
 }
 /* opts: {title, fileBase, modes:[{key,label}]|null, build(modeKey) -> text, emptyText} */
 function openTextExportModal(opts){
-  let mode = opts.modes ? opts.modes[0].key : null;
+  let mode = opts.modes ? (opts.initial && opts.modes.some(function(m){ return m.key === opts.initial; }) ? opts.initial : opts.modes[0].key) : null;
   const canShare = typeof navigator.share === 'function';
   openModal(
     '<h3 class="modal-title">'+icon('exportOut',20)+' '+esc(opts.title)+'</h3>'+
@@ -7294,16 +7358,23 @@ function wishRowHTML(w){
   if(owned >= w.qty) badge = '<span class="badge badge-good">'+icon('check',11)+' Ya la tienes ('+owned+')</span>';
   else if(owned > 0) badge = '<span class="badge badge-warn">Tienes '+owned+'</span>';
   const price = wishPrice(w);
+  const hit = wishAlertActive(w);
+  let alertBadge = '';
+  if(w.alert){
+    alertBadge = hit
+      ? '<span class="badge wa-badge wa-hit" title="Ha bajado de tu aviso ('+esc(fmtMoney(w.alert.price, w.alert.cur))+')">'+icon('bell',11)+' '+fmtMoney(w.low.price, w.alert.cur)+(w.low.set ? ' · '+esc(String(w.low.set).toUpperCase()) : '')+'</span>'
+      : '<span class="badge wa-badge" title="Te avisa si baja de este precio">'+icon('bell',11)+' ≤ '+fmtMoney(w.alert.price, w.alert.cur)+'</span>';
+  }
   const img = w.imageSmall ? '<img class="card-thumb" src="'+esc(w.imageSmall)+'" alt="" loading="lazy" data-action="wish-view" data-wish-id="'+w.id+'" title="Ver en grande">' : '<div class="card-thumb card-thumb-empty">'+icon('image',16)+'</div>';
-  return '<div class="card-row" data-wish-id="'+w.id+'" data-action="wish-open">'+
+  return '<div class="card-row'+(hit ? ' wa-row-hit' : '')+'" data-wish-id="'+w.id+'" data-action="wish-open">'+
     img+
     '<div class="card-info">'+
       '<div class="card-name">'+esc(w.name)+'</div>'+
-      '<div class="card-meta">'+colorPipsHTML(w.colors)+badge+'</div>'+
+      '<div class="card-meta">'+colorPipsHTML(w.colors)+badge+alertBadge+'</div>'+
       (w.decks && w.decks.length ? '<div class="wish-for">Para: '+esc(w.decks.join(', '))+'</div>' : '')+
     '</div>'+
     '<div class="card-value">'+
-      '<div class="price">'+fmtMoney(price, state.settings.currency)+'</div>'+
+      '<button class="price wa-price-btn'+(w.alert ? ' has-alert' : '')+'" data-action="wish-alert" data-wish-id="'+w.id+'" aria-label="Aviso de precio" title="Avísame si baja">'+icon('bell',12)+'<span>'+fmtMoney(price, state.settings.currency)+'</span></button>'+
       '<div class="qty-stepper">'+
         '<button class="qty-btn" data-action="wish-dec" data-wish-id="'+w.id+'" aria-label="Restar">'+icon('minus',13)+'</button>'+
         '<span class="qty-val">'+w.qty+'</span>'+
@@ -7382,6 +7453,14 @@ function renderWishlist(){
     Array.from(wishSel).forEach(function(id){ if(!have[id]) wishSel.delete(id); });
   }
   renderWishSelBar();
+  renderWishAlertDot();
+  const hits = wishSel ? [] : items.filter(wishAlertActive);
+  const banner = document.getElementById('wishAlertBanner');
+  banner.hidden = !hits.length;
+  banner.innerHTML = hits.length ? '<span class="wa-banner-ico">'+icon('bell',17)+'</span>'+
+    '<span class="wa-banner-txt"><b>'+(hits.length === 1 ? esc(hits[0].name)+'</b> ha bajado de tu precio' : hits.length+' cartas</b> han bajado de tu precio')+'</span>'+
+    '<button class="btn btn-secondary" id="waBannerExport">'+icon('exportOut',14)+' Exportar</button>' : '';
+  if(hits.length) document.getElementById('waBannerExport').addEventListener('click', function(){ openWishlistExport('hits'); });
   if(!items.length){
     summary.hidden = true;
     list.innerHTML = emptyStateHTML('star','Tu lista de deseos está vacía.<br>Busca una carta arriba o, desde un mazo, añade de golpe las que te faltan.');
@@ -7462,11 +7541,179 @@ async function addDeckMissingToWishlist(deck){
   renderWishlist();
   toast('Añadidas '+added+' '+(added===1?'carta':'cartas')+' a tu lista de deseos', 3200);
 }
+function openWishlistExport(initial){
+  const cmLink = {label:'Abrir Cardmarket', href:'https://www.cardmarket.com/es/Magic/Wants'};
+  const modes = [{key:'cm', label:'Para Cardmarket'}, {key:'set', label:'Con edición'}];
+  if(state.wishlist.some(wishAlertActive)) modes.push({key:'hits', label:'Han bajado'});
+  openTextExportModal({ title:'Exportar lista de deseos', fileBase:'lista-de-deseos', build: wishlistExportText, modes: modes, initial: initial,
+    notes:{cm:'Una carta por línea con su cantidad. En Cardmarket, abre (o crea) una lista de Wants y pega el texto en la opción de añadir cartas desde una lista.',
+           set:'Con la edición y el número entre paréntesis: lo leen Moxfield, Archidekt, ManaBox, MTG Arena y la importación de esta app.',
+           hits:'Solo las cartas que están por debajo de tu aviso de precio, con su cantidad. Pégalas en tu lista de Wants de Cardmarket.'},
+    links:{cm: cmLink, hits: cmLink} });
+}
+
+/* ----- price alerts: "tell me when it drops below X" -----
+   Compared with the cheapest paper printing (non-foil; foil only when there is nothing else), checked
+   once a day when the app opens and when Deseos is opened. Prices come from Scryfall: Cardmarket's
+   for €, TCGplayer's for $. A card you already have enough of doesn't count. */
+const WISH_ALERT_STALE_MS = 20*3600*1000;
+function wishAlertHit(w){
+  return !!(w.alert && w.low && w.low.cur === w.alert.cur && w.low.price != null && w.low.price <= w.alert.price + 1e-9);
+}
+function wishAlertActive(w){ return wishAlertHit(w) && ownedQtyForName(w.name) < w.qty; }
+async function cheapestPrinting(name, cur){
+  const key = cur === 'USD' ? 'usd' : 'eur';
+  const want = nameKey(name), wantFront = nameKey(frontFaceName(name));
+  const search = function(n){
+    return scryGetJSON(SCRYFALL+'/cards/search?unique=prints&order='+key+'&dir=asc&q='+encodeURIComponent('!"'+n.replace(/"/g, '')+'"'));
+  };
+  let r = await search(name);
+  if(r.offline) return null;
+  if(!(r.ok && (r.j.data || []).length) && wantFront !== want){ await sleep(110); r = await search(frontFaceName(name)); if(r.offline) return null; }
+  if(!r.ok) return r.j && r.j.status === 404 ? {cur: cur, price: null, at: Date.now()} : null; // 404 = no printing; anything else: try again later
+  let best = null, bestFoil = null;
+  (r.j.data || []).forEach(function(c){
+    // printings you can't play or buy as the card: digital, oversized, gold-bordered (World Championship decks),
+    // memorabilia (Collectors' Edition, 30th Anniversary…), art cards, tokens
+    if(c.digital || c.oversized || c.border_color === 'gold' || c.set_type === 'memorabilia' || /art_series|token|emblem/.test(c.layout || '')) return;
+    if(nameKey(c.name) !== want && nameKey(frontFaceName(c.name)) !== wantFront) return;
+    const pr = c.prices || {};
+    const p = toNum(pr[key]), pf = toNum(pr[key+'_foil'] != null ? pr[key+'_foil'] : pr[key+'_etched']);
+    if(p != null && (!best || p < best.price)) best = {price: p, c: c, foil: false};
+    if(pf != null && (!bestFoil || pf < bestFoil.price)) bestFoil = {price: pf, c: c, foil: true};
+  });
+  const b = best || bestFoil;
+  if(!b) return {cur: cur, price: null, at: Date.now()};
+  return {cur: cur, price: b.price, foil: b.foil, set: b.c.set, setName: b.c.set_name, num: b.c.collector_number, rarity: b.c.rarity, at: Date.now()};
+}
+function renderWishAlertDot(){
+  const tab = document.querySelector('.tab-btn[data-tab="wishlist"]');
+  if(!tab) return;
+  const on = state.tab !== 'wishlist' && state.wishlist.some(function(w){ return w.alertSeen === false && wishAlertActive(w); });
+  tab.classList.toggle('needs-attention', on);
+  tab.classList.toggle('attention-good', on);
+}
+function markWishAlertsSeen(){
+  const unseen = state.wishlist.filter(function(w){ return w.alertSeen === false; });
+  if(!unseen.length) return;
+  unseen.forEach(function(w){ w.alertSeen = true; });
+  dbPutMany('wishlist', unseen).catch(function(){});
+  renderWishAlertDot();
+}
+let wishAlertRunning = false;
+async function checkWishAlerts(force){
+  if(wishAlertRunning || navigator.onLine === false) return;
+  const due = state.wishlist.filter(function(w){ return w.alert && (force || !w.low || w.low.cur !== w.alert.cur || Date.now() - (w.low.at || 0) > WISH_ALERT_STALE_MS); });
+  if(!due.length) return;
+  wishAlertRunning = true;
+  const fresh = [];
+  try{
+    for(let i = 0; i < due.length; i++){
+      const w = due[i];
+      const low = await cheapestPrinting(w.name, w.alert.cur);
+      if(low && state.wishlist.indexOf(w) > -1){
+        const was = wishAlertHit(w);
+        w.low = low;
+        if(wishAlertHit(w) && !was){ w.alertSeen = state.tab === 'wishlist'; if(wishAlertActive(w)) fresh.push(w); }
+        await dbPut('wishlist', w);
+      }
+      if(i < due.length - 1) await sleep(120);
+    }
+  } finally { wishAlertRunning = false; }
+  if(state.tab === 'wishlist') renderWishlist(); else renderWishAlertDot();
+  if(!fresh.length) return;
+  const w0 = fresh[0];
+  const msg = fresh.length === 1
+    ? '«'+w0.name+'» ha bajado a '+fmtMoney(w0.low.price, w0.alert.cur)+' (tu aviso: '+fmtMoney(w0.alert.price, w0.alert.cur)+')'
+    : fresh.length+' cartas de tu lista de deseos han bajado de tu precio';
+  if(state.tab === 'wishlist') toast(msg, 4200);
+  else snackbar(msg, 'Ver', function(){ switchTab('wishlist'); }, 7000);
+}
+function parsePriceInput(v){
+  const n = parseFloat(String(v || '').replace(/[^\d,.]/g, '').replace(/\.(?=.*[.,])/g, '').replace(',', '.'));
+  return isFinite(n) && n > 0 ? Math.round(n*100)/100 : null;
+}
+function priceInputText(n){ return n == null ? '' : n.toFixed(2).replace('.', ','); }
+async function openWishAlertSheet(id){
+  const w = state.wishlist.find(function(x){ return x.id === id; });
+  if(!w) return;
+  const cur = w.alert ? w.alert.cur : state.settings.currency;
+  const sym = cur === 'USD' ? '$' : '€';
+  const listPrice = (w.prices || {})[cur === 'USD' ? 'usd' : 'eur'];
+  openModal(
+    '<h3 class="modal-title">'+icon('bell',20)+' Aviso de precio</h3>'+
+    '<div class="section-note" style="margin-top:-.4rem;">'+esc(w.name)+'</div>'+
+    '<div class="wa-prices" id="waSheet" data-wish-id="'+w.id+'">'+
+      '<div class="wa-p wa-p-low"><span>La edición más barata</span><b id="waLow">'+icon('refresh',13)+' Buscando…</b><small id="waLowSet"></small></div>'+
+      '<div class="wa-p"><span>'+(w.setCode ? 'La de tu lista ('+esc(String(w.setCode).toUpperCase())+')' : 'Precio en tu lista')+'</span><b>'+fmtMoney(listPrice, cur)+'</b><small>'+(w.setName ? esc(w.setName) : '&nbsp;')+'</small></div>'+
+    '</div>'+
+    '<div class="field"><label for="waPrice">Avísame si baja de</label>'+
+      '<div class="wa-input"><input id="waPrice" class="text-input" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" value="'+priceInputText(w.alert ? w.alert.price : null)+'"><span>'+sym+'</span></div>'+
+      '<div class="wa-quick" id="waQuick"></div>'+
+    '</div>'+
+    '<button class="btn btn-primary btn-block" id="waSaveBtn">'+icon('bell',15)+' '+(w.alert ? 'Guardar aviso' : 'Crear aviso')+'</button>'+
+    (w.alert ? '<button class="btn btn-ghost btn-block" id="waRemoveBtn" style="margin-top:.4rem;">'+icon('trash',14)+' Quitar aviso</button>' : '')+
+    '<p class="about-note" style="padding-top:.8rem;">Cada día, al abrir la app, mira el precio de la edición más barata en papel (sin foil) que da Scryfall, '+(cur === 'USD' ? 'de TCGplayer' : 'de Cardmarket')+'. Si baja de tu precio te avisa y la marca en verde en Deseos.</p>'
+  );
+  const input = document.getElementById('waPrice');
+  function showLow(low){
+    const el = document.getElementById('waLow');
+    if(!el || document.getElementById('waSheet').dataset.wishId !== w.id) return;
+    if(!low){ el.textContent = 'Sin conexión'; document.getElementById('waLowSet').innerHTML = '&nbsp;'; }
+    else if(low.price == null){ el.textContent = 'Sin precio'; document.getElementById('waLowSet').innerHTML = '&nbsp;'; }
+    else {
+      el.textContent = fmtMoney(low.price, cur);
+      document.getElementById('waLowSet').innerHTML = setIconSpanHTML(low.set, low.rarity)+' '+esc(low.setName || String(low.set || '').toUpperCase())+(low.foil ? ' · foil' : '');
+    }
+    const ref = low && low.price != null ? low.price : listPrice;
+    document.getElementById('waQuick').innerHTML = ref ? [10, 20, 30].map(function(pc){
+      const v = Math.max(0.01, Math.floor(ref*(100-pc))/100);
+      return '<button type="button" class="deck-chip" data-wa-v="'+v+'">−'+pc+' % · '+fmtMoney(v, cur)+'</button>';
+    }).join('') : '';
+  }
+  document.getElementById('waQuick').addEventListener('click', function(e){
+    const b = e.target.closest('[data-wa-v]'); if(!b) return;
+    input.value = priceInputText(parseFloat(b.dataset.waV));
+  });
+  document.getElementById('waSaveBtn').addEventListener('click', async function(){
+    const v = parsePriceInput(input.value);
+    if(v == null){ toast('Escribe el precio al que quieres comprarla'); input.focus(); return; }
+    w.alert = {price: v, cur: cur, setAt: Date.now()};
+    w.alertSeen = true;
+    await dbPut('wishlist', w);
+    closeModal();
+    renderWishlist();
+    if(wishAlertHit(w)) toast('¡Ya está por debajo! Desde '+fmtMoney(w.low.price, cur)+(w.low.setName ? ' en '+w.low.setName : ''), 4200);
+    else toast('Te avisaré si baja de '+fmtMoney(v, cur));
+    if(!w.low || w.low.cur !== cur) checkWishAlerts();
+  });
+  const rm = document.getElementById('waRemoveBtn');
+  if(rm) rm.addEventListener('click', async function(){
+    delete w.alert; delete w.alertSeen;
+    await dbPut('wishlist', w);
+    closeModal();
+    renderWishlist();
+    toast('Aviso quitado');
+  });
+  // fresh enough: show it straight away; otherwise ask Scryfall
+  if(w.low && w.low.cur === cur && Date.now() - (w.low.at || 0) < 6*3600*1000){ showLow(w.low); return; }
+  showLow(w.low && w.low.cur === cur ? w.low : {cur: cur, price: null});
+  document.getElementById('waLow').innerHTML = icon('refresh',13)+' Buscando…';
+  const low = await cheapestPrinting(w.name, cur);
+  if(low){
+    const was = wishAlertHit(w);
+    w.low = low;
+    if(w.alert && wishAlertHit(w) !== was) w.alertSeen = true; // you're looking at it right now
+    dbPut('wishlist', w).catch(function(){});
+    if(state.tab === 'wishlist') renderWishlist();
+  }
+  showLow(low || (w.low && w.low.cur === cur ? w.low : null));
+}
 let wishPriceRefreshRunning = false;
 async function refreshWishlistPricesIfStale(){
   if(wishPriceRefreshRunning) return;
   const stale = state.wishlist.filter(function(w){ return !w.pricesAt || (Date.now() - w.pricesAt) > DAY_MS; });
-  if(!stale.length) return;
+  if(!stale.length){ checkWishAlerts(); return; }
   wishPriceRefreshRunning = true;
   try{
     const byName = await scryCollectionByNames(stale.map(function(w){ return w.name; }));
@@ -7480,6 +7727,7 @@ async function refreshWishlistPricesIfStale(){
     }
     if(state.tab === 'wishlist') renderWishlist();
   } finally { wishPriceRefreshRunning = false; }
+  checkWishAlerts();
 }
 
 /* ---------- Full backup / restore ----------
@@ -8904,7 +9152,7 @@ function switchTab(tab, fromNav){
   if(prevTab === 'wishlist' && tab !== 'wishlist' && wishSel && !fromNav){ wishSel = null; extraPop = 1; }
   state.tab = tab;
   document.body.classList.toggle('on-collection', tab === 'collection');
-  if(tab === 'settings') renderBackupStatus();
+  if(tab === 'settings'){ renderBackupStatus(); renderStorageStatus(); }
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.hidden = p.dataset.tab !== tab; });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
   if(tab !== 'scan') stopCamera();
@@ -8912,7 +9160,7 @@ function switchTab(tab, fromNav){
   if(tab === 'decks' && document.getElementById('decksList')._sig !== viewSig()) renderDecks();
   if(tab === 'games') renderGames();
   if(tab === 'binders' && document.getElementById('bindersList')._sig !== viewSig()) renderBinders();
-  if(tab === 'wishlist'){ if(wishSel || document.getElementById('wishlistList')._sig !== viewSig()) renderWishlist(); refreshWishlistPricesIfStale(); }
+  if(tab === 'wishlist'){ markWishAlertsSeen(); if(wishSel || document.getElementById('wishlistList')._sig !== viewSig()) renderWishlist(); refreshWishlistPricesIfStale(); }
   if(tab === 'settings') renderSettings();
   animateTabEnter(tab, prevTab);
   // each tab keeps its own scroll position
@@ -9120,6 +9368,8 @@ async function init(){
     const f = e.target.files[0]; if(f) restoreBackupFile(f); e.target.value='';
   });
   renderBackupStatus();
+  requestPersistentStorage();
+  renderWishAlertDot();
   /* backup reminder and the daily price refresh wait until the intro has finished, so they don't
      compete with it for the phone's CPU (immediate when there is no intro) */
   (window.__splashDone || Promise.resolve()).then(function(){
@@ -9128,19 +9378,14 @@ async function init(){
     setTimeout(function(){ if(state.cards.length || state.decks.length) prepareValueHistory().catch(function(){}); }, 1200);
     setTimeout(async function(){
       await autoRefreshPricesDaily();
+      checkWishAlerts().catch(function(){});
       // decks made before prices were stored get theirs once (the daily refresh may have done it)
       if(deckPricesMissing() && navigator.onLine !== false){ if(await refreshDeckPrices(true)){ renderDecks(); renderStats(); scheduleTodaySnapshot(); } }
     }, 2500);
   });
 
   document.getElementById('wishlistExportBtn').innerHTML = icon('exportOut',15)+' Exportar';
-  document.getElementById('wishlistExportBtn').addEventListener('click', function(){
-    openTextExportModal({ title:'Exportar lista de deseos', fileBase:'lista-de-deseos', build: wishlistExportText,
-      modes:[{key:'cm', label:'Para Cardmarket'}, {key:'set', label:'Con edición'}],
-      notes:{cm:'Una carta por línea con su cantidad. En Cardmarket, abre (o crea) una lista de Wants y pega el texto en la opción de añadir cartas desde una lista.',
-             set:'Con la edición y el número entre paréntesis: lo leen Moxfield, Archidekt, ManaBox, MTG Arena y la importación de esta app.'},
-      links:{cm:{label:'Abrir Cardmarket', href:'https://www.cardmarket.com/es/Magic/Wants'}} });
-  });
+  document.getElementById('wishlistExportBtn').addEventListener('click', function(){ openWishlistExport(); });
   const wishInput = document.getElementById('wishSearchInput');
   const wishSugg = document.getElementById('wishSuggestions');
   wishInput.addEventListener('input', debounce(async function(){
@@ -9189,6 +9434,8 @@ async function init(){
     const inc = e.target.closest('[data-action="wish-inc"]');
     const dec = e.target.closest('[data-action="wish-dec"]');
     if(inc || dec){ e.stopPropagation(); changeWishQty((inc||dec).dataset.wishId, inc ? 1 : -1); return; }
+    const al = e.target.closest('[data-action="wish-alert"]');
+    if(al){ e.stopPropagation(); openWishAlertSheet(al.dataset.wishId); return; }
     const wv = e.target.closest('[data-action="wish-view"]');
     if(wv){
       const list = sortedWishlist();
