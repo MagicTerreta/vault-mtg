@@ -4,7 +4,9 @@
 // v3: MagicTerreta rename — new name clears the old cached icons/manifest on activate.
 // v4: Terreta TCG rename.
 // v5: fonts and set/mana symbols come from ./vendor/ (no Google Fonts, no CDN) and work offline.
-const CACHE = 'terreta-shell-v5';
+// v6: on a slow or flaky connection the app no longer waits for the network: after 2.5 s it opens the
+//     saved copy (and keeps downloading the new one for next time).
+const CACHE = 'terreta-shell-v6';
 const STATIC_ASSETS = ['./manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
   './vendor/LICENSES.txt',
   './vendor/fonts.css',
@@ -42,17 +44,18 @@ self.addEventListener('fetch', (e) => {
   const isHTML = e.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/');
 
   if (isHTML) {
-    // Network-first: always try to get the latest app first. Only fall back to
-    // whatever was last cached if the device is offline.
-    e.respondWith(
-      fetch(e.request)
-        .then((resp) => {
-          const copy = resp.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
-          return resp;
-        })
-        .catch(() => caches.match(e.request))
-    );
+    // Network-first, but never stuck: the latest app when the connection answers in time; otherwise the
+    // copy saved last time (offline, or no answer within 2.5 s). The download carries on and is saved.
+    const net = fetch(e.request).then((resp) => {
+      if (resp && resp.ok) { const copy = resp.clone(); caches.open(CACHE).then((c) => c.put(e.request, copy)); }
+      return resp;
+    });
+    e.waitUntil(net.catch(() => {}));
+    e.respondWith(caches.match(e.request).then((cached) => {
+      if (!cached) return net;
+      const late = new Promise((res) => setTimeout(() => res(cached), 2500));
+      return Promise.race([net.catch(() => cached), late]);
+    }));
     return;
   }
 
