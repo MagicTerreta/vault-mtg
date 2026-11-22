@@ -15,6 +15,7 @@
   if(s.theme === 'light' || s.theme === 'dark') document.documentElement.setAttribute('data-theme', s.theme);
   if(s.splash === false) document.documentElement.classList.add('no-splash');
   if(s.cardFx === false) document.documentElement.classList.add('no-card-fx');
+  if(s.glass) document.documentElement.setAttribute('data-glass', '');
 }catch(e){} })();
 </script>
 <link rel="icon" href="./icons/icon-192.png">
@@ -151,8 +152,9 @@
   .tab-btn svg{width:21px; height:21px;}
   .tab-btn.active{color:var(--accent);}
   .tab-btn > *{position:relative; z-index:1;}
-  .tab-indicator{position:absolute; top:5px; left:0; width:54px; height:29px; border-radius:999px; background:var(--accent-soft); pointer-events:none; z-index:0;
-    transition:transform .42s cubic-bezier(.3,1.35,.45,1), width .3s; will-change:transform;}
+  .tab-indicator{position:absolute; top:5px; left:0; width:calc(100% / var(--tabs, 7)); height:29px; pointer-events:none; z-index:0;
+    transform:translateX(calc(var(--ti, 0) * 100%)); transition:transform .42s cubic-bezier(.3,1.35,.45,1); will-change:transform;}
+  .tab-indicator::before{content:''; position:absolute; top:0; bottom:0; left:50%; width:min(54px, calc(100% - 8px)); transform:translateX(-50%); border-radius:999px; background:var(--accent-soft);}
   @keyframes iconPop{ 0%{transform:scale(1);} 45%{transform:scale(1.22) translateY(-1px);} 100%{transform:scale(1);} }
   .tab-btn.pop svg{animation:iconPop .38s cubic-bezier(.3,1.4,.5,1);}
   .tab-btn{position:relative;}
@@ -553,6 +555,8 @@
   .usage-warn svg{flex:none; margin-top:1px;}
   @keyframes rowFlash{ 0%,100%{box-shadow:0 0 0 0 transparent;} 20%,65%{box-shadow:0 0 0 3px var(--accent);} }
   .card-row.flash{animation:rowFlash 1.8s ease;}
+  .list-more{height:1px;}
+  .card-grid > .list-more{grid-column:1 / -1;}
 
   /* Commander legality */
   .legality-card{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:.75rem .85rem; margin:.2rem 0 1.1rem;}
@@ -796,6 +800,8 @@
   .mana-cost .cost-sep{font-size:.7rem; color:var(--ink-faint); margin:0 .2rem;}
   .card-name.with-cost{display:flex; align-items:center; gap:.45rem;}
   .card-name.with-cost .nm{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .price-est{opacity:.72; font-weight:500;}
+  .sp-est{opacity:.8;}
   .badge{font-family:var(--font-mono); padding:1px 7px; border-radius:999px; font-size:.63rem; background:var(--surface-2); color:var(--ink-soft); white-space:nowrap; display:inline-flex; align-items:center; gap:3px;}
   .badge-foil{background:var(--accent-soft); color:var(--accent-strong);}
   .badge-good{background:var(--good-soft); color:var(--good);}
@@ -1414,6 +1420,95 @@
     #splash.sp-out{animation:spFade .3s reverse forwards;}
   }
   .settings-row .inline-link{border:none; background:none; padding:0; font:inherit; color:var(--accent); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
+  /* ===================== Estilo cristal (prototipo) =====================
+     A soft colour field behind everything and translucent panels on top. The blur (backdrop-filter) is
+     only on what floats over content — tab bar, sheets, menus, toasts — since it's costly on phones;
+     list rows and cards are just translucent (the field behind them is already soft). */
+  :root[data-glass]{
+    --glass-base:#efe8ff;
+    --glass-bg:
+      radial-gradient(70% 42% at 0% 0%, rgba(150,118,255,.95) 0%, rgba(150,118,255,0) 70%),
+      radial-gradient(60% 36% at 100% 10%, rgba(255,140,190,.9) 0%, rgba(255,140,190,0) 70%),
+      radial-gradient(70% 40% at 100% 60%, rgba(95,210,195,.85) 0%, rgba(95,210,195,0) 70%),
+      radial-gradient(60% 36% at 0% 48%, rgba(120,170,255,.7) 0%, rgba(120,170,255,0) 70%),
+      radial-gradient(75% 42% at 15% 100%, rgba(255,190,120,.9) 0%, rgba(255,190,120,0) 70%),
+      linear-gradient(180deg, #e9e0ff 0%, #f3ecfb 55%, #fbefe4 100%);
+    --glass:rgba(255,255,255,.42); --glass-strong:rgba(255,255,255,.66); --glass-soft:rgba(255,255,255,.32); --glass-pill:rgba(255,255,255,.92); --glass-sheet:rgba(250,247,255,.86);
+    --glass-edge:rgba(255,255,255,.78); --glass-line:rgba(90,63,174,.13);
+    --glass-blur:blur(22px) saturate(180%);
+    --glass-shadow:0 10px 30px -8px rgba(70,45,140,.22), inset 0 1px 0 rgba(255,255,255,.75);
+    --surface:var(--glass); --surface-2:var(--glass-soft); --surface-hover:var(--glass-strong); --line:var(--glass-line);
+    --accent-soft:rgba(90,63,174,.14); --good-soft:rgba(47,125,91,.14); --warn-soft:rgba(168,106,46,.14); --danger-soft:rgba(174,67,49,.13);
+    --shadow:var(--glass-shadow);
+  }
+  @media (prefers-color-scheme: dark){ :root[data-glass]:not([data-theme="light"]){
+    --glass-base:#0e0a1c;
+    --glass-bg:
+      radial-gradient(60% 38% at 0% 0%, rgba(98,60,230,.75) 0%, rgba(98,60,230,0) 72%),
+      radial-gradient(55% 34% at 100% 10%, rgba(200,45,120,.55) 0%, rgba(200,45,120,0) 72%),
+      radial-gradient(60% 40% at 100% 65%, rgba(20,150,140,.45) 0%, rgba(20,150,140,0) 72%),
+      radial-gradient(65% 40% at 0% 100%, rgba(210,120,30,.38) 0%, rgba(210,120,30,0) 72%),
+      linear-gradient(180deg, #140e2a 0%, #0e0a1c 100%);
+    --glass:rgba(255,255,255,.07); --glass-strong:rgba(28,22,50,.66); --glass-soft:rgba(255,255,255,.06); --glass-pill:rgba(255,255,255,.17); --glass-sheet:rgba(22,17,40,.88);
+    --glass-edge:rgba(255,255,255,.13); --glass-line:rgba(255,255,255,.09);
+    --glass-shadow:0 10px 30px -8px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07);
+    --accent-soft:rgba(164,142,240,.18); --good-soft:rgba(104,200,155,.15); --warn-soft:rgba(224,165,99,.15); --danger-soft:rgba(229,150,131,.15);
+  } }
+  :root[data-glass][data-theme="dark"]{
+    --glass-base:#0e0a1c;
+    --glass-bg:
+      radial-gradient(60% 38% at 0% 0%, rgba(98,60,230,.75) 0%, rgba(98,60,230,0) 72%),
+      radial-gradient(55% 34% at 100% 10%, rgba(200,45,120,.55) 0%, rgba(200,45,120,0) 72%),
+      radial-gradient(60% 40% at 100% 65%, rgba(20,150,140,.45) 0%, rgba(20,150,140,0) 72%),
+      radial-gradient(65% 40% at 0% 100%, rgba(210,120,30,.38) 0%, rgba(210,120,30,0) 72%),
+      linear-gradient(180deg, #140e2a 0%, #0e0a1c 100%);
+    --glass:rgba(255,255,255,.07); --glass-strong:rgba(28,22,50,.66); --glass-soft:rgba(255,255,255,.06); --glass-pill:rgba(255,255,255,.17); --glass-sheet:rgba(22,17,40,.88);
+    --glass-edge:rgba(255,255,255,.13); --glass-line:rgba(255,255,255,.09);
+    --glass-shadow:0 10px 30px -8px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07);
+    --accent-soft:rgba(164,142,240,.18); --good-soft:rgba(104,200,155,.15); --warn-soft:rgba(224,165,99,.15); --danger-soft:rgba(229,150,131,.15);
+  }
+  /* the colour field: painted once, fixed behind the page */
+  :root[data-glass] body{background:var(--glass-base);}
+  :root[data-glass] body::before{content:''; position:fixed; inset:0; z-index:-1; pointer-events:none; background:var(--glass-bg);}
+  :root[data-glass] #detailPanel{background:var(--glass-bg);}
+  /* panels and cards: translucent with a bright edge */
+  :root[data-glass] .topbar{background:var(--glass-soft); border-bottom-color:var(--glass-edge);}
+  :root[data-glass] .coll-summary, :root[data-glass] .sum-card, :root[data-glass] .stat-card, :root[data-glass] .settings-list,
+  :root[data-glass] .group-card, :root[data-glass] .card-row, :root[data-glass] .empty-state{
+    background:var(--glass); border:1px solid var(--glass-edge); box-shadow:var(--glass-shadow);}
+  :root[data-glass] .card-row{margin-bottom:.45rem; padding:.55rem .6rem;}
+  :root[data-glass] .card-row.is-selected{background:var(--accent-soft);}
+  :root[data-glass] .coll-summary::before{height:0;}
+  :root[data-glass] .coll-summary .cs-value{background:linear-gradient(100deg, var(--ink) 30%, var(--accent) 100%); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  :root[data-glass] .settings-row{border-bottom-color:var(--glass-line);}
+  :root[data-glass] .card-thumb{box-shadow:0 3px 10px rgba(30,20,60,.25);}
+  :root[data-glass] .detail-header{background:var(--glass-soft); border-bottom-color:var(--glass-edge);}
+  :root[data-glass] .text-input, :root[data-glass] .segmented, :root[data-glass] .btn-secondary, :root[data-glass] .icon-btn,
+  :root[data-glass] .qty-btn, :root[data-glass] .count-pill, :root[data-glass] .badge{
+    background:var(--glass-soft); border-color:var(--glass-edge);}
+  :root[data-glass] .text-input:focus{background:var(--glass-strong);}
+  :root[data-glass] .segmented:not(.vh-range) button.active{background:var(--glass-pill); color:var(--ink); box-shadow:0 2px 8px rgba(40,25,90,.15);}
+  :root[data-glass] .sum-hero .segmented, :root[data-glass] .sum-hero .badge{background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.22);}
+  :root[data-glass] .switch .thumb{background:#fff;}
+  :root[data-glass] .btn-primary{background:linear-gradient(135deg, #7a5be0 0%, var(--accent) 60%, #43308f 100%); box-shadow:0 8px 20px -6px rgba(90,63,174,.55), inset 0 1px 0 rgba(255,255,255,.35);}
+  :root[data-glass] .fab{box-shadow:0 12px 28px -6px rgba(90,63,174,.6), inset 0 1px 0 rgba(255,255,255,.4);}
+  /* what floats over content: frosted */
+  :root[data-glass] nav.tabbar{background:var(--glass-strong); border-top:1px solid var(--glass-edge); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);}
+  :root[data-glass] .tab-indicator::before{background:var(--glass-strong); box-shadow:inset 0 0 0 1px var(--glass-edge), 0 4px 14px -4px rgba(70,45,140,.35);}
+  :root[data-glass] .modal-backdrop{background:rgba(20,14,40,.28);}
+  :root[data-glass] .modal-sheet, :root[data-glass] .suggestions, :root[data-glass] .wish-selbar{
+    background:var(--glass-strong); border:1px solid var(--glass-edge); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);}
+  :root[data-glass] .modal-sheet{border-bottom:none;}
+  :root[data-glass] .deck-sheet{background:var(--glass-sheet); box-shadow:inset 0 1px 0 var(--glass-edge), 0 -10px 30px -12px rgba(30,20,70,.35);}
+  :root[data-glass] .add-searchbar{background:var(--glass-strong); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);}
+  :root[data-glass] .toast, :root[data-glass] .snackbar{background:rgba(24,18,44,.72); color:#fff; border:1px solid rgba(255,255,255,.16); -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);}
+  /* the stats hero keeps its colour, now see-through */
+  :root[data-glass] .sum-hero{background:linear-gradient(155deg, rgba(122,91,224,.82) 0%, rgba(74,51,150,.78) 55%, rgba(40,26,100,.8) 100%); box-shadow:inset 0 1px 0 rgba(255,255,255,.3);}
+  /* text that sat on a coloured chip in the surface colour, and sticky footers that need to hide what scrolls under them */
+  :root[data-glass] .wa-banner-ico, :root[data-glass] .wa-badge.wa-hit, :root[data-glass] .deck-legal-badge.ok{color:var(--glass-base);}
+  :root[data-glass] .fs-actions{background:var(--glass-sheet);}
+  :root[data-glass] .pst-foot{background:linear-gradient(180deg, transparent, var(--glass-sheet) 1.2rem);}
+  .beta-tag{display:inline-block; margin-left:.35rem; padding:1px 7px; border-radius:999px; font-size:.62rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; vertical-align:2px; background:var(--accent-soft); color:var(--accent);}
 </style>
 </head>
 <body>
@@ -1602,6 +1697,10 @@ window.runSplash = function(el, opts){
         <label class="switch" aria-label="Efectos foil y 3D"><input type="checkbox" id="cardFxToggle"><span class="track"></span><span class="thumb"></span></label>
       </div>
       <div class="settings-row">
+        <div><div class="srlabel">Estilo cristal <span class="beta-tag">Prototipo</span></div><div class="srsub">Fondo de color y paneles translúcidos. Funciona con el tema claro y el oscuro</div></div>
+        <label class="switch" aria-label="Estilo cristal"><input type="checkbox" id="glassToggle"><span class="track"></span><span class="thumb"></span></label>
+      </div>
+      <div class="settings-row">
         <div><div class="srlabel">Animación de inicio</div><div class="srsub">El arco de Cabanes al abrir la app · <button type="button" class="inline-link" id="splashReplayBtn">Ver ahora</button></div></div>
         <label class="switch" aria-label="Animación de inicio"><input type="checkbox" id="splashToggle"><span class="track"></span><span class="thumb"></span></label>
       </div>
@@ -1771,7 +1870,14 @@ function esc(str){ if(str===null||str===undefined) return ''; return String(str)
 function uuid(){ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2); }
 function debounce(fn, ms){ let t; return function(){ const args=arguments, ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx,args); }, ms); }; }
 function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
-function fmtMoney(value, currency){ if(value===null||value===undefined||isNaN(value)) return '—'; try{ return new Intl.NumberFormat('es-ES',{style:'currency',currency:currency}).format(value); }catch(e){ return value.toFixed(2)+' '+currency; } }
+/* building an Intl.NumberFormat is slow (a list of 3000 prices spent most of its time on it): one per currency */
+const MONEY_FMT = {}, MONEY_FMT0 = {};
+function fmtMoney(value, currency){
+  if(value===null||value===undefined||isNaN(value)) return '—';
+  let f = MONEY_FMT[currency];
+  if(!f){ try{ f = MONEY_FMT[currency] = new Intl.NumberFormat('es-ES',{style:'currency',currency:currency}); }catch(e){ return value.toFixed(2)+' '+currency; } }
+  return f.format(value);
+}
 function toNum(v){ if(v===null||v===undefined||v==='') return null; const n=parseFloat(v); return isNaN(n)?null:n; }
 function manaName(c){ return {W:'Blanco',U:'Azul',B:'Negro',R:'Rojo',G:'Verde'}[c] || c; }
 /* One mana symbol from its Scryfall code ("W", "2", "W/U", "U/P", "2/G", "X", "C", "S"…).
@@ -2029,6 +2135,14 @@ async function scryPrintsByName(name){
   const j = await r.json();
   return j.data || [];
 }
+/* newest first (as Scryfall sorts them): the first one already released and with a price */
+function pickDefaultPrinting(prints){
+  if(!prints || !prints.length) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const out = prints.filter(function(c){ return !c.digital && !(c.released_at && c.released_at > today); });
+  const priced = out.find(function(c){ return !hasNoPrice({prices: pricesFromCard(c)}); });
+  return priced || out[0] || prints[0];
+}
 async function scryFuzzy(text){
   const r = await fetch(SCRYFALL+'/cards/named?fuzzy='+encodeURIComponent(text));
   if(!r.ok) throw new Error('No se encontró ninguna carta parecida a "'+text+'"');
@@ -2065,14 +2179,148 @@ function applyTheme(){
   const t = state.settings.theme;
   if(t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
   else document.documentElement.removeAttribute('data-theme');
+  if(state.settings.glass) document.documentElement.setAttribute('data-glass', ''); else document.documentElement.removeAttribute('data-glass');
   const meta = document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5a3fae');
+  const cs = getComputedStyle(document.documentElement);
+  if(meta) meta.setAttribute('content', (state.settings.glass ? cs.getPropertyValue('--glass-base') : cs.getPropertyValue('--accent')).trim() || '#5a3fae');
 }
 
-function itemPrice(item, currency){
+/* The printing's own price for the finish you have (the other finish if that one has none). */
+function ownPrice(item, currency, foil){
   const p = item.prices || {};
-  if(currency === 'EUR') return item.foil ? (p.eurFoil ?? p.eur) : (p.eur ?? p.eurFoil);
-  return item.foil ? (p.usdFoil ?? p.usd) : (p.usd ?? p.usdFoil);
+  if(foil === undefined) foil = item.foil;
+  const v = currency === 'EUR' ? (foil ? (p.eurFoil ?? p.eur) : (p.eur ?? p.eurFoil)) : (foil ? (p.usdFoil ?? p.usd) : (p.usd ?? p.usdFoil));
+  return v == null ? null : v;
+}
+function itemPrice(item, currency){
+  const own = ownPrice(item, currency);
+  return own != null ? own : itemPriceInfo(item, currency).value;
+}
+/* ----- printings without a price -----
+   Scryfall has no Cardmarket price for some printings: ones just released or not out yet, many promos,
+   Secret Lair, The List… and no price at all for cards in other languages. Then we estimate, and the
+   price shows with "≈":
+   1) the same printing's price in the other shop (TCGplayer ↔ Cardmarket), scaled by how the two shops
+      compare across your own collection;
+   2) otherwise the cheapest printing of the same card (looked up once a day). */
+let fxMemo = null;
+function marketRatio(currency){ // € per $ seen in your collection (or the inverse)
+  if(!fxMemo || fxMemo.n !== state.cards.length || Date.now() - fxMemo.at > 60000){
+    const r = [];
+    state.cards.forEach(function(c){ const pr = c.prices || {}; if(pr.eur > 0.3 && pr.usd > 0.3) r.push(pr.eur / pr.usd); });
+    r.sort(function(a, b){ return a - b; });
+    const med = r.length >= 15 ? r[Math.floor(r.length / 2)] : 0.85;
+    fxMemo = {n: state.cards.length, at: Date.now(), eurPerUsd: Math.min(1.3, Math.max(0.5, med))};
+  }
+  return currency === 'EUR' ? fxMemo.eurPerUsd : 1 / fxMemo.eurPerUsd;
+}
+function itemPriceInfo(item, currency, foil){
+  if(foil === undefined) foil = item.foil;
+  const own = ownPrice(item, currency, foil);
+  if(own != null) return {value: own};
+  const other = ownPrice(item, currency === 'EUR' ? 'USD' : 'EUR', foil);
+  if(other != null) return {value: Math.round(other * marketRatio(currency) * 100) / 100, est: 'fx'};
+  const r = item.refPrice;
+  if(r){
+    const k = currency === 'EUR' ? 'eur' : 'usd';
+    const v = foil && r[k+'Foil'] != null ? r[k+'Foil'] : (r[k] != null ? r[k] : r[k+'Foil']);
+    if(v != null) return {value: v, est: 'ref', setName: r.setName || (r.set || '').toUpperCase()};
+  }
+  return {value: null};
+}
+function priceEstText(info, currency){
+  const shop = currency === 'EUR' ? 'Cardmarket' : 'TCGplayer', other = currency === 'EUR' ? 'TCGplayer' : 'Cardmarket';
+  return info.est === 'fx'
+    ? 'Precio estimado: Scryfall aún no tiene el de '+shop+' para esta edición; calculado con su precio en '+other
+    : 'Precio estimado: Scryfall no tiene precio para esta edición; es el de la edición más barata'+(info.setName ? ' ('+info.setName+')' : '');
+}
+/* the price as shown in a list: "≈ 1,20 €" (muted) when it's an estimate */
+function priceTagHTML(item){
+  const cur = state.settings.currency;
+  const info = itemPriceInfo(item, cur);
+  return info.est ? '<span class="price-est" title="'+esc(priceEstText(info, cur))+'">≈ '+fmtMoney(info.value, cur)+'</span>' : fmtMoney(info.value, cur);
+}
+function hasNoPrice(c){ const pr = c.prices || {}; return pr.eur == null && pr.eurFoil == null && pr.usd == null && pr.usdFoil == null; }
+function pricesFromCard(card){
+  const pr = (card && card.prices) || {};
+  return {eur: toNum(pr.eur), eurFoil: toNum(pr.eur_foil != null ? pr.eur_foil : pr.eur_etched), usd: toNum(pr.usd), usdFoil: toNum(pr.usd_foil != null ? pr.usd_foil : pr.usd_etched)};
+}
+/* the cheapest real printing of a card in each shop and finish (none unreleased, digital, oversized…) */
+async function referencePrices(name){
+  const r = await scryGetJSON(SCRYFALL+'/cards/search?unique=prints&q='+encodeURIComponent('!"'+String(name).split(' // ')[0].replace(/"/g, '')+'"'));
+  if(r.offline || (!r.ok && !(r.j && r.j.status === 404))) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const best = {eur: null, eurFoil: null, usd: null, usdFoil: null, set: null, setName: null, at: Date.now()};
+  (r.j.data || []).forEach(function(c){
+    if(c.digital || c.oversized || c.border_color === 'gold' || c.set_type === 'memorabilia' || (c.released_at && c.released_at > today)) return;
+    const pr = pricesFromCard(c);
+    ['eur', 'eurFoil', 'usd', 'usdFoil'].forEach(function(k){
+      if(pr[k] != null && (best[k] == null || pr[k] < best[k])){ best[k] = pr[k]; if(k === 'eur'){ best.set = c.set; best.setName = c.set_name; } }
+    });
+  });
+  return best;
+}
+/* Fill in what Scryfall left empty: for a card in another language, the price of the same printing in
+   English (exact); if there's still nothing, the cheapest printing (an estimate). Returns the cards changed. */
+const MISSING_PRICE_RETRY_MS = 20*3600*1000;
+async function fillMissingPrices(items, twins){
+  const changed = new Set();
+  if(navigator.onLine === false) return changed;
+  const todo = items.filter(function(c){ return hasNoPrice(c) || (twins && twins.has(c)); });
+  if(!todo.length) return changed;
+  // 1) the same set and number: /cards/collection answers with the English printing
+  const withNum = todo.filter(function(c){ return c.setCode && c.collectorNumber; });
+  for(let i = 0; i < withNum.length; i += 75){
+    const chunk = withNum.slice(i, i+75);
+    const ids = [], seen = {};
+    chunk.forEach(function(c){ const k = c.setCode.toLowerCase()+'|'+c.collectorNumber; if(!seen[k]){ seen[k] = 1; ids.push({set: c.setCode.toLowerCase(), collector_number: String(c.collectorNumber)}); } });
+    try{
+      const r = await fetch(SCRYFALL+'/cards/collection', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({identifiers: ids})});
+      if(!r.ok) break;
+      const j = await r.json();
+      const by = {};
+      (j.data || []).forEach(function(card){ by[card.set+'|'+card.collector_number] = card; });
+      chunk.forEach(function(c){
+        const card = by[c.setCode.toLowerCase()+'|'+c.collectorNumber];
+        if(!card) return;
+        const pr = pricesFromCard(card), op = c.prices || {};
+        if(!hasNoPrice({prices: pr}) && (pr.eur !== op.eur || pr.eurFoil !== op.eurFoil || pr.usd !== op.usd || pr.usdFoil !== op.usdFoil)){ c.prices = pr; delete c.refPrice; changed.add(c); }
+      });
+    }catch(e){ return changed; }
+    await sleep(110);
+  }
+  // 2) still nothing: the cheapest printing of the same card (one lookup per name, at most 40 per run)
+  const need = {};
+  items.forEach(function(c){
+    if(!hasNoPrice(c) || (c.refPrice && Date.now() - (c.refPrice.at || 0) < MISSING_PRICE_RETRY_MS)) return;
+    (need[c.name] = need[c.name] || []).push(c);
+  });
+  const names = Object.keys(need).slice(0, 40);
+  for(let i = 0; i < names.length; i++){
+    const ref = await referencePrices(names[i]);
+    if(!ref) break; // offline / Scryfall down: try another day
+    need[names[i]].forEach(function(c){ c.refPrice = ref; changed.add(c); });
+    if(i < names.length - 1) await sleep(120);
+  }
+  return changed;
+}
+/* new cards without a price (or ones not checked today) are looked at a moment after they're added */
+let missingPriceTimer = 0, missingPriceRunning = false;
+function scheduleMissingPriceCheck(){
+  clearTimeout(missingPriceTimer);
+  missingPriceTimer = setTimeout(async function(){
+    if(missingPriceRunning || navigator.onLine === false) return;
+    const now = Date.now();
+    const items = state.cards.filter(function(c){ return hasNoPrice(c) && (!c.priceCheckedAt || now - c.priceCheckedAt > MISSING_PRICE_RETRY_MS); });
+    if(!items.length) return;
+    missingPriceRunning = true;
+    try{
+      const changed = await fillMissingPrices(items);
+      items.forEach(function(c){ c.priceCheckedAt = now; });
+      await dbPutMany('cards', items);
+      if(changed.size){ renderCollection(); if(typeof scheduleTodaySnapshot === 'function') scheduleTodaySnapshot(); }
+    } finally { missingPriceRunning = false; }
+  }, 2500);
 }
 
 /* ---------- Set symbol icons ----------
@@ -2330,7 +2578,7 @@ function cardRowHTML(c){
         '</div>'+
       '</div>'+
       '<div class="card-value">'+
-        '<div class="price">'+fmtMoney(price, state.settings.currency)+'</div>'+
+        '<div class="price">'+priceTagHTML(c)+'</div>'+
         '<div class="qty-stepper">'+
           '<button class="qty-btn" data-action="dec-qty" data-id="'+c.id+'" aria-label="Restar unidad">'+icon('minus',13)+'</button>'+
           '<span class="qty-val">'+c.quantity+'</span>'+
@@ -2357,7 +2605,7 @@ function cardGridItemHTML(c){
       '<div class="gname">'+esc(c.name)+'</div>'+
       '<div class="gsub">'+
         '<span class="gsetnum">'+setIconSpanHTML(c.setCode, c.rarity)+esc((c.setCode||'').toUpperCase())+' #'+esc(c.collectorNumber)+'</span>'+
-        '<span class="gprice">'+fmtMoney(price, state.settings.currency)+'</span>'+
+        '<span class="gprice">'+priceTagHTML(c)+'</span>'+
       '</div>'+
     '</div>'
   );
@@ -2366,21 +2614,66 @@ function emptyStateHTML(iconName, text, ctaHTML){
   return '<div class="empty-state">'+icon(iconName,40)+'<p>'+text+'</p>'+(ctaHTML||'')+'</div>';
 }
 let lastRenderedCardList = [];
-function renderCardsInto(container, items, emptyHTML){
+/* Drawing every row of a big collection at once (3000 rows ≈ 80 000 elements) took seconds on a phone
+   and every later change paid for it again. Now the first rows are drawn at once and the rest in pieces
+   as you scroll towards them. Redrawing the same list (a card edited, prices updated…) keeps the rows
+   you had already scrolled through, so the page doesn't jump. */
+const LIST_FIRST = 40, LIST_STEP = 120;
+function renderCardsInto(container, items, emptyHTML, ctx){
   lastRenderedCardList = items;
   buildDeckIndex();
+  if(container._io){ container._io.disconnect(); container._io = null; }
+  const prev = container._list;
+  container._list = null;
   if(items.length === 0){
     container.className = '';
     container.innerHTML = emptyHTML;
     return;
   }
-  if(state.settings.viewMode === 'grid'){
-    container.className = 'card-grid';
-    container.innerHTML = items.map(cardGridItemHTML).join('');
-  } else {
-    container.className = '';
-    container.innerHTML = items.map(cardRowHTML).join('');
+  const grid = state.settings.viewMode === 'grid';
+  const html = grid ? cardGridItemHTML : cardRowHTML;
+  container.className = grid ? 'card-grid' : '';
+  const keep = ctx != null && prev && prev.ctx === ctx && prev.grid === grid ? prev.shown : 0;
+  const first = Math.min(items.length, Math.max(LIST_FIRST, keep));
+  container.innerHTML = items.slice(0, first).map(html).join('');
+  container._list = {items: items, html: html, shown: first, ctx: ctx, grid: grid};
+  if(first < items.length) listMoreOnScroll(container);
+}
+function listMoreOnScroll(container){
+  const sentinel = document.createElement('div');
+  sentinel.className = 'list-more';
+  container.appendChild(sentinel);
+  if(typeof IntersectionObserver === 'undefined'){ renderListMore(container, Infinity); return; }
+  const io = new IntersectionObserver(function(entries){
+    if(entries.some(function(e){ return e.isIntersecting; })) renderListMore(container);
+  }, {root: container.closest('.detail-body'), rootMargin: '1500px 0px'});
+  io.observe(sentinel);
+  container._io = io;
+}
+/* draw the next piece (or up to a given row) */
+function renderListMore(container, upTo){
+  const L = container._list;
+  if(!L || L.shown >= L.items.length) return;
+  const end = Math.min(L.items.length, Math.max(L.shown + LIST_STEP, upTo || 0));
+  const sentinel = container.querySelector(':scope > .list-more');
+  const chunk = L.items.slice(L.shown, end).map(L.html).join('');
+  if(sentinel) sentinel.insertAdjacentHTML('beforebegin', chunk); else container.insertAdjacentHTML('beforeend', chunk);
+  L.shown = end;
+  if(end >= L.items.length){
+    if(container._io){ container._io.disconnect(); container._io = null; }
+    if(sentinel) sentinel.remove();
+  } else if(container._io && sentinel){
+    container._io.unobserve(sentinel); container._io.observe(sentinel); // still in view after a fast scroll: one more
   }
+}
+/* the row of a card, drawing the list up to it if needed (e.g. to scroll to a card just added) */
+function cardRowEl(container, id){
+  let el = container.querySelector('[data-id="'+id+'"]');
+  if(!el && container._list){
+    const i = container._list.items.findIndex(function(c){ return c.id === id; });
+    if(i > -1){ renderListMore(container, i + 1); el = container.querySelector('[data-id="'+id+'"]'); }
+  }
+  return el;
 }
 /* ---------- Opening-hand playtest ----------
    Shuffle the deck (commanders stay in the command zone), deal 7 with a flip animation,
@@ -2953,7 +3246,8 @@ function renderCollection(){
   else if(filterVal) emptyHTML = alsoCount ? '<div class="search-none">'+icon('search',15)+' No está en tu colección — pero sí aquí abajo:</div>'
                  : emptyStateHTML('search','No hay cartas que coincidan con "'+esc(filterVal)+'" ni en tu colección, ni en tus mazos, ni en tus deseos.');
   else emptyHTML = emptyStateHTML('book','Tu colección está vacía todavía.<br>Pulsa el botón + para añadir la primera.');
-  renderCardsInto(container, items, emptyHTML);
+  renderCardsInto(container, items, emptyHTML, filterVal+'|'+JSON.stringify(state.settings.sort || '')+'|'+JSON.stringify(state.cf || ''));
+  if(state.cards.some(hasNoPrice)) scheduleMissingPriceCheck();
   collectionDrawn = {sig: viewSig(filterVal+'|'+JSON.stringify(state.cf || '')), list: items};
   renderAlsoIn(also);
   renderActiveFilters();
@@ -2972,8 +3266,23 @@ async function changeQty(id, delta){
   } else {
     item.quantity = newQty;
     await dbPut('cards', item);
+    if(updateCardRowInPlace(item)) return;
   }
   renderCollection();
+}
+function updateCardRowInPlace(item){
+  const list = document.getElementById('collectionList');
+  const row = list && list.querySelector('.card-row[data-id="'+item.id+'"], .card-grid-item[data-id="'+item.id+'"]');
+  if(!row) return false;
+  const q = row.querySelector('.qty-val'); if(q) q.textContent = item.quantity;
+  const g = row.querySelector('.gqty'); if(g) g.textContent = '×'+item.quantity;
+  renderStats();
+  if(typeof collectionDrawn !== 'undefined' && collectionDrawn && typeof viewSig === 'function'){
+    // the list on screen is still right: coming back to the tab doesn't need a redraw
+    const fv = document.getElementById('collectionFilterInput').value.trim().toLowerCase();
+    collectionDrawn.sig = viewSig(fv+'|'+JSON.stringify(state.cf || ''));
+  }
+  return true;
 }
 
 /* ---------- Add-card flow ---------- */
@@ -3044,12 +3353,17 @@ function viewerPrice(normal, foilP, isFoil, qty){
   if(qty > 1) sub.push('×'+qty+' = '+fmtMoney(unit*qty, cur));
   return {main: fmtMoney(unit, cur), foil: !!isFoil, sub: sub.join(' · ')};
 }
+function viewerEstPrice(c){
+  const cur = state.settings.currency, info = itemPriceInfo(c, cur);
+  if(info.value == null) return null;
+  return {main: '≈ '+fmtMoney(info.value, cur), foil: !!c.foil, sub: (info.est === 'fx' ? 'Estimado con el precio de '+(cur === 'EUR' ? 'TCGplayer' : 'Cardmarket') : 'Estimado: edición más barata'+(info.setName ? ' ('+info.setName+')' : ''))+(c.quantity > 1 ? ' · ×'+c.quantity+' = '+fmtMoney(info.value*c.quantity, cur) : '')};
+}
 function viewerItemFromCollection(c){
   const p = c.prices || {}, usd = state.settings.currency === 'USD';
   return {
     name: c.name, img: c.imageNormal || c.imageSmall, foil: !!c.foil, etched: !!c.foil && etchedOnly(c.finishes), colors: c.colors || [],
     set: {code: c.setCode, name: c.setName, rarity: c.rarity, number: c.collectorNumber, lang: c.lang},
-    price: viewerPrice(usd ? p.usd : p.eur, usd ? p.usdFoil : p.eurFoil, c.foil, c.quantity),
+    price: viewerPrice(usd ? p.usd : p.eur, usd ? p.usdFoil : p.eurFoil, c.foil, c.quantity) || viewerEstPrice(c),
     sub: '', meta: '',
     back: c.imageBack !== undefined ? c.imageBack : (/ \/\/ /.test(c.name) ? undefined : null),
     loadBack: async function(){
@@ -3728,7 +4042,12 @@ function sheetPriceHTML(card, foil, qty){
   const p = card.prices || {};
   const normal = toNum(usd ? p.usd : p.eur), foilP = toNum(usd ? p.usd_foil : p.eur_foil);
   const unit = foil ? (foilP != null ? foilP : normal) : (normal != null ? normal : foilP);
-  if(unit == null) return '<span class="sp-main sp-none">Sin precio</span>';
+  if(unit == null){
+    const est = card._item ? itemPriceInfo(card._item, cur, !!foil) : {value: null};
+    if(est.value == null) return '<span class="sp-main sp-none">Sin precio</span>';
+    return '<span class="sp-main sp-est">≈ '+fmtMoney(est.value, cur)+(foil ? ' <span class="sp-tag">Foil</span>' : '')+'</span>'+
+      '<span class="sp-sub">'+esc(priceEstText(est, cur))+(qty > 1 ? ' · ×'+qty+' = '+fmtMoney(est.value * qty, cur) : '')+'</span>';
+  }
   const sub = [];
   if(foil && normal != null) sub.push('Normal: '+fmtMoney(normal, cur));
   if(!foil && foilP != null) sub.push('Foil: '+fmtMoney(foilP, cur));
@@ -4046,10 +4365,10 @@ function openEditCardModal(id){
   const pseudoCard = {
     id: item.scryfallId, name: item.name, set: item.setCode, set_name: item.setName, collector_number: item.collectorNumber,
     rarity: item.rarity, lang: item.lang, released_at: item.releasedAt,
-    _pseudo: true,
+    _pseudo: true, _item: item,
     image_uris: {small: item.imageSmall, normal: item.imageNormal || item.imageSmall},
     prices: {eur: item.prices.eur, eur_foil: item.prices.eurFoil, usd: item.prices.usd, usd_foil: item.prices.usdFoil},
-    finishes: item.foil ? ['nonfoil','foil'] : (item.prices.eurFoil||item.prices.usdFoil ? ['nonfoil','foil'] : ['nonfoil'])
+    finishes: item.finishes || (item.foil ? ['nonfoil','foil'] : (item.prices.eurFoil||item.prices.usdFoil ? ['nonfoil','foil'] : ['nonfoil']))
   };
   openAddDetailsModal(pseudoCard, item);
 }
@@ -4217,13 +4536,13 @@ async function scanSearchToQueue(text){
     let prints = await scryPrintsByName(text);
     let card;
     if(prints.length){
-      card = prints[0]; // scryPrintsByName sorts released desc: the newest printing
+      card = pickDefaultPrinting(prints); // the newest printing that's already out and has a price
     } else {
       // No exact match (likely imperfect OCR text) — fall back to a fuzzy name
       // match, then still prefer that card's most recent printing.
       const fuzzy = await scryFuzzy(text);
       const reprints = await scryPrintsByName(fuzzy.name);
-      card = reprints.length ? reprints[0] : fuzzy;
+      card = pickDefaultPrinting(reprints) || fuzzy;
     }
     const item = addToScanQueue(card);
     toast('"'+card.name+'" ('+(card.set_name||card.set||'')+')'+(item.quantity>1?' ×'+item.quantity:'')+' — '+state.scanQueue.length+' escaneada(s)');
@@ -4989,9 +5308,16 @@ function openFormatFolder(k){
   if(grid) grid.addEventListener('click', function(e){ const t = e.target.closest('[data-action="open-deck"]'); if(t) openDeckDetailNav(t.dataset.id); });
   ensureFormatArt();
 }
+let ownedIdx = null;
 function ownedQtyForName(name){
-  const n = name.toLowerCase();
-  return state.cards.filter(function(c){ return c.name.toLowerCase()===n; }).reduce(function(a,c){ return a+c.quantity; },0);
+  const rev = typeof dataRev !== 'undefined' ? dataRev : -1;
+  if(rev < 0 || !ownedIdx || ownedIdx.rev !== rev || ownedIdx.cards !== state.cards || ownedIdx.n !== state.cards.length){
+    if(rev < 0) return state.cards.filter(function(c){ return c.name.toLowerCase()===name.toLowerCase(); }).reduce(function(a,c){ return a+c.quantity; },0);
+    const m = new Map();
+    state.cards.forEach(function(c){ const k = c.name.toLowerCase(); m.set(k, (m.get(k) || 0) + (c.quantity || 0)); });
+    ownedIdx = {rev: rev, cards: state.cards, n: state.cards.length, m: m};
+  }
+  return ownedIdx.m.get(name.toLowerCase()) || 0;
 }
 function curveHTML(deck){
   const buckets = [0,0,0,0,0,0,0,0]; // 0,1,2,3,4,5,6,7+
@@ -5177,7 +5503,7 @@ function deckValue(deck, currency){
 }
 function decksTotals(){
   let eur = 0, usd = 0, copies = 0;
-  state.decks.forEach(function(d){ eur += deckValue(d, 'EUR').value; usd += deckValue(d, 'USD').value; copies += deckValue(d, 'EUR').copies; });
+  state.decks.forEach(function(d){ const e = deckValue(d, 'EUR'); eur += e.value; usd += deckValue(d, 'USD').value; copies += e.copies; });
   return {eur: Math.round(eur*100)/100, usd: Math.round(usd*100)/100, copies: copies, count: state.decks.length};
 }
 function grandTotal(currency){
@@ -6135,6 +6461,7 @@ function renderSettings(){
   document.querySelectorAll('#currencySegmented button').forEach(function(b){ b.classList.toggle('active', b.dataset.currency===state.settings.currency); });
   const sp = document.getElementById('splashToggle'); if(sp) sp.checked = state.settings.splash !== false;
   const fx = document.getElementById('cardFxToggle'); if(fx) fx.checked = cardFxOn();
+  const gl = document.getElementById('glassToggle'); if(gl) gl.checked = !!state.settings.glass;
 }
 /* Replays the intro from Ajustes (works even when it's switched off for app start). */
 function replaySplash(){
@@ -6227,20 +6554,25 @@ async function refreshPricesBatch(onProgress){
     if(i+75 < ids.length) await sleep(110);
   }
   if(ids.length && !reached) return false;
-  const changed = [];
+  const changed = [], twins = new Set();
   state.cards.forEach(function(item){
     const card = byId[item.scryfallId];
     if(!card || !card.prices) return;
-    const np = {eur: toNum(card.prices.eur), eurFoil: toNum(card.prices.eur_foil), usd: toNum(card.prices.usd), usdFoil: toNum(card.prices.usd_foil)};
+    const np = pricesFromCard(card);
     const op = item.prices || {};
     let dirty = false;
-    if(np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil){ item.prices = np; dirty = true; }
+    // Scryfall has no prices for cards in other languages: keep the English one we found for it
+    const keep = card.lang && card.lang !== 'en' && hasNoPrice({prices: np});
+    if(keep) twins.add(item);
+    if(!keep && (np.eur !== op.eur || np.eurFoil !== op.eurFoil || np.usd !== op.usd || np.usdFoil !== op.usdFoil)){ item.prices = np; dirty = true; }
+    if(!hasNoPrice({prices: np}) && item.refPrice){ delete item.refPrice; dirty = true; }
     // the same response has the mana cost and the back face: fill them in for older cards
     const cost = cardManaCost(card);
     if(cost && item.manaCost !== cost){ item.manaCost = cost; dirty = true; }
     if(item.imageBack === undefined && (card.card_faces || card.image_uris)){ item.imageBack = faceBackUrl(card); dirty = true; }
     if(dirty) changed.push(item);
   });
+  (await fillMissingPrices(state.cards, twins)).forEach(function(c){ if(changed.indexOf(c) < 0) changed.push(c); });
   if(changed.length) await dbPutMany('cards', changed);
   const decksOk = await refreshDeckPrices(false);
   if(!ids.length && !decksOk) return false;
@@ -6282,7 +6614,7 @@ async function autoRefreshPricesDaily(){
 const VH_RANGES = [{key:'7D', label:'7 días', days:7}, {key:'1M', label:'1 mes', days:30}, {key:'3M', label:'3 meses', days:91}, {key:'1A', label:'1 año', days:365}, {key:'ALL', label:'Todo', days:null}];
 let vhRange = '1M';
 function fmtCompactMoney(v, currency){
-  try{ return new Intl.NumberFormat('es-ES',{style:'currency',currency:currency,maximumFractionDigits:0}).format(v); }catch(e){ return Math.round(v)+' '+currency; }
+  try{ return (MONEY_FMT0[currency] = MONEY_FMT0[currency] || new Intl.NumberFormat('es-ES',{style:'currency',currency:currency,maximumFractionDigits:0})).format(v); }catch(e){ return Math.round(v)+' '+currency; }
 }
 function fmtShortDate(d){ return d.toLocaleDateString('es-ES',{day:'numeric', month:'short'}); }
 function niceStep(range, count){
@@ -7349,8 +7681,11 @@ function sortedWishlist(){
   return state.wishlist.slice().sort(function(a,b){ return (b.addedAt||0) - (a.addedAt||0); });
 }
 function wishPrice(w){
-  const p = w.prices || {};
-  return state.settings.currency === 'USD' ? p.usd : p.eur;
+  const p = w.prices || {}, usd = state.settings.currency === 'USD';
+  const v = usd ? p.usd : p.eur;
+  if(v != null) return v;
+  const o = usd ? p.eur : p.usd;
+  return o != null ? Math.round(o * marketRatio(state.settings.currency) * 100) / 100 : v;
 }
 function wishRowHTML(w){
   const owned = ownedQtyForName(w.name);
@@ -7958,6 +8293,7 @@ function showDetailPanel(panel, key){
   panel.dataset.key = key;
   panel.classList.toggle('hero-mode', !!panel.querySelector('.deck-hero'));
   if(!same) panel.classList.remove('header-solid');
+  const wasHidden = panel.hidden;
   panel.hidden = false;
   const body = panel.querySelector('.detail-body');
   if(same){
@@ -7969,7 +8305,9 @@ function showDetailPanel(panel, key){
   } else {
     detailScrollMemo = 0;
     if(!prefersReducedMotion()){
-      panel.classList.remove('entering'); void panel.offsetWidth; panel.classList.add('entering');
+      panel.classList.remove('entering');
+      if(wasHidden || leaving) panel.classList.add('entering'); // just shown (or was sliding out): it starts by itself
+      else requestAnimationFrame(function(){ panel.classList.add('entering'); });
       panel.addEventListener('animationend', function done(){ panel.classList.remove('entering'); panel.removeEventListener('animationend', done); });
     }
   }
@@ -9125,20 +9463,20 @@ function moveTabIndicator(tab, animate){
   const ind = nav && nav.querySelector('.tab-indicator');
   const btn = nav && nav.querySelector('.tab-btn[data-tab="'+tab+'"]');
   if(!ind || !btn) return;
-  const w = Math.min(56, btn.offsetWidth - 8);
+  const btns = Array.prototype.slice.call(nav.querySelectorAll('.tab-btn'));
+  nav.style.setProperty('--tabs', btns.length);
   if(!animate) ind.style.transition = 'none';
-  ind.style.width = w+'px';
-  ind.style.transform = 'translateX('+(btn.offsetLeft + (btn.offsetWidth - w)/2)+'px)';
-  if(!animate){ void ind.offsetWidth; ind.style.transition = ''; }
+  ind.style.setProperty('--ti', btns.indexOf(btn));
+  if(!animate) requestAnimationFrame(function(){ requestAnimationFrame(function(){ ind.style.transition = ''; }); });
 }
 function animateTabEnter(tab, prevTab){
   const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
   moveTabIndicator(tab, true);
   if(prefersReducedMotion() || tab === prevTab) return;
-  if(btn){ btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
+  if(btn){ btn.classList.remove('pop'); requestAnimationFrame(function(){ btn.classList.add('pop'); }); }
   const panel = document.querySelector('.tab-panel[data-tab="'+tab+'"]');
   if(!panel) return;
-  panel.classList.remove('enter-left','enter-right','stagger'); void panel.offsetWidth;
+  panel.classList.remove('enter-left','enter-right','stagger'); // it was hidden: the animation starts when it's shown
   panel.classList.add(TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prevTab) ? 'enter-right' : 'enter-left');
   clearTimeout(panel._animT);
   panel._animT = setTimeout(function(){ panel.classList.remove('enter-left','enter-right','stagger'); }, 950);
@@ -9339,6 +9677,9 @@ async function init(){
     toast(e.target.checked ? 'La animación saldrá al abrir la app' : 'La app se abrirá sin animación');
   });
   document.getElementById('splashReplayBtn').addEventListener('click', replaySplash);
+  document.getElementById('glassToggle').addEventListener('change', function(e){
+    state.settings.glass = e.target.checked; saveSettings(); applyTheme();
+  });
   document.getElementById('cardFxToggle').addEventListener('change', function(e){
     state.settings.cardFx = e.target.checked; saveSettings();
     document.documentElement.classList.toggle('no-card-fx', !e.target.checked);
@@ -9449,10 +9790,11 @@ async function init(){
     const w = state.wishlist.find(function(x){ return x.id === row.dataset.wishId; });
     if(w) startAddFlow(w.name);
   });
-  renderWishlist();
+  if(state.tab === 'wishlist') renderWishlist(); // drawn when you first open Deseos
 
   if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+    const regSW = function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); };
+    if(document.readyState === 'complete') regSW(); else window.addEventListener('load', regSW);
   }
 
   pushNavGuard();
